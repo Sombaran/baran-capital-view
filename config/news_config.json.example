@@ -1,0 +1,24 @@
+{
+  "api_keys": [
+    {
+      "method": "query",
+      "param": "apiKey",
+      "env": "NEWSAPI_KEY",
+      "endpoint": "https://newsapi.org/v2/everything"
+    },
+    {
+      "method": "query",
+      "param": "token",
+      "env": "GNEWS_TOKEN",
+      "endpoint": "https://gnews.io/api/v4/search"
+    },
+    {
+      "method": "header",
+      "param": "X-RapidAPI-Key",
+      "env": "RAPIDAPI_KEY",
+      "endpoint": "https://moneycontrol.p.rapidapi.com/search",
+      "headers": {"X-RapidAPI-Host": "moneycontrol.p.rapidapi.com"}
+    }
+  ],
+  "query_suffix": "India stock OR Indian market OR NSE OR BSE OR Sensex OR Nifty"
+}

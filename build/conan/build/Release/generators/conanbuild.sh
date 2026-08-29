@@ -1,0 +1,1 @@
+. "/home/ritup2404/baran-capital-view/build/conan/build/Release/generators/conanbuildenv-release-x86_64.sh"

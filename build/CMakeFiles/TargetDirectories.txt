@@ -1,0 +1,7 @@
+/home/ritup2404/baran-capital-view/build/CMakeFiles/portfolio_health.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/run.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/run-csv.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/run-json.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/run-live.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/edit_cache.dir
+/home/ritup2404/baran-capital-view/build/CMakeFiles/rebuild_cache.dir

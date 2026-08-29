@@ -1,0 +1,5 @@
+{
+  "upstox": {
+    "base_url": "https://api.upstox.com"
+  }
+}

@@ -1,0 +1,4 @@
+# Deeper analysis news and optional transformer sentiment
+requests>=2.31.0
+transformers>=4.0.0
+torch

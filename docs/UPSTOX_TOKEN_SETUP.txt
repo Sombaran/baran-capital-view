@@ -1,0 +1,147 @@
+============================================================
+  How to set up UPSTOX_ACCESS_TOKEN for portfolio_health
+============================================================
+
+The tool reads the Upstox access token from the environment variable
+UPSTOX_ACCESS_TOKEN. It is required for:
+
+  * live mode              (./build/portfolio_health)
+  * --fetch-ltp mode       (fills last_price from Upstox market quotes)
+
+It is NOT required for:
+
+  * --portfolio <file>     (analyse a portfolio you describe yourself)
+  * --file <path>          (offline replay of a saved broker payload)
+
+
+------------------------------------------------------------
+1. Get an access token from Upstox
+------------------------------------------------------------
+
+1a. Sign in at the Upstox developer console and create an app:
+
+      https://account.upstox.com/developer/apps
+
+    Note the API Key (client_id), API Secret (client_secret),
+    and the Redirect URI you registered.
+
+1b. Open the authorization URL in a browser and log in with your
+    trading account:
+
+      https://api.upstox.com/v2/login/authorization/dialog?client_id=<API_KEY>&redirect_uri=<REDIRECT_URI>&response_type=code
+
+    After approval Upstox redirects to:
+
+      <REDIRECT_URI>?code=<AUTH_CODE>
+
+    Copy the code value from the URL bar.
+
+1c. Exchange the code for an access token. Do NOT paste secrets on
+    the command line - read them into shell variables instead:
+
+      read -rs API_KEY;    echo    # paste API key,  press Enter
+      read -rs API_SECRET; echo    # paste secret,   press Enter
+      read -rs AUTH_CODE;  echo    # paste the code, press Enter
+      read -r  REDIRECT;   echo    # paste redirect URI
+
+      curl -s -X POST https://api.upstox.com/v2/login/authorization/token \
+           -H 'Accept: application/json' \
+           -H 'Content-Type: application/x-www-form-urlencoded' \
+           -d "code=$AUTH_CODE" \
+           -d "client_id=$API_KEY" \
+           -d "client_secret=$API_SECRET" \
+           -d "redirect_uri=$REDIRECT" \
+           -d "grant_type=authorization_code" | jq -r .access_token
+
+    That prints a long string starting with 'eyJhbGciOi...'.
+    That is your token.
+
+    Tokens are valid until 03:30 IST on the next trading day, so
+    you must redo this daily unless you automate refresh.
+
+
+------------------------------------------------------------
+2. Export it in your current shell
+------------------------------------------------------------
+
+    export UPSTOX_ACCESS_TOKEN="eyJhbGciOi..."
+
+Verify (only prints the length, not the value):
+
+    [[ -n "$UPSTOX_ACCESS_TOKEN" ]] && echo "token set (${#UPSTOX_ACCESS_TOKEN} chars)"
+
+Run the tool live:
+
+    cd /home/lwadmin/Q2/myFolio
+    ./build/portfolio_health                                       # live account
+    ./build/portfolio_health --portfolio config/my_portfolio.csv --fetch-ltp
+
+
+------------------------------------------------------------
+3. Persist it across sessions (recommended)
+------------------------------------------------------------
+
+Put it in a chmod 600 file that you source when needed. Never in
+~/.bashrc - that leaks into every subshell and gets logged.
+
+    umask 077
+    cat > ~/.upstox.env <<'EOF'
+    export UPSTOX_ACCESS_TOKEN="eyJhbGciOi..."
+    EOF
+    chmod 600 ~/.upstox.env
+
+Use it:
+
+    . ~/.upstox.env
+    ./build/portfolio_health
+
+Shell notes:
+    bash / zsh  : use  .  or  source
+    fish        : set -x UPSTOX_ACCESS_TOKEN "eyJhbGciOi..."
+
+
+------------------------------------------------------------
+4. Sanity checks
+------------------------------------------------------------
+
+    [[ -n "${UPSTOX_ACCESS_TOKEN:-}" ]] &&
+      printf 'token set (%s chars)\n' "${#UPSTOX_ACCESS_TOKEN}"
+      Confirms it is exported without printing the token.
+
+  ./build/portfolio_health
+      If the token is stale you will see:
+        HTTP 401 from Upstox: ...
+      -> redo section 1.
+
+  ./build/portfolio_health --portfolio config/my_portfolio.csv
+      Always works without a token; use this to confirm the binary
+      itself is fine.
+
+
+------------------------------------------------------------
+5. Rules of thumb
+------------------------------------------------------------
+
+  * Never commit the token to git.
+  * Never paste it in chat or issues.
+  * Never pass it on the command line - ps sees CLI args.
+    This tool reads it from the environment only.
+  * Rotate the file when the token expires. The OAuth response
+    also carries a refresh_token if you enable that flow in your
+    app settings - automate refresh if you cron the tool
+    (see docs/RunSteps.md, section 6).
+  * Behind a corporate proxy set HTTPS_PROXY in the same shell
+    before running the tool - libcurl picks it up automatically:
+
+        export HTTPS_PROXY="http://proxy.corp.example:3128"
+
+
+------------------------------------------------------------
+6. Related files in this project
+------------------------------------------------------------
+
+  docs/RunSteps.md          Full install -> build -> run walkthrough.
+  docs/API_Reference.md     Upstox endpoint contract + portfolio file
+                            format + JSON output schema.
+  config/my_portfolio.csv / .json  Ready-to-edit templates for --portfolio mode.
+  config/sample_positions.json      Offline broker payload for --file mode.
