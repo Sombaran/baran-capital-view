@@ -73,8 +73,8 @@ void finalise(Position& p) {
     if (p.lastPrice == 0.0) p.lastPrice = p.averagePrice;
     if (p.closePrice == 0.0) p.closePrice = p.lastPrice;
 
-    const double mv = p.lastPrice * p.quantity * p.multiplier;   // signed
-    p.value      = mv;
+    const double derived = p.lastPrice * p.quantity * p.multiplier; // signed
+    p.value      = (std::fabs(p.value) > 0.0) ? p.value : derived;
     p.unrealised = (p.lastPrice - p.averagePrice) * p.quantity * p.multiplier;
     p.pnl        = p.unrealised + p.realised;
     // buy_value / sell_value approximated from the net leg - only used

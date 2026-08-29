@@ -1,6 +1,6 @@
 # myFolio
 
-Version: 2.0.3
+Version: 2.0.5
 
 myFolio is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,19 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.3
+Current release: 2.0.5
+
+The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
+
+## Shared library layout
+
+The C++ build now exposes a shared library target named `portfolio_health_core` for the service implementation, while the CLI executable remains a thin runtime wrapper. This keeps the runtime entry point small, avoids duplicate translation units, and preserves the same operational behavior for the web UI and CLI.
+
+Build targets:
+
+- `portfolio_health_core` — shared library containing the portfolio, API, notification, and analytics logic
+- `portfolio_health` — executable entry point for the app and CLI commands
+- `portfolio_health_tests` — gtest regression target for the secure stock API and portfolio logic
 
 ## Build
 
@@ -31,6 +43,21 @@ Current release: 2.0.3
 cd /home/ritup2404/myFolio
 ./buildCode.sh --rebuild
 ```
+
+## Testing
+
+The project includes regression checks for both C++ and Python paths:
+
+```bash
+# C++ unit tests with gtest
+cmake --build build --target portfolio_health_tests
+ctest --test-dir build --output-on-failure
+
+# Python unit tests with pytest
+pytest -q
+```
+
+The C++ tests cover the secure symbol, quantity, and price validation helpers used by the stock order pipeline, while the Python tests cover the sentiment fallback and path resolution logic in the Deeper analysis workflow.
 
 ## Run web UI
 
@@ -62,20 +89,28 @@ This keeps the broker API and stock data behind one trusted boundary and avoids 
 
 ## Recent fix summary
 
-Version 2.0.3 includes:
+Version 2.0.5 includes:
 
-- fixed Deeper analysis Python path resolution from any working directory
-- hardened API calls for missing/expired authentication and invalid hosts
-- improved news fallback behavior when empty or stale payloads are returned
-- aligned the fundamentals popup layout on narrow screens
-- added a local-first task scheduler and async queue model for background analysis work
-- refreshed the right-side summary popup with the actual applied fix set
-- updated project documentation to reflect the current release version and design notes
+- fixed the login flow so the configured secret from `.folio_login_code` or `FOLIO_LOGIN_CODE` is trimmed, URL-decoded, and compared safely before creating a session
+- kept the release popup summary aligned to the actual patch so the right-side fix summary reflects the current code change set
+- tightened the Upstox HTTP client to validate hosts, reject unsafe redirects, and block non-HTTPS or untrusted API destinations
+- fixed Python-based deeper-analysis execution to remain portable across working directories while preserving the saved-news fallback path
+- hardened the browser and server behavior for missing, expired, or stale stock API and news responses without exposing sensitive details
+- kept the local-first architecture and async task scheduling in place to avoid broadening the broker API attack surface
+- refreshed the project documentation and versioning metadata to the x.x.x semver format used in production releases
 
 ## Project structure
 
-- src/ — C++ application implementation
-- include/ — public interfaces and models
-- design/ — architecture and release documentation
-- config/ — portfolio and service configuration
+A simple industry-style project layout for this service is:
+
+- app/ — entry points and runtime bootstrapping for the web UI and CLI
+- src/ — C++ implementation, API clients, and service logic
+- include/ — public headers and shared interfaces
+- config/ — runtime configuration and portfolio data files
+- design/ — architecture decisions, design docs, and release notes
+- docs/ — operator and developer documentation
+- scripts/ — build, run, and deployment helper scripts
+- tests/ — unit and integration checks for stability and security
 - stock_alert_nlp.py — Python analysis and news scoring utility
+
+This structure keeps the stock API boundary, executable surface, and configuration clearly separated so operational changes stay easier to reason about and audit.

@@ -14,19 +14,17 @@ metrics. The Alerts view uses long-term holdings as its authoritative row set,
 so a holding without a matching article is still represented with a neutral 
 review state.
 
-### v2.0.1 Security hardening and API safety
+### v2.0.4 Security hardening and release transparency
 
-**Stock API hardening** — The live Upstox integration now restricts all outbound
-API calls to trusted HTTPS hosts, rejects non-HTTPS URLs, and blocks arbitrary
-base URLs that could route trading traffic to untrusted destinations. The code
-validates the symbol, quantity, and price before any simulated or real order is
-accepted, and it keeps sensitive token handling inside the secure helper layer
-instead of exposing it through logs or loose config parsing.
+**Stock API hardening** — The live Upstox integration now validates the host,
+rejects non-HTTPS requests, blocks unsafe redirects, and keeps outbound traffic
+inside the trusted Upstox domains. This reduces credential leakage and prevents
+malicious host or proxy paths from being used as a route into the trading API.
 
-**Versioned release patching** — The application version now follows a semver
-pattern (`x.x.x`) and the right-side release popup calls out the applied fix in
+**Versioned release patching** — The application version follows the semver
+pattern (`x.x.x`), and the right-side release popup summarizes the fix set in
 plain language so operators can see what changed without opening the docs. The
-project is now tagged as `2.0.1` for this hardening patch.
+project is tagged as `2.0.4` for this security and release-tracking patch.
 
 ### v2.0.3 Runtime reliability, async scheduling, and browser UX hardening
 

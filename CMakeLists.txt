@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(portfolio_health VERSION 2.0.3 LANGUAGES CXX)
+project(portfolio_health VERSION 2.0.5 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(PORTFOLIO_HEALTH_ENABLE_IPO "Enable interprocedural optimization" OFF)
@@ -9,6 +9,8 @@ option(PORTFOLIO_HEALTH_ENABLE_SANITIZERS "Enable Address/Undefined sanitizers" 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+include(CTest)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
@@ -50,9 +52,8 @@ else()
   endif()
 endif()
 
-# --- Target ---------------------------------------------------------------
-add_executable(portfolio_health
-  src/main.cpp
+# --- Shared library + application targets ---------------------------------
+set(PORTFOLIO_HEALTH_CORE_SOURCES
   src/HttpClient.cpp
   src/UpstoxClient.cpp
   src/StreamingClient.cpp
@@ -68,16 +69,20 @@ add_executable(portfolio_health
   src/TaskScheduler.cpp
 )
 
-target_include_directories(portfolio_health
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+add_library(portfolio_health_core SHARED
+  ${PORTFOLIO_HEALTH_CORE_SOURCES}
 )
 
-target_compile_definitions(portfolio_health
+target_include_directories(portfolio_health_core
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_definitions(portfolio_health_core
   PRIVATE PORTFOLIO_HEALTH_VERSION="${PROJECT_VERSION}"
 )
 
-target_link_libraries(portfolio_health
-  PRIVATE
+target_link_libraries(portfolio_health_core
+  PUBLIC
     CURL::libcurl
     nlohmann_json::nlohmann_json
     Threads::Threads
@@ -85,22 +90,35 @@ target_link_libraries(portfolio_health
 
 # Link OpenSSL if available
 if(OpenSSL_FOUND)
-  target_link_libraries(portfolio_health PRIVATE OpenSSL::Crypto OpenSSL::SSL)
-  target_compile_definitions(portfolio_health PRIVATE HAVE_OPENSSL=1)
+  target_link_libraries(portfolio_health_core PUBLIC OpenSSL::Crypto OpenSSL::SSL)
+  target_compile_definitions(portfolio_health_core PRIVATE HAVE_OPENSSL=1)
 else()
   message(STATUS "OpenSSL development files not found; using libcurl TLS and portable SecureUtils fallbacks")
 endif()
 
 # Link uuid if available
 if(uuid_FOUND)
-  target_link_libraries(portfolio_health PRIVATE uuid)
-  target_compile_definitions(portfolio_health PRIVATE HAVE_UUID_H=1)
+  target_link_libraries(portfolio_health_core PUBLIC uuid)
+  target_compile_definitions(portfolio_health_core PRIVATE HAVE_UUID_H=1)
 endif()
+
+add_executable(portfolio_health
+  src/main.cpp
+)
+
+target_link_libraries(portfolio_health
+  PRIVATE portfolio_health_core
+)
+
+target_compile_definitions(portfolio_health
+  PRIVATE PORTFOLIO_HEALTH_VERSION="${PROJECT_VERSION}"
+)
 
 if(PORTFOLIO_HEALTH_ENABLE_IPO)
   include(CheckIPOSupported)
   check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
   if(ipo_supported)
+    set_property(TARGET portfolio_health_core PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     set_property(TARGET portfolio_health PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
   else()
     message(FATAL_ERROR "IPO is not supported: ${ipo_error}")
@@ -108,16 +126,48 @@ if(PORTFOLIO_HEALTH_ENABLE_IPO)
 endif()
 
 if(PORTFOLIO_HEALTH_ENABLE_SANITIZERS AND NOT MSVC)
+  target_compile_options(portfolio_health_core PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+  target_link_options(portfolio_health_core PRIVATE -fsanitize=address,undefined)
   target_compile_options(portfolio_health PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
   target_link_options(portfolio_health PRIVATE -fsanitize=address,undefined)
 endif()
 
 if(MSVC)
+  target_compile_options(portfolio_health_core PRIVATE /W4 /utf-8 /permissive-)
   target_compile_options(portfolio_health PRIVATE /W4 /utf-8 /permissive-)
+  target_compile_definitions(portfolio_health_core PRIVATE
+    _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN)
   target_compile_definitions(portfolio_health PRIVATE
     _CRT_SECURE_NO_WARNINGS NOMINMAX WIN32_LEAN_AND_MEAN)
 else()
+  target_compile_options(portfolio_health_core PRIVATE -Wall -Wextra -Wpedantic)
   target_compile_options(portfolio_health PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+if(BUILD_TESTING)
+  if(NOT TARGET GTest::gtest_main)
+    include(FetchContent)
+    FetchContent_Declare(
+      googletest
+      URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+  endif()
+
+  add_executable(portfolio_health_tests
+    tests/cpp/test_security.cpp
+  )
+
+  target_include_directories(portfolio_health_tests
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+  )
+
+  target_link_libraries(portfolio_health_tests
+    PRIVATE portfolio_health_core GTest::gtest_main
+  )
+
+  add_test(NAME portfolio_health_tests COMMAND portfolio_health_tests)
 endif()
 
 # --- Convenience run targets ---------------------------------------------

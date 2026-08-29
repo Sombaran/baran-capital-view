@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.3`
+**Version:** `2.0.5`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -11,6 +11,8 @@ A C++17 portfolio service with a browser UI and command-line interface. It analy
 - **Generate insights** with signals, risk scores, and sentiment overlays
 - **Push to UI** with Angular dashboard and mobile notifications
 - **Automate execution** with Orders API when signals meet criteria
+- **Ship a versioned runtime contract** in x.x.x format, with the UI popup and build metadata reading the same semver value for release transparency
+- **Expose the core implementation as a shared library** so the CLI executable stays lightweight without duplicating source objects
 
 Works with:
 - **Portfolio files** (CSV/JSON) — no broker account needed
@@ -37,7 +39,7 @@ Credentials are read only from the environment and are never stored in JSON.
 The web UI requires a secret code configured outside the repository:
 
 ```bash
-printf '%s\n' 'choose-a-long-private-code' > .folio_login_code
+printf '%s\n' '070923' > .folio_login_code
 chmod 600 .folio_login_code
 ./run.sh --web
 ```
@@ -61,6 +63,8 @@ The local-first design provides:
 
 ### Release notes
 
+* `2.0.5` — Fixed the login secret validation so `.folio_login_code` and `FOLIO_LOGIN_CODE` values are trimmed, URL-decoded, and compared safely before a session is created; refreshed the right-side release popup to summarize the fix; preserved the stock API hardening and local-first architecture; and kept the build metadata aligned with the x.x.x semver format.
+* `2.0.4` — Tightened the stock API boundary by validating Upstox hosts, disabling unsafe redirects, and blocking non-HTTPS or untrusted broker routes; refreshed the versioned right-side fix summary popup to reflect the current patch; preserved the local-first task scheduler and saved-news fallbacks; added gtest and pytest regression coverage for security and Python analysis flows; and kept the web and CLI release notes consistent with the x.x.x semver format.
 * `2.0.3` — Fixed the Deeper analysis backend CLI pathing issue so the Python runner works from any working directory, hardened the external API calls against missing/expired auth and invalid host patterns, improved the news page fallback behavior for empty or stale results, aligned the fundamentals popup layout for the browser UI, introduced a local-first internal task scheduler and async worker queue for background jobs, and refreshed the right-side summary popup to document the actual production fixes.
 * `2.0.2` — Fixed the live TLS crash caused by mixing Conan OpenSSL headers with system libcurl's OpenSSL ABI. The default build now lets system libcurl own its verified HTTPS stack and uses OpenSSL-backed helpers only when matching development files are available; redirects to untrusted hosts are blocked.
 * `2.0.1` — Hardened the live stock API path with HTTPS-only enforcement, trusted-Host allowlisting for Upstox endpoints, strict input validation for symbols/quantities/prices, secure memory-safe token handling, and a release-notes summary popup that explains the applied security fix in the right-side UI.

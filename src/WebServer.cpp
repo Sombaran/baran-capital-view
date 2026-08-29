@@ -61,7 +61,7 @@ std::string releaseNotice() {
     return std::string("<script>(function(){const version='") + PORTFOLIO_HEALTH_VERSION +
            R"JS(';if(localStorage.getItem('myfolio-release-seen')===version)return;const box=document.createElement('aside');box.setAttribute('role','dialog');box.setAttribute('aria-label','What is new');box.style.cssText='position:fixed;z-index:50;right:24px;top:24px;width:min(380px,calc(100% - 48px));padding:18px 20px;background:#fffdf8;color:#172126;border:1px solid #0d7774;box-shadow:0 16px 40px #17212630;font:14px/1.45 Arial,sans-serif';box.innerHTML='<button type="button" aria-label="Close release notes" style="float:right;border:0;background:transparent;color:#6b777b;font-size:22px;line-height:1;cursor:pointer">&times;</button><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#0d7774;font-weight:700">What is new · v)JS" +
            PORTFOLIO_HEALTH_VERSION +
-           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Local-first architecture and backend hardening</strong><p style="margin:8px 0 0;color:#6b777b">This patch fixes the backend Deeper analysis runner, adds a local monolith architecture with an internal task scheduler and async worker queue, keeps the stock API behind a secure boundary, and improves the browser fallback behavior when news is empty or stale.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Python CLI now resolves the project script path reliably from any working directory</li><li>Background refresh and analysis jobs are handled through a local task scheduler instead of broad distributed orchestration</li><li>Stock API calls remain HTTPS-only and trusted-host restricted</li><li>Right-side popup summary documents the actual fix set for this build</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('myfolio-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
+           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Stock API hardening and versioned release fix summary</strong><p style="margin:8px 0 0;color:#6b777b">This patch tightens the Upstox integration, keeps the release notes aligned with the current build, and preserves the local-first architecture without broadening the broker API attack surface.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Fixed the login secret flow so values stored in .folio_login_code or FOLIO_LOGIN_CODE are accepted reliably after trimming and URL decoding</li><li>Only trusted Upstox HTTPS hosts are accepted for outbound API traffic</li><li>Unsafe redirects, invalid hosts, and stale or expired broker responses are treated as secure failure states</li><li>Deeper-analysis and browser fallback logic remain operational even when saved or stale news is returned</li><li>The right-side popup summarizes the actual fixes shipped in this version</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('myfolio-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
 }
 
 const char* page() {
@@ -92,7 +92,7 @@ function toggleUpdates(){updatesPaused=!updatesPaused;document.querySelector('#p
 function fail(e){view.innerHTML='<div class="panel error">Unable to load this view: '+esc(e.message)+'</div>';status.textContent='Request failed'}
 function rows(data){return Object.entries(data).flatMap(([key,items])=>items.map(x=>({...x,instrument_key:key})))}
 async function holdings(){let p=await get('holdings','/api/holdings'),d=p.data||[];status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();let value=d.reduce((n,x)=>n+(x.last_price||0)*(x.quantity||0),0);view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>INR '+d.reduce((n,x)=>n+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>'<tr><td><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></td><td>'+x.quantity+'</td><td>'+x.average_price+'</td><td>'+x.last_price+'</td><td>'+x.pnl+'</td></tr>').join('')+'</table></div></div>'}
-async function holdings(){let p=await get('holdings','/api/holdings'),n=await get('news','/api/news'),d=p.data||[],alerts=n.alerts||[],byKey={};alerts.forEach(x=>byKey[x.instrument_key]=x);d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();let value=d.reduce((n,x)=>n+(x.last_price||0)*(x.quantity||0),0);view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((n,x)=>n+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{let key=x.instrument_token||'',a=byKey[key],items=(n.data||{})[key]||[],article=items[0],action=a?a.action:'No recent news',reason=a?a.rationale:'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(action)+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news &rarr;</a>':'<small>No related article available.</small>')+'</span></td><td>'+x.quantity+'</td><td>'+x.average_price+'</td><td>'+x.last_price+'</td><td>'+x.pnl+'</td></tr>'}).join('')+'</table></div></div>'}
+async function holdings(){let p=await get('holdings','/api/holdings'),n=await get('news','/api/news'),d=p.data||[],alerts=n.alerts||[],byKey={};alerts.forEach(x=>byKey[x.instrument_key]=x);d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();let value=d.reduce((n,x)=>n+holdingValue(x),0);view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((n,x)=>n+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{let key=x.instrument_token||'',a=byKey[key],items=(n.data||{})[key]||[],article=items[0],action=a?a.action:'No recent news',reason=a?a.rationale:'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(action)+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news &rarr;</a>':'<small>No related article available.</small>')+'</span></td><td>'+x.quantity+'</td><td>'+x.average_price+'</td><td>'+x.last_price+'</td><td>'+x.pnl+'</td></tr>'}).join('')+'</table></div></div>'}
 async function news(){let p=await get('news','/api/news'),a=rows(p.data||{}).sort((left,right)=>Number(right.published_time||0)-Number(left.published_time||0));status.textContent=a.length+' articles from holding.csv · newest first';view.innerHTML='<div class="panel"><h2>News for your holdings</h2><p>Articles matched to the symbols in <b>holding.csv</b>, newest first.</p><div class="news">'+a.map(x=>'<article class="story"><small>'+esc(x.instrument_key)+'</small><h3>'+esc(x.heading)+'</h3><p>'+esc(x.summary||'')+'</p><a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">Read article &rarr;</a></article>').join('')+'</div></div>'}
 async function alerts(){let p=await get('news','/api/news'),h=await get('holdings','/api/holdings'),a=sortByConfidence(p.alerts||[]),names={};(h.data||[]).forEach(x=>names[x.instrument_token]=x.company_name||x.trading_symbol||x.tradingsymbol||'Unknown company');status.textContent=a.length+' portfolio decisions / updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><h2>Should I add more?</h2><p>Each row combines recent news sentiment, article agreement, and recency. It is a review prompt for stocks in <b>holding.csv</b>, not an automatic trade.</p><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><div class="grid"><div class="metric"><span class="label">Consider adding</span><b>'+a.filter(x=>(x.action||'').startsWith('Consider')).length+'</b></div><div class="metric"><span class="label">Risk review</span><b>'+a.filter(x=>(x.action||'').startsWith('Do not')).length+'</b></div><div class="metric"><span class="label">Hold / wait</span><b>'+a.filter(x=>(x.action||'').startsWith('Hold')).length+'</b></div><div class="metric"><span class="label">Confidence</span><b>0 to 100%</b></div></div><p><b>Consider adding</b> means positive news deserves review. <b>Do not add</b> means negative news deserves risk review. <b>Hold / wait</b> means the signal is mixed or not confident enough. Always read the articles and check valuation before acting.</p><div class="table-wrap"><table class="table"><tr><th>Stock</th><th>Company</th><th>News score</th><th>Confidence</th><th>Decision</th><th>Why</th><th>Articles</th></tr>'+a.map(x=>'<tr><td><b>'+esc((x.instrument_key||'').replace(/^.*\\|/,''))+'</b></td><td>'+esc(names[x.instrument_key]||'Unknown company')+'</td><td>'+Number(x.sentiment_score||0).toFixed(2)+'</td><td>'+Math.round(Number(x.confidence||0)*100)+'%</td><td><span class="decision '+((x.action||'').startsWith('Consider')?'decision-add':(x.action||'').startsWith('Do not')?'decision-risk':'decision-hold')+'">'+esc(x.action||'Hold / wait')+'</span></td><td>'+esc(x.rationale||'')+'</td><td>'+x.article_count+'</td></tr>').join('')+'</table></div></div>'}
 async function alerts(){let p=await get('news','/api/news'),h=await get('holdings','/api/holdings'),byKey={};(p.alerts||[]).forEach(x=>byKey[x.instrument_key]=x);let a=(h.data||[]).map(x=>{let key=x.instrument_token||'',alert=byKey[key]||{},items=(p.data||{})[key]||[],article=items[0];return {...alert,instrument_key:key,company_name:x.company_name||x.trading_symbol||x.tradingsymbol||'Unknown company',article_count:items.length,article_link:article?.article_link||''}});a=sortByConfidence(a);status.textContent=a.length+' stocks in portfolio · updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><h2>Should I add more?</h2><p>Every holding is shown, including stocks without recent matching news. Each row combines sentiment, article agreement, and recency. It is a review prompt, not an automatic trade.</p><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><div class="grid"><div class="metric"><span class="label">Consider adding</span><b>'+a.filter(x=>(x.action||'').startsWith('Consider')).length+'</b></div><div class="metric"><span class="label">Risk review</span><b>'+a.filter(x=>(x.action||'').startsWith('Do not')).length+'</b></div><div class="metric"><span class="label">Hold / wait</span><b>'+a.filter(x=>(x.action||'').startsWith('Hold')||!x.action).length+'</b></div><div class="metric"><span class="label">Total stocks</span><b>'+a.length+'</b></div></div><p><b>Consider adding</b> means positive news deserves review. <b>Do not add</b> means negative news deserves risk review. <b>Hold / wait</b> means the signal is mixed or not confident enough. Always read the articles and check valuation before acting.</p><div class="table-wrap"><table class="table"><tr><th>#</th><th>Company</th><th>News score</th><th>Confidence</th><th>Decision</th><th>Why</th><th>Articles</th></tr>'+a.map((x,index)=>'<tr><td>'+String(index+1)+'</td><td>'+esc(x.company_name)+'</td><td>'+Number(x.sentiment_score||0).toFixed(2)+'</td><td>'+Math.round(Number(x.confidence||0)*100)+'%</td><td><span class="decision '+((x.action||'').startsWith('Consider')?'decision-add':(x.action||'').startsWith('Do not')?'decision-risk':'decision-hold')+'">'+esc(x.action||'Hold / wait')+'</span></td><td>'+esc(x.rationale||'No matching news in the recent feed.')+(x.article_link?' <a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">View news</a>':'')+'</td><td>'+x.article_count+'</td></tr>').join('')+'</table></div></div>'}
@@ -458,6 +458,56 @@ std::string cookieValue(const std::string& request) {
     const auto first = valueStart + prefix.size();
     const auto last = cookies.find(';', first);
     return cookies.substr(first, last == std::string::npos ? std::string::npos : last - first);
+}
+
+std::string urlDecode(const std::string& value);
+
+std::string trimWhitespace(const std::string& value) {
+    const auto start = value.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) return {};
+    const auto end = value.find_last_not_of(" \t\r\n");
+    return value.substr(start, end - start + 1);
+}
+
+bool secureEquals(const std::string& lhs, const std::string& rhs) {
+    if (lhs.size() != rhs.size()) return false;
+    volatile unsigned char diff = 0;
+    for (std::size_t i = 0; i < lhs.size(); ++i) {
+        diff |= static_cast<unsigned char>(lhs[i]) ^ static_cast<unsigned char>(rhs[i]);
+    }
+    return diff == 0;
+}
+
+std::string formValue(const std::string& body, const std::string& name) {
+    const std::string prefix = name + "=";
+    const auto valueStart = body.find(prefix);
+    if (valueStart == std::string::npos) return {};
+    const auto first = valueStart + prefix.size();
+    const auto last = body.find('&', first);
+    const std::string encoded = body.substr(first, last == std::string::npos ? std::string::npos : last - first);
+    return trimWhitespace(urlDecode(encoded));
+}
+
+std::string configuredLoginCode() {
+    const char* configured = std::getenv("FOLIO_LOGIN_CODE");
+    if (configured != nullptr) {
+        const std::string value = trimWhitespace(configured);
+        if (!value.empty()) return value;
+    }
+
+    std::vector<std::string> candidates = {".folio_login_code"};
+    const char* home = std::getenv("HOME");
+    if (home != nullptr) candidates.emplace_back(std::string(home) + "/.folio_login_code");
+
+    for (const auto& path : candidates) {
+        std::ifstream codeFile(path);
+        if (!codeFile.is_open()) continue;
+        std::string value;
+        std::getline(codeFile, value);
+        const std::string trimmed = trimWhitespace(value);
+        if (!trimmed.empty()) return trimmed;
+    }
+    return {};
 }
 
 std::string urlDecode(const std::string& value) {
@@ -998,17 +1048,9 @@ int WebServer::run() {
                 sendAll(connection, output);
                 close(connection); continue;
             } else if (path == "/api/login" && method == "POST") {
-                const char* configured = std::getenv("FOLIO_LOGIN_CODE");
-                std::string configuredCode = configured ? configured : "";
-                if (configuredCode.empty()) {
-                    std::ifstream codeFile(".folio_login_code");
-                    std::getline(codeFile, configuredCode);
-                }
-                const std::string prefix = "code=";
-                const auto codeStart = requestBody.find(prefix);
-                const std::string code = codeStart == std::string::npos
-                    ? std::string{} : requestBody.substr(codeStart + prefix.size());
-                if (!configuredCode.empty() && code == configuredCode) {
+                const std::string configuredCode = configuredLoginCode();
+                const std::string submittedCode = formValue(requestBody, "code");
+                if (!configuredCode.empty() && secureEquals(submittedCode, configuredCode)) {
                     const std::string cookie = "Set-Cookie: session=" +
                         newSession() + "; Max-Age=3600; HttpOnly; SameSite=Strict; Path=/\r\n";
                     const std::string output = responseWithStatus(

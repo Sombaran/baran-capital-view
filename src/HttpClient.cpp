@@ -39,6 +39,40 @@ std::string firstEnv(std::initializer_list<const char*> names) {
     return {};
 }
 
+std::string hostFromUrl(const std::string& url) {
+    const std::string lower = [&url]() {
+        std::string value = url;
+        std::transform(value.begin(), value.end(), value.begin(),
+                       [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+        return value;
+    }();
+
+    const std::size_t schemePos = lower.find("://");
+    if (schemePos == std::string::npos) {
+        return {};
+    }
+
+    const std::size_t hostStart = schemePos + 3;
+    std::size_t hostEnd = hostStart;
+    while (hostEnd < lower.size() && lower[hostEnd] != '/' && lower[hostEnd] != '?' && lower[hostEnd] != '#') {
+        ++hostEnd;
+    }
+
+    std::string host = lower.substr(hostStart, hostEnd - hostStart);
+    if (host.empty() || host.find('@') != std::string::npos) {
+        return {};
+    }
+    return host;
+}
+
+bool isAllowedUpstoxHost(const std::string& url) {
+    const std::string host = hostFromUrl(url);
+    if (host.empty()) {
+        return false;
+    }
+    return host == "api.upstox.com" || host == "api-sandbox.upstox.com";
+}
+
 } // namespace
 
 void CurlGlobal::ensureInit() {
@@ -66,10 +100,7 @@ HttpResponse HttpClient::get(const std::string& url,
         result.error = "non-HTTPS URL blocked for stock API requests";
         return result;
     }
-    const bool trustedHost =
-        lowered.rfind("https://api.upstox.com", 0) == 0 ||
-        lowered.rfind("https://api-sandbox.upstox.com", 0) == 0;
-    if (!trustedHost) {
+    if (!isAllowedUpstoxHost(url)) {
         result.error = "untrusted stock API host blocked";
         return result;
     }
@@ -88,6 +119,8 @@ HttpResponse HttpClient::get(const std::string& url,
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+    curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+    curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTPS);
     // Never follow redirects: an upstream redirect must not move bearer
     // credentials or API traffic to an unapproved host.
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0L);

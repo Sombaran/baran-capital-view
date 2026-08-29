@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 
 namespace folio {
@@ -35,7 +36,10 @@ struct Position {
     int multiplier = 1;           // lot / contract multiplier
 
     // Derived helpers ------------------------------------------------------
-    double marketValue() const { return lastPrice * quantity * multiplier; }
+    double marketValue() const {
+        const double derived = lastPrice * quantity * multiplier;
+        return std::abs(value) > 0.0 ? value : derived;
+    }
     double exposure()    const { return marketValue() >= 0 ? marketValue() : -marketValue(); }
     double totalPnl()    const { return unrealised + realised; }
 };

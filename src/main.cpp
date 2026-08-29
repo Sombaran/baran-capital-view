@@ -279,7 +279,7 @@ std::size_t fillLtp(std::vector<Position>& positions,
         if (it == r.ltp.end()) continue;
         p.lastPrice = it->second;
         if (p.closePrice == 0.0) p.closePrice = p.lastPrice;
-        p.value      = p.lastPrice * p.quantity * p.multiplier;
+        if (std::fabs(p.value) <= 0.0) p.value = p.lastPrice * p.quantity * p.multiplier;
         p.unrealised = (p.lastPrice - p.averagePrice) *
                         p.quantity * p.multiplier;
         p.pnl        = p.unrealised + p.realised;
