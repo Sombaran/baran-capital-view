@@ -6,13 +6,15 @@ cd "$(dirname "$0")"
 build_dir="${BUILD_DIR:-build}"
 build_system="${BUILD_SYSTEM:-cmake}"
 rebuild=0
+skip_tests=0
 
 usage() {
   cat <<'EOF'
-Usage: ./buildCode.sh [1|2] [--rebuild] [--cmake|--bazel]
+Usage: ./buildCode.sh [1|2] [--rebuild] [--skip-tests] [--cmake|--bazel]
   1 = CMake build
   2 = Bazel build
   --rebuild = remove stale build artifacts before building
+  --skip-tests = build only; do not run regression tests
 EOF
 }
 
@@ -26,6 +28,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     --rebuild)
       rebuild=1
+      ;;
+    --skip-tests)
+      skip_tests=1
       ;;
     --cmake)
       build_system="cmake"
@@ -74,6 +79,10 @@ if [[ "$build_system" == "bazel" ]]; then
     "$bazel_bin" clean --expunge >/dev/null 2>&1 || true
   fi
   "$bazel_bin" build //:portfolio_health
+  if [[ "$skip_tests" -eq 0 ]]; then
+    "$bazel_bin" test //:portfolio_health_tests --test_output=errors
+    pytest -q
+  fi
   exit 0
 fi
 
@@ -89,3 +98,8 @@ conan install . --output-folder="$build_dir/conan" --build=missing
 cmake -S . -B "$build_dir" -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_TOOLCHAIN_FILE="$build_dir/conan/build/Release/generators/conan_toolchain.cmake"
 cmake --build "$build_dir" -j"${BUILD_JOBS:-$(nproc)}"
+
+if [[ "$skip_tests" -eq 0 ]]; then
+  ctest --test-dir "$build_dir" --output-on-failure
+  pytest -q
+fi

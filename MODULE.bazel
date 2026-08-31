@@ -1,10 +1,18 @@
 module(
     name = "portfolio_health",
-    version = "2.0.12",
+    version = "2.0.14",
 )
 
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "nlohmann_json", version = "3.11.3")
+bazel_dep(name = "googletest", version = "1.17.0")
+
+single_version_override(
+    module_name = "googletest",
+    version = "1.17.0",
+    patches = ["//:googletest_bazel9.patch"],
+    patch_strip = 1,
+)
 
 single_version_override(
     module_name = "nlohmann_json",

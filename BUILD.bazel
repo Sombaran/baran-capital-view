@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
 cc_library(
     name = "portfolio_health_core",
@@ -37,6 +37,21 @@ cc_binary(
     name = "portfolio_health",
     srcs = ["src/main.cpp"],
     deps = [":portfolio_health_core"],
+    copts = [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+    ],
+)
+
+cc_test(
+    name = "portfolio_health_tests",
+    srcs = ["tests/cpp/test_security.cpp"],
+    deps = [
+        ":portfolio_health_core",
+        "@googletest//:gtest_main",
+    ],
     copts = [
         "-std=c++17",
         "-Wall",

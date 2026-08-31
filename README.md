@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.12
+Version: 2.0.14
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,7 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.12
+Current release: 2.0.14
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -79,7 +79,8 @@ source ~/.upstox.env
 
 ## Testing
 
-The project includes regression checks for both C++ and Python paths:
+The project includes regression checks for both C++ and Python paths. Run the
+full local regression check after building:
 
 ```bash
 # C++ unit tests with gtest
@@ -89,6 +90,10 @@ ctest --test-dir build --output-on-failure
 # Python unit tests with pytest
 pytest -q
 ```
+
+`pytest.ini` limits discovery to `tests/python` and excludes generated Bazel
+trees, so the command does not collect third-party or symlinked build files.
+The current suite contains 1 C++ test target and 7 Python tests.
 
 The C++ tests cover the secure symbol, quantity, and price validation helpers used by the stock order pipeline, while the Python tests cover the sentiment fallback and path resolution logic in the Deeper analysis workflow.
 
@@ -121,6 +126,14 @@ Recommended pattern:
 This keeps the broker API and stock data behind one trusted boundary and avoids exposing new attack surfaces.
 
 ## Recent fix summary
+
+Version 2.0.14 adds automated regression execution to `buildCode.sh`. CMake
+runs CTest and pytest, while Bazel runs its native C++ test target and pytest.
+Use `--skip-tests` only for build-only workflows.
+
+Version 2.0.13 hardens holdings and dashboard API parsing. Empty, truncated, or
+non-JSON responses now produce valid shape-correct fallbacks, so transient Stock
+API or transport failures do not break the dashboard.
 
 Version 2.0.12 removes the duplicate Overview confidence selector. The table
 header arrows remain the single sorting control, while the shared filter now

@@ -133,7 +133,7 @@ std::string releaseNotice() {
 }
 
 const char* sortingReleaseNotice() {
-    return R"JS(<script>const releaseBox=document.querySelector('[role="dialog"]');if(releaseBox){releaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Sorting and filter improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Kept accessible up/down arrows as the single sorting control, removed the duplicate Overview confidence selector, and optimized filtering to preserve table headers. Sorting and filtering stay client-side over loaded rows without extra Stock API requests.</p>')}</script>)JS";
+    return R"JS(<script>const releaseBox=document.querySelector('[role="dialog"]');if(releaseBox){releaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Sorting, filter, API, and regression improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Kept accessible up/down arrows as the single sorting control, removed the duplicate Overview confidence selector, and optimized filtering to preserve table headers. Holdings, positions, and news now use valid fallback JSON when a transport or Stock API response is empty or malformed. CMake and Bazel builds now run their C++ regression tests plus pytest automatically. No credentials or extra sort/filter requests are sent to the API.</p>')}</script>)JS";
 }
 
 const char* page() {
@@ -151,7 +151,7 @@ function sortOverviewRows(){if(activeTab!=='overview'||!cache.holdings||!cache.n
 function changeConfidenceOrder(value){confidenceOrder=value;cache={};openTab(activeTab,false).then(()=>{if(activeTab==='overview')sortOverviewRows()})}
 function updateMarketStatus(){const now=new Date(),parts=new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(now),get=k=>parts.find(x=>x.type===k)?.value,day=get('weekday'),minutes=Number(get('hour'))*60+Number(get('minute')),open=!['Sat','Sun'].includes(day)&&minutes>=555&&minutes<930,box=document.querySelector('#market-status'),label=document.querySelector('#market-label');box.className='market-status '+(open?'open':'closed');box.tabIndex=0;label.textContent=open?'Market open':'Market closed';box.dataset.marketMessage=open?'Closes at 15:30 IST':'Opens at 09:15 IST';document.body.classList.toggle('market-open',open);document.body.classList.toggle('market-closed',!open)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function get(name,url){if(cache[name])return cache[name];let r=await fetch(url);if(!r.ok){if(name==='news'){status.textContent='News unavailable · retrying automatically';return cache[name]={data:{},alerts:[]}}throw Error('HTTP '+r.status)};try{return cache[name]=await r.json()}catch(e){console.error('JSON parse error for '+name+' from '+url+':',e);if(name==='news')return cache[name]={data:{},alerts:[]};throw Error('Invalid JSON response from '+name)}}
+async function get(name,url){if(cache[name])return cache[name];const fallback=name==='holdings'?{status:'error',data:[],source:'unavailable'}:name==='news'?{status:'error',data:{},alerts:[],source:'unavailable'}:{status:'error',data:[],source:'unavailable'};let r;try{r=await fetch(url,{cache:'no-store'})}catch(error){console.warn('API request failed for '+name,error);return cache[name]=fallback}if(!r.ok){status.textContent=name==='news'?'News unavailable · retrying automatically':name+' unavailable';return cache[name]=fallback}try{const text=await r.text();if(!text.trim())throw Error('Empty response');return cache[name]=JSON.parse(text)}catch(e){console.error('JSON parse error for '+name+' from '+url+':',e);status.textContent=name+' unavailable · using safe fallback';return cache[name]=fallback}}
 async function safeJsonParse(response,fallback){try{const text=await response.text();if(!text||!text.trim())return fallback||{status:'error',error:'Empty response'};return JSON.parse(text)}catch(error){console.warn('Malformed JSON response',error);return fallback||{status:'error',error:String(error && error.message ? error.message : error)}}}
 async function safeJsonFetch(url,fallback){const effectiveFallback=fallback&&typeof fallback==='object'?fallback:{status:'error',error:'Request failed'};try{const response=await fetch(url,{cache:'no-store'});if(!response||!response.ok){return {...effectiveFallback,status:'error',error:effectiveFallback.error||('HTTP '+(response?response.status:'request failed'))}};return await safeJsonParse(response,effectiveFallback)}catch(error){console.warn('safeJsonFetch failed',url,error);return {...effectiveFallback,status:'error',error:String(error && error.message ? error.message : error)}}}
 function filterView(value){const query=value.trim().toLowerCase();view.querySelectorAll('table.table tbody tr:not(:first-child),article.story,.fundamental-stock').forEach(item=>{const match=!query||item.textContent.toLowerCase().includes(query);item.hidden=!match})}
@@ -510,13 +510,15 @@ std::string holdingsForUi(const std::string& body,
     }
 }
 
-std::string ensureValidJson(const std::string& body) {
-    if (body.empty()) return json({}).dump();
+std::string ensureValidJson(const std::string& body,
+                            const std::string& fallback = "{}") {
+    if (body.empty()) return fallback;
     try {
         json::parse(body);
         return body;
     } catch (const std::exception& e) {
-        return json({"error", "Invalid JSON response", "details", std::string(e.what())}).dump();
+        return json({{"status", "error"}, {"error", "Invalid JSON response"},
+                     {"details", std::string(e.what())}}).dump();
     }
 }
 
@@ -1304,9 +1306,9 @@ int WebServer::run() {
                 } else {
                 try {
                     const auto current = snapshot();
-                    if (path == "/api/holdings") body = ensureValidJson(current->holdings);
-                    else if (path == "/api/positions") body = ensureValidJson(current->positions);
-                    else if (path == "/api/news") body = ensureValidJson(current->news);
+                    if (path == "/api/holdings") body = ensureValidJson(current->holdings, json({{"status", "error"}, {"data", json::array()}, {"source", "unavailable"}}).dump());
+                    else if (path == "/api/positions") body = ensureValidJson(current->positions, json({{"status", "error"}, {"data", json::array()}, {"source", "unavailable"}}).dump());
+                    else if (path == "/api/news") body = ensureValidJson(current->news, json({{"status", "error"}, {"data", json::object()}, {"alerts", json::array()}, {"source", "unavailable"}}).dump());
                     else body = current->metrics;
                     if (path == "/metrics") {
                         const std::string output = response(body, "text/plain; version=0.0.4");
