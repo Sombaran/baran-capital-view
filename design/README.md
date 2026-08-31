@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.11`
+**Version:** `2.0.12`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -65,7 +65,8 @@ put it in browser JavaScript.
 
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
-- **[Release Notes v2.0.11](RELEASE_NOTES_V2.0.11.md)** — current: optimized table sorting and UI improvements
+- **[Release Notes v2.0.12](RELEASE_NOTES_V2.0.12.md)** — current: filter cleanup and dashboard UI optimization
+- **[Release Notes v2.0.11](RELEASE_NOTES_V2.0.11.md)** — optimized table sorting and UI improvements
 - **[Release Notes v2.0.10](RELEASE_NOTES_V2.0.10.md)** — JSON resilience, API error handling, dependency management
 - **[Release Notes v2.0.0](RELEASE_NOTES_V2.0.0.md)** — v2.0 baseline with shared library and Bazel support
 - **[Security Audit](SECURITY_OPTIMIZATION_AUDIT.md)** — attack surface analysis and hardening recommendations
