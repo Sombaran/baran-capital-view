@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.14
+Version: 2.0.15
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,7 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.14
+Current release: 2.0.15
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -126,6 +126,10 @@ Recommended pattern:
 This keeps the broker API and stock data behind one trusted boundary and avoids exposing new attack surfaces.
 
 ## Recent fix summary
+
+Version 2.0.15 optimizes Alerts with a meaningful `Portfolio news review`
+heading, removes duplicate confidence sorting, and shows the stocks in each
+decision group on hover or keyboard focus.
 
 Version 2.0.14 adds automated regression execution to `buildCode.sh`. CMake
 runs CTest and pytest, while Bazel runs its native C++ test target and pytest.
