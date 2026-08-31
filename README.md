@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.10
+Version: 2.0.11
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,7 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.10
+Current release: 2.0.11
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -122,7 +122,11 @@ This keeps the broker API and stock data behind one trusted boundary and avoids 
 
 ## Recent fix summary
 
-Version 2.0.10 includes:
+Version 2.0.11 adds optimized client-side arrow sorting to the Overview, Alerts,
+Deeper analysis, and Fundamentals tables. Sorting uses the already loaded rows,
+keeps serial numbers stable, and does not send new requests to the Stock API.
+
+Version 2.0.10 included:
 
 ### Dependency Management (v2.0.10+)
 - **Removed vendored nlohmann header**: Eliminated `third_party/nlohmann/json.hpp` vendored copy
