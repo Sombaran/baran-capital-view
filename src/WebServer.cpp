@@ -34,6 +34,48 @@ using nlohmann::json;
 #define PORTFOLIO_HEALTH_VERSION "unknown"
 #endif
 
+std::string normalizeLoginCode(const std::string& value) {
+    if (value.empty()) return {};
+    const auto first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return {};
+    const auto last = value.find_last_not_of(" \t\r\n");
+    std::string trimmed = value.substr(first, last - first + 1);
+    std::string decoded;
+    decoded.reserve(trimmed.size());
+    for (std::size_t index = 0; index < trimmed.size(); ++index) {
+        if (trimmed[index] == '%' && index + 2 < trimmed.size() &&
+            std::isxdigit(static_cast<unsigned char>(trimmed[index + 1])) &&
+            std::isxdigit(static_cast<unsigned char>(trimmed[index + 2]))) {
+            const auto digit = [](char character) {
+                if (character >= '0' && character <= '9') return character - '0';
+                if (character >= 'a' && character <= 'f') return character - 'a' + 10;
+                return character - 'A' + 10;
+            };
+            decoded.push_back(static_cast<char>(digit(trimmed[index + 1]) * 16 + digit(trimmed[index + 2])));
+            index += 2;
+        } else {
+            decoded.push_back(trimmed[index] == '+' ? ' ' : trimmed[index]);
+        }
+    }
+    const auto finalFirst = decoded.find_first_not_of(" \t\r\n");
+    if (finalFirst == std::string::npos) return {};
+    const auto finalLast = decoded.find_last_not_of(" \t\r\n");
+    return decoded.substr(finalFirst, finalLast - finalFirst + 1);
+}
+
+bool validateLoginCode(const std::string& submittedValue,
+                       const std::string& configuredValue) {
+    const std::string submitted = normalizeLoginCode(submittedValue);
+    const std::string configured = normalizeLoginCode(configuredValue);
+    if (submitted.empty() || configured.empty()) return false;
+    if (submitted.size() != configured.size()) return false;
+    volatile unsigned char diff = 0;
+    for (std::size_t i = 0; i < submitted.size(); ++i) {
+        diff |= static_cast<unsigned char>(submitted[i]) ^ static_cast<unsigned char>(configured[i]);
+    }
+    return diff == 0;
+}
+
 std::string normalizeSymbol(std::string symbol) {
     const auto first = symbol.find_first_not_of(" \t\r\n");
     if (first == std::string::npos) return {};
@@ -87,7 +129,7 @@ std::string releaseNotice() {
     return std::string("<script>(function(){const version='") + PORTFOLIO_HEALTH_VERSION +
            R"JS(';if(localStorage.getItem('baran-capital-view-release-seen')===version)return;const box=document.createElement('aside');box.setAttribute('role','dialog');box.setAttribute('aria-label','What is new');box.style.cssText='position:fixed;z-index:50;right:24px;top:24px;width:min(380px,calc(100% - 48px));padding:18px 20px;background:#fffdf8;color:#172126;border:1px solid #0d7774;box-shadow:0 16px 40px #17212630;font:14px/1.45 Arial,sans-serif';box.innerHTML='<button type="button" aria-label="Close release notes" style="float:right;border:0;background:transparent;color:#6b777b;font-size:22px;line-height:1;cursor:pointer">&times;</button><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#0d7774;font-weight:700">What is new · v)JS" +
            PORTFOLIO_HEALTH_VERSION +
-           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Web UX + categorization fix</strong><p style="margin:8px 0 0;color:#6b777b">This patch repairs the broken Alerts tab, standardizes the Deeper analysis category labels, and keeps the x.x.x release summary aligned with the shipped code changes.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Alerts now render from a single canonical data path to avoid duplicate tab logic</li><li>Deeper analysis categories and decisions share the same normalized labels and action names</li><li>Upstox traffic stays HTTPS-only with trusted-host validation and safe failure handling</li><li>The right-side summary reflects the actual fix shipped in this semver patch</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
+           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Secure login + browser tab cleanup</strong><p style="margin:8px 0 0;color:#6b777b">This x.x.x patch hardens the login flow, keeps Bazel and local secret files out of Git, and keeps the dashboard tabs consistent without weakening the Upstox security boundary.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Login code values are trimmed, URL-decoded, and compared safely before a session is created</li><li>Secrets can come from `FOLIO_LOGIN_CODE` in `~/.upstox.env` or a protected local fallback file</li><li>Bazel cache and generated files are ignored so they do not get pushed to GitHub</li><li>Overview, Alerts, and Deeper analysis tabs keep a single canonical render path to avoid stale UI conflicts</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
 }
 
 const char* page() {
@@ -499,13 +541,13 @@ std::string formValue(const std::string& body, const std::string& name) {
     const auto first = valueStart + prefix.size();
     const auto last = body.find('&', first);
     const std::string encoded = body.substr(first, last == std::string::npos ? std::string::npos : last - first);
-    return trimWhitespace(urlDecode(encoded));
+    return normalizeLoginCode(encoded);
 }
 
 std::string configuredLoginCode() {
     const char* configured = std::getenv("FOLIO_LOGIN_CODE");
     if (configured != nullptr) {
-        const std::string value = trimWhitespace(configured);
+        const std::string value = normalizeLoginCode(configured);
         if (!value.empty()) return value;
     }
 
@@ -518,7 +560,7 @@ std::string configuredLoginCode() {
         if (!codeFile.is_open()) continue;
         std::string value;
         std::getline(codeFile, value);
-        const std::string trimmed = trimWhitespace(value);
+        const std::string trimmed = normalizeLoginCode(value);
         if (!trimmed.empty()) return trimmed;
     }
     return {};
@@ -1065,7 +1107,7 @@ int WebServer::run() {
             } else if (path == "/api/login" && method == "POST") {
                 const std::string configuredCode = configuredLoginCode();
                 const std::string submittedCode = formValue(requestBody, "code");
-                if (!configuredCode.empty() && secureEquals(submittedCode, configuredCode)) {
+                if (!configuredCode.empty() && validateLoginCode(submittedCode, configuredCode)) {
                     const std::string cookie = "Set-Cookie: session=" +
                         newSession() + "; Max-Age=3600; HttpOnly; SameSite=Strict; Path=/\r\n";
                     const std::string output = responseWithStatus(

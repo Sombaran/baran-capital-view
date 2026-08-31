@@ -39,6 +39,15 @@ TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
     EXPECT_EQ(folio::normalizeDecisionAction("Hold / wait"), "Hold / wait");
 }
 
+TEST(WebServer, SecretCodeNormalizationAndValidationStaySafe) {
+    EXPECT_EQ(folio::normalizeLoginCode(" 070923 \n"), "070923");
+    EXPECT_EQ(folio::normalizeLoginCode("%2B070923"), "+070923");
+    EXPECT_TRUE(folio::validateLoginCode("070923", "070923"));
+    EXPECT_TRUE(folio::validateLoginCode(" 070923 ", "070923"));
+    EXPECT_FALSE(folio::validateLoginCode("070923", "070924"));
+    EXPECT_FALSE(folio::validateLoginCode("", "070923"));
+}
+
 TEST(SecurityUtils, ValidateQuantityAndPriceBounds) {
     EXPECT_TRUE(folio::security::validateQuantity(10));
     EXPECT_FALSE(folio::security::validateQuantity(0));

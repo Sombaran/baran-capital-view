@@ -11,12 +11,14 @@ __pycache__/
 
 # Local secret / login files
 .folio_login_code
+.upstox.env
 *.local
 
 # Tooling / IDE state
 .bazel-cache/
 .bazelisk/
 .bazelrc.local
+bazel-*
 
 # Environment files
 .env/

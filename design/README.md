@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.9`
+**Version:** `2.0.10`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -36,7 +36,16 @@ Open [http://127.0.0.1:8080](http://127.0.0.1:8080).
 Use `./build/portfolio_health --version` to print the running build version.
 Credentials are read only from the environment and are never stored in JSON.
 
-The web UI requires a secret code configured outside the repository:
+The web UI requires a secret code configured outside the repository. The recommended local setup is a protected environment file with the same value the server reads:
+
+```bash
+printf '%s\n' "export FOLIO_LOGIN_CODE='070923'" >> ~/.upstox.env
+chmod 600 ~/.upstox.env
+source ~/.upstox.env
+./run.sh --web
+```
+
+You can also keep a local fallback file for the browser login only if you prefer a file-based secret:
 
 ```bash
 printf '%s\n' '070923' > .folio_login_code
