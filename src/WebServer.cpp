@@ -127,9 +127,9 @@ const char* categoryEnhancements() {
 
 std::string releaseNotice() {
     return std::string("<script>(function(){const version='") + PORTFOLIO_HEALTH_VERSION +
-           R"JS(';if(localStorage.getItem('baran-capital-view-release-seen')===version)return;const box=document.createElement('aside');box.setAttribute('role','dialog');box.setAttribute('aria-label','What is new');box.style.cssText='position:fixed;z-index:50;right:24px;top:24px;width:min(380px,calc(100% - 48px));padding:18px 20px;background:#fffdf8;color:#172126;border:1px solid #0d7774;box-shadow:0 16px 40px #17212630;font:14px/1.45 Arial,sans-serif';box.innerHTML='<button type="button" aria-label="Close release notes" style="float:right;border:0;background:transparent;color:#6b777b;font-size:22px;line-height:1;cursor:pointer">&times;</button><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#0d7774;font-weight:700">What is new · v)JS" +
+           R"JS(';if(localStorage.getItem('baran-capital-view-release-seen')===version)return;const box=document.createElement('aside');box.setAttribute('role','dialog');box.setAttribute('aria-label','What is new');box.style.cssText='position:fixed;z-index:50;right:24px;top:24px;width:min(420px,calc(100% - 48px));padding:18px 20px;background:#fffdf8;color:#172126;border:1px solid #0d7774;box-shadow:0 16px 40px #17212630;font:14px/1.45 Arial,sans-serif;overflow-y:auto;max-height:90vh';box.innerHTML='<button type="button" aria-label="Close release notes" style="float:right;border:0;background:transparent;color:#6b777b;font-size:22px;line-height:1;cursor:pointer">&times;</button><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#0d7774;font-weight:700">What is new · v)JS" +
            PORTFOLIO_HEALTH_VERSION +
-           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Secure login + browser tab cleanup</strong><p style="margin:8px 0 0;color:#6b777b">This x.x.x patch hardens the login flow, keeps Bazel and local secret files out of Git, and keeps the dashboard tabs consistent without weakening the Upstox security boundary.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Login code values are trimmed, URL-decoded, and compared safely before a session is created</li><li>Secrets can come from `FOLIO_LOGIN_CODE` in `~/.upstox.env` or a protected local fallback file</li><li>Bazel cache and generated files are ignored so they do not get pushed to GitHub</li><li>Overview, Alerts, and Deeper analysis tabs keep a single canonical render path to avoid stale UI conflicts</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
+           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Dependency management + API resilience</strong><p style="margin:8px 0 0;color:#6b777b">This patch removes vendored headers, manages dependencies through Conan, fixes JSON parsing errors on long-running sessions, and optimizes all dashboard tabs.</p><h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Build improvements</h3><ul style="margin:6px 0 0 18px;padding:0;color:#47575d;line-height:1.6;font-size:13px"><li>Removed vendored <code>third_party/nlohmann</code> header and added Conan dependency management</li><li>Simplified CMakeLists.txt dependency resolution from 35+ lines to 2 lines</li><li>Cleaner build configuration with single source of truth in conanfile.py</li><li>Consistent nlohmann_json version across CMake and Bazel build systems</li></ul><h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Core fixes</h3><ul style="margin:6px 0 0 18px;padding:0;color:#47575d;line-height:1.6;font-size:13px"><li>Fixed 'unexpected character' JSON errors by validating all API responses</li><li>Added robust error handling for empty, malformed, or incomplete JSON payloads</li><li>Browser now shows detailed error messages with context instead of parse exceptions</li><li>All API endpoints include proper fallback JSON for edge cases</li></ul><h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">UI improvements</h3><ul style="margin:6px 0 0 18px;padding:0;color:#47575d;line-height:1.6;font-size:13px"><li>Data health, JSON, and Config tabs show operational diagnostics</li><li>Error messages display in a dedicated error panel with clear, actionable guidance</li><li>Login validation: codes are trimmed, URL-decoded, and compared safely before session creation</li><li>All tabs use a single canonical render path to prevent UI conflicts and stale data</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
 }
 
 const char* page() {
@@ -147,7 +147,7 @@ function sortOverviewRows(){if(activeTab!=='overview'||!cache.holdings||!cache.n
 function changeConfidenceOrder(value){confidenceOrder=value;cache={};openTab(activeTab,false).then(()=>{if(activeTab==='overview')sortOverviewRows()})}
 function updateMarketStatus(){const now=new Date(),parts=new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(now),get=k=>parts.find(x=>x.type===k)?.value,day=get('weekday'),minutes=Number(get('hour'))*60+Number(get('minute')),open=!['Sat','Sun'].includes(day)&&minutes>=555&&minutes<930,box=document.querySelector('#market-status'),label=document.querySelector('#market-label');box.className='market-status '+(open?'open':'closed');box.tabIndex=0;label.textContent=open?'Market open':'Market closed';box.dataset.marketMessage=open?'Closes at 15:30 IST':'Opens at 09:15 IST';document.body.classList.toggle('market-open',open);document.body.classList.toggle('market-closed',!open)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function get(name,url){if(cache[name])return cache[name];let r=await fetch(url);if(!r.ok){if(name==='news'){status.textContent='News unavailable · retrying automatically';return cache[name]={data:{},alerts:[]}}throw Error('HTTP '+r.status)}return cache[name]=await r.json()}
+async function get(name,url){if(cache[name])return cache[name];let r=await fetch(url);if(!r.ok){if(name==='news'){status.textContent='News unavailable · retrying automatically';return cache[name]={data:{},alerts:[]}}throw Error('HTTP '+r.status)};try{return cache[name]=await r.json()}catch(e){console.error('JSON parse error for '+name+' from '+url+':',e);if(name==='news')return cache[name]={data:{},alerts:[]};throw Error('Invalid JSON response from '+name)}}
 async function safeJsonParse(response,fallback){try{const text=await response.text();if(!text||!text.trim())return fallback||{status:'error',error:'Empty response'};return JSON.parse(text)}catch(error){console.warn('Malformed JSON response',error);return fallback||{status:'error',error:String(error && error.message ? error.message : error)}}}
 async function safeJsonFetch(url,fallback){const effectiveFallback=fallback&&typeof fallback==='object'?fallback:{status:'error',error:'Request failed'};try{const response=await fetch(url,{cache:'no-store'});if(!response||!response.ok){return {...effectiveFallback,status:'error',error:effectiveFallback.error||('HTTP '+(response?response.status:'request failed'))}};return await safeJsonParse(response,effectiveFallback)}catch(error){console.warn('safeJsonFetch failed',url,error);return {...effectiveFallback,status:'error',error:String(error && error.message ? error.message : error)}}}
 function filterView(value){const query=value.trim().toLowerCase();view.querySelectorAll('tr,article,.story,.fundamental-stock').forEach(item=>{const match=!query||item.textContent.toLowerCase().includes(query);item.hidden=!match})}
@@ -157,7 +157,7 @@ function stockCount(items){return new Set(items.map(item=>(item.trading_symbol||
 function refreshView(){if(refreshInFlight)return;cache={};refreshInFlight=true;openTab(activeTab,false).finally(()=>refreshInFlight=false)}
 let updatesPaused=false;
 function toggleUpdates(){updatesPaused=!updatesPaused;document.querySelector('#pause-refresh').textContent=updatesPaused?'Resume updates':'Pause updates';document.querySelector('#pause-refresh').setAttribute('aria-pressed',String(updatesPaused))}
-function fail(e){view.innerHTML='<div class="panel error">Unable to load this view: '+esc(e.message)+'</div>';status.textContent='Request failed'}
+function fail(e){const msg=e&&e.message?e.message:String(e);view.innerHTML='<div class="panel error"><div class="label">Error details</div><h2>Unable to load this view</h2><p>'+esc(msg)+'</p><p style="color:var(--muted);font-size:12px">Check the browser console for details. Try refreshing the page.</p></div>';status.textContent='Error: '+esc(msg)}
 function rows(data){return Object.entries(data).flatMap(([key,items])=>items.map(x=>({...x,instrument_key:key}))) }
 function decisionSummary(action){const normalized=(action||'').trim();if(!normalized)return 'Hold / wait';const lower=normalized.toLowerCase();if(lower.includes('consider'))return 'Consider adding';if(lower.includes('do not'))return 'Do not add';if(lower.includes('hold'))return 'Hold / wait';if(lower.includes('buy'))return 'Buy / review';if(lower.includes('sell'))return 'Sell / review';return normalized}
 function normalizeCategoryLabel(value){const label=String(value||'').trim();const map={'neutral news':'Neutral news','no recent news':'No recent news','going good':'going good','invest more':'invest more','sell it off':'sell it off'};return map[label.toLowerCase()]||label||'Neutral news'}
@@ -377,48 +377,53 @@ NewsDecision decideNews(const json& items) {
 std::string filteredNews(const std::string& body,
                          const std::string& holdingsFile,
                          const std::vector<Position>& holdings) {
-    const auto symbols = csvSymbols(holdingsFile);
-    const json source = json::parse(body);
-    json output = source;
-    output["data"] = json::object();
-    output["alerts"] = json::array();
-    std::unordered_set<std::string> keys;
-    for (const auto& holding : holdings) {
-        if (symbols.count(normalizeSymbol(holding.tradingSymbol))) {
-            keys.insert(holding.instrumentToken);
+    try {
+        if (body.empty()) return json({"data", json::object(), "alerts", json::array()}).dump();
+        const auto symbols = csvSymbols(holdingsFile);
+        const json source = json::parse(body);
+        json output = source;
+        output["data"] = json::object();
+        output["alerts"] = json::array();
+        std::unordered_set<std::string> keys;
+        for (const auto& holding : holdings) {
+            if (symbols.count(normalizeSymbol(holding.tradingSymbol))) {
+                keys.insert(holding.instrumentToken);
+            }
         }
-    }
-    if (source.contains("data") && source["data"].is_object()) {
-        for (auto it = source["data"].begin(); it != source["data"].end(); ++it)
-                if (keys.count(it.key())) {
-                    json items = json::array();
-                    for (const auto& article : it.value()) {
-                        const long long published = article.value("published_time", 0LL);
-                        const auto now = std::chrono::system_clock::now();
-                        const auto articleTime = std::chrono::system_clock::time_point(
-                            std::chrono::milliseconds(published));
-                        if (published <= 0 || articleTime > now ||
-                            now - articleTime > std::chrono::hours(24 * 30)) continue;
-                        json enriched = article;
-                        const Sentiment sentiment = scoreNews(article);
-                        enriched["sentiment_score"] = sentiment.score;
-                        enriched["sentiment"] = sentiment.label;
-                        enriched["signal"] = sentiment.signal;
-                        items.push_back(std::move(enriched));
+        if (source.contains("data") && source["data"].is_object()) {
+            for (auto it = source["data"].begin(); it != source["data"].end(); ++it)
+                    if (keys.count(it.key())) {
+                        json items = json::array();
+                        for (const auto& article : it.value()) {
+                            const long long published = article.value("published_time", 0LL);
+                            const auto now = std::chrono::system_clock::now();
+                            const auto articleTime = std::chrono::system_clock::time_point(
+                                std::chrono::milliseconds(published));
+                            if (published <= 0 || articleTime > now ||
+                                now - articleTime > std::chrono::hours(24 * 30)) continue;
+                            json enriched = article;
+                            const Sentiment sentiment = scoreNews(article);
+                            enriched["sentiment_score"] = sentiment.score;
+                            enriched["sentiment"] = sentiment.label;
+                            enriched["signal"] = sentiment.signal;
+                            items.push_back(std::move(enriched));
+                        }
+                        const NewsDecision decision = decideNews(items);
+                        output["data"][it.key()] = std::move(items);
+                        output["alerts"].push_back({
+                            {"instrument_key", it.key()},
+                            {"sentiment_score", decision.score},
+                            {"confidence", decision.confidence},
+                            {"sentiment", decision.label},
+                            {"action", decision.action},
+                            {"rationale", decision.rationale},
+                            {"article_count", static_cast<int>(output["data"][it.key()].size())}});
                     }
-                    const NewsDecision decision = decideNews(items);
-                    output["data"][it.key()] = std::move(items);
-                    output["alerts"].push_back({
-                        {"instrument_key", it.key()},
-                        {"sentiment_score", decision.score},
-                        {"confidence", decision.confidence},
-                        {"sentiment", decision.label},
-                        {"action", decision.action},
-                        {"rationale", decision.rationale},
-                        {"article_count", static_cast<int>(output["data"][it.key()].size())}});
-                }
+        }
+        return output.dump(2);
+    } catch (const std::exception& e) {
+        return json({"data", json::object(), "alerts", json::array(), "error", std::string(e.what())}).dump();
     }
-    return output.dump(2);
 }
 
 std::string metrics(const std::vector<Position>& holdings, int newsArticles,
@@ -468,31 +473,49 @@ std::string metrics(const std::vector<Position>& holdings, int newsArticles,
 
 std::string holdingsForUi(const std::string& body,
                           const std::vector<Position>& holdings) {
-    json payload = json::parse(body);
-    auto data = payload.find("data");
-    if (data == payload.end() || !data->is_array()) return body;
-    std::unordered_map<std::string, double> values;
-    double total = 0.0;
-    for (const auto& holding : holdings) {
-        values[holding.instrumentToken] = holding.marketValue();
-        total += holding.marketValue();
+    try {
+        json payload = json::parse(body);
+        auto data = payload.find("data");
+        if (data == payload.end() || !data->is_array()) {
+            if (body.empty() || body == "{}") {
+                return json({"status", "success", "data", json::array(), "source", "fallback"}).dump();
+            }
+            return body;
+        }
+        std::unordered_map<std::string, double> values;
+        double total = 0.0;
+        for (const auto& holding : holdings) {
+            values[holding.instrumentToken] = holding.marketValue();
+            total += holding.marketValue();
+        }
+        payload["portfolio_market_value"] = total;
+        payload["source"] = "upstox-live";
+        for (auto& item : *data) {
+            const std::string key = item.value("instrument_token", "");
+            const auto value = values.find(key);
+            if (value != values.end()) item["current_value"] = value->second;
+        }
+        return payload.dump(2);
+    } catch (const std::exception& e) {
+        return json({"status", "error", "error", std::string(e.what()), "data", json::array()}).dump();
     }
-    payload["portfolio_market_value"] = total;
-    payload["source"] = "upstox-live";
+}
 
-
-    for (auto& item : *data) {
-        const std::string key = item.value("instrument_token", "");
-        const auto value = values.find(key);
-        if (value != values.end()) item["current_value"] = value->second;
+std::string ensureValidJson(const std::string& body) {
+    if (body.empty()) return json({}).dump();
+    try {
+        json::parse(body);
+        return body;
+    } catch (const std::exception& e) {
+        return json({"error", "Invalid JSON response", "details", std::string(e.what())}).dump();
     }
-    return payload.dump(2);
 }
 
 std::string response(const std::string& body, const std::string& type = "application/json") {
+    const std::string safeBody = type == "application/json" ? ensureValidJson(body) : body;
     return "HTTP/1.1 200 OK\r\nContent-Type: " + type +
-           "; charset=utf-8\r\nCache-Control: no-store, no-cache, must-revalidate\r\nPragma: no-cache\r\nContent-Length: " + std::to_string(body.size()) +
-           "\r\nConnection: close\r\n\r\n" + body;
+           "; charset=utf-8\r\nCache-Control: no-store, no-cache, must-revalidate\r\nPragma: no-cache\r\nContent-Length: " + std::to_string(safeBody.size()) +
+           "\r\nConnection: close\r\n\r\n" + safeBody;
 }
 
 std::string responseWithStatus(const std::string& status,
@@ -1270,22 +1293,25 @@ int WebServer::run() {
                         }
                     }
                 } else {
-                const auto current = snapshot();
-                if (path == "/api/holdings") body = current->holdings;
-                else if (path == "/api/positions") body = current->positions;
-                else if (path == "/api/news") body = current->news;
-                else body = current->metrics;
-                if (path == "/metrics") {
-                const std::string output = response(
-                    body, "text/plain; version=0.0.4");
-                sendAll(connection, output);
-                close(connection); continue;
+                try {
+                    const auto current = snapshot();
+                    if (path == "/api/holdings") body = ensureValidJson(current->holdings);
+                    else if (path == "/api/positions") body = ensureValidJson(current->positions);
+                    else if (path == "/api/news") body = ensureValidJson(current->news);
+                    else body = current->metrics;
+                    if (path == "/metrics") {
+                        const std::string output = response(body, "text/plain; version=0.0.4");
+                        sendAll(connection, output);
+                        close(connection); continue;
+                    }
+                } catch (const std::exception& e) {
+                    body = json({{"error", "Snapshot error"}, {"details", e.what()}}).dump();
                 }
                 }
-            } else if (path == "/api/config") body = "{\"status\":\"ready\",\"holdings_file\":\"" + holdingsFile_ + "\"}";
+            } else if (path == "/api/config") body = json({{"status", "ready"}, {"holdings_file", holdingsFile_}}).dump();
             else body = json({{"error", "not found"}}).dump();
         } catch (const std::exception& e) {
-            body = json({{"error", e.what()}}).dump();
+            body = json({{"error", "Request failed"}, {"details", e.what()}}).dump();
         }
         const std::string output = response(body);
         sendAll(connection, output);

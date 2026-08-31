@@ -59,6 +59,19 @@ one-hour lifetime. Logout
 invalidates that session and redirects to `/login`. Do not commit the code or
 put it in browser JavaScript.
 
+---
+
+## Documentation Index
+
+- **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
+- **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
+- **[Release Notes v2.0.10](RELEASE_NOTES_V2.0.10.md)** — current: JSON resilience, API error handling, UI optimization
+- **[Release Notes v2.0.0](RELEASE_NOTES_V2.0.0.md)** — v2.0 baseline with shared library and Bazel support
+- **[Security Audit](SECURITY_OPTIMIZATION_AUDIT.md)** — attack surface analysis and hardening recommendations
+- **[Security Summary](SECURITY_SUMMARY.md)** — HTTPS boundaries, token handling, validation rules
+- **[Portfolio Health Model](PortfolioHealthModel.md)** — scoring algorithm and health metric calculations
+- **[Build Fixes v2.0.0](BUILD_FIXES_V2.0.0.md)** — initial 2.0 build system and dependency resolution
+
 The browser UI provides Overview, News, Alerts, Deeper analysis, Positions, JSON, and Config tabs. Holdings, positions, and news refresh automatically every 5 seconds while a tab is open. News is filtered to normalized symbols in `config/holding.csv` for the Sombaran Portfolio; the Alerts tab lists every holding, adds a serial number, links each available `Why` explanation to its News article, and provides advisory C++ keyword sentiment without placing orders.
 
 ### Architecture guidance

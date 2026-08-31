@@ -1,0 +1,19 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+index 0000000..1111111 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -1,3 +1,5 @@
++load("@rules_cc//cc:defs.bzl", "cc_library")
++
+ cc_library(
+     name = "json",
+     hdrs = [
+diff --git a/MODULE.bazel b/MODULE.bazel
+index 0000000..2222222 100644
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -4,2 +4,4 @@ module(
+     compatibility_level = 1,
+ )
++
++bazel_dep(name = "rules_cc", version = "0.2.17")

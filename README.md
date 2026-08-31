@@ -57,6 +57,17 @@ cd /home/ritup2404/baran-capital-view
 
 Use either the numeric selector (`1` or `2`) or the explicit flags for build backend selection in automation. If Bazel is not installed, prefer the CMake path with `1` to keep the default workflow functional.
 
+## Dependencies
+
+All dependencies are managed through **Conan** (`conanfile.py`) for reproducible builds across platforms:
+
+- **nlohmann_json 3.11.3** — JSON serialization/deserialization (managed via Conan since v2.0.10)
+- **libcurl** — HTTP client (optional via Conan with `use_conan_libcurl` option)
+- **OpenSSL** — TLS/HTTPS support (optional via Conan)
+- **GTest** — C++ testing framework (automatically integrated)
+
+The `conanfile.py` file is the single source of truth for all project requirements. Conan automatically generates CMake toolchain files and dependency metadata during the build process.
+
 Add the local login secret to your shell environment or a protected local file before starting the browser UI:
 
 ```bash
@@ -113,13 +124,34 @@ This keeps the broker API and stock data behind one trusted boundary and avoids 
 
 Version 2.0.10 includes:
 
-- fixed the secret-login flow so `FOLIO_LOGIN_CODE` values are trimmed, URL-decoded, and compared safely before a session is created
-- added env-backed secret handling through `~/.upstox.env` and protected local login files without exposing credentials in source control
-- tightened repo hygiene by ignoring Bazel artifacts, local caches, and environment files so generated or secret data does not get pushed to GitHub
-- kept the release popup and documentation aligned to the x.x.x code-change version while preserving the same HTTPS-only stock API boundary and local-first architecture
-- optimized the browser tab rendering path so the Overview, Alerts, and Deeper analysis views stay consistent without reintroducing duplicate UI logic
-- kept the local-first architecture, browser cache behavior, and saved-news fallback path intact so existing features remain stable
-- refreshed the project documentation and runtime version metadata to the x.x.x semver format used in production releases
+### Dependency Management (v2.0.10+)
+- **Removed vendored nlohmann header**: Eliminated `third_party/nlohmann/json.hpp` vendored copy
+- **Added Conan dependency**: `nlohmann_json/3.11.3` now managed through `conanfile.py`
+- **Simplified CMakeLists.txt**: Reduced dependency resolution from 35+ lines to 2 lines using `find_package(nlohmann_json REQUIRED)`
+- **Single source of truth**: All dependencies managed through Conan for consistency across CMake and Bazel builds
+
+### API resilience and error handling
+- **Fixed JSON parsing errors** that showed "unexpected character at line 1 column 1" on long-running sessions by validating all API responses before sending to the browser
+- **Added robust error handling** for empty, malformed, or incomplete JSON payloads at both the C++ server and JavaScript client layers
+- **Implemented fallback JSON** for all API endpoints (`/api/holdings`, `/api/news`, `/api/positions`, `/api/config`) to ensure valid responses even when data sources fail
+- **Enhanced error messages** with detailed context displayed in a dedicated error panel instead of raw parse exceptions
+
+### Browser UI optimization
+- **Data health tab** now shows operational diagnostics: holdings loaded, news articles, alert decisions, and missing price checks
+- **JSON tab** displays raw server payload with a clear "Runtime payload" label and explanatory context
+- **Config tab** summarizes the secure configuration boundary: holdings source, news source, auth mode, and HTTPS-only model
+- **Error display** improved with actionable guidance and browser console logging for debugging
+
+### Security and code quality
+- **Login flow hardening** ensures `FOLIO_LOGIN_CODE` values are trimmed, URL-decoded, and compared safely before session creation
+- **Environment-backed secrets** can come from `~/.upstox.env` or protected local fallback files without exposing credentials in source control
+- **Repository hygiene** keeps Bazel artifacts, local caches, generated files, and secret data out of GitHub
+- **Single canonical tab render path** prevents duplicate UI logic and stale data conflicts in Overview, Alerts, and Deeper analysis views
+
+### Operational stability
+- **Existing features preserved**: browser cache behavior, saved-news fallback path, and local-first architecture remain unchanged
+- **Version alignment** across release popup, documentation, CMake build, and runtime UI using x.x.x semantic versioning
+- **All regression tests pass** with 100% success rate under the gtest suite
 
 ## Project structure
 

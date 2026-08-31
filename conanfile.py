@@ -21,6 +21,7 @@ class PortfolioHealthConan(ConanFile):
         toolchain.generate()
 
     def requirements(self):
+        self.requires("nlohmann_json/3.11.3")
         if self.options.use_conan_libcurl:
             self.requires("openssl/3.2.1")
             self.requires("libcurl/8.10.1")

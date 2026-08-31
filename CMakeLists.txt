@@ -22,35 +22,9 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL QUIET)
 find_package(uuid QUIET)  # Optional for NotificationService (v2.0.0+)
 
-# nlohmann/json is resolved in this order --
-#   1) vendored single header at third_party/nlohmann/json.hpp (offline default)
-#   2) system-installed package
-#   3) FetchContent from GitHub (opt-in with -DPORTFOLIO_HEALTH_FETCH_JSON=ON)
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/nlohmann/json.hpp)
-  add_library(portfolio_json INTERFACE)
-  target_include_directories(portfolio_json INTERFACE
-      ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
-  add_library(nlohmann_json::nlohmann_json ALIAS portfolio_json)
-  message(STATUS "Using vendored nlohmann/json.hpp")
-else()
-  find_package(nlohmann_json QUIET)
-  if(NOT nlohmann_json_FOUND)
-    if(PORTFOLIO_HEALTH_FETCH_JSON)
-      include(FetchContent)
-      FetchContent_Declare(
-        nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-      )
-      FetchContent_MakeAvailable(nlohmann_json)
-    else()
-      message(FATAL_ERROR
-        "nlohmann/json not found. Options:\n"
-        "  * drop the single header at third_party/nlohmann/json.hpp, or\n"
-        "  * install it via your package manager, or\n"
-        "  * pass -DPORTFOLIO_HEALTH_FETCH_JSON=ON to download it via CMake.")
-    endif()
-  endif()
-endif()
+# nlohmann/json is managed through Conan dependency management (v2.0.10+)
+# See conanfile.py for version specification
+find_package(nlohmann_json REQUIRED)
 
 # --- Shared library + application targets ---------------------------------
 set(PORTFOLIO_HEALTH_CORE_SOURCES
