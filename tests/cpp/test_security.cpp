@@ -16,12 +16,27 @@
 #include "TaskScheduler.hpp"
 #include "TechnicalIndicators.hpp"
 #include "UpstoxClient.hpp"
+#include "WebServer.hpp"
 #include "StreamingClient.hpp"
 
 TEST(SecurityUtils, ValidateSymbolAcceptsExpectedFormat) {
     EXPECT_TRUE(folio::security::validateSymbol("NSE_EQ|INE009A01021"));
     EXPECT_FALSE(folio::security::validateSymbol("INE009A01021"));
     EXPECT_FALSE(folio::security::validateSymbol("nse_eq|ine009a01021"));
+}
+
+TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
+    const auto categories = folio::deeperAnalysisCategoryOrder();
+    EXPECT_EQ(categories.size(), 5u);
+    EXPECT_EQ(categories[0], "Neutral news");
+    EXPECT_EQ(categories[1], "No recent news");
+    EXPECT_EQ(categories[2], "going good");
+    EXPECT_EQ(categories[3], "invest more");
+    EXPECT_EQ(categories[4], "sell it off");
+
+    EXPECT_EQ(folio::normalizeDecisionAction("Consider adding - review"), "Consider adding");
+    EXPECT_EQ(folio::normalizeDecisionAction("Do not add - review risk"), "Do not add");
+    EXPECT_EQ(folio::normalizeDecisionAction("Hold / wait"), "Hold / wait");
 }
 
 TEST(SecurityUtils, ValidateQuantityAndPriceBounds) {

@@ -1,13 +1,32 @@
-# Byte-compiled / optimized / DLL files
+# Python caches and local virtualenvs
 __pycache__/
+.pytest_cache/
+.venv/
+.venv*/
 *.py[cod]
 *.pyo
+*.pyd
+.mypy_cache/
+.pytype/
 
-# Virtual environments
-venv/
+# Local secret / login files
+.folio_login_code
+*.local
+
+# Tooling / IDE state
+.bazel-cache/
+.bazelisk/
+.bazelrc.local
+
+# Environment files
 .env/
+.env
 
 # Build artifacts
 build/
 dist/
 *.egg-info/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db

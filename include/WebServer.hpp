@@ -8,8 +8,13 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 namespace folio {
+
+std::string normalizeSymbol(std::string symbol);
+std::vector<std::string> deeperAnalysisCategoryOrder();
+std::string normalizeDecisionAction(const std::string& value);
 
 class WebServer {
 public:

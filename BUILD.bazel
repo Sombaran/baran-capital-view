@@ -1,0 +1,55 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "nlohmann_json",
+    hdrs = ["third_party/nlohmann/json.hpp"],
+    strip_include_prefix = "third_party",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "portfolio_health_core",
+    srcs = [
+        "src/HttpClient.cpp",
+        "src/UpstoxClient.cpp",
+        "src/StreamingClient.cpp",
+        "src/WebServer.cpp",
+        "src/PortfolioHealth.cpp",
+        "src/PortfolioLoader.cpp",
+        "src/TechnicalIndicators.cpp",
+        "src/MLModels.cpp",
+        "src/SignalGenerator.cpp",
+        "src/OrdersAPI.cpp",
+        "src/NotificationService.cpp",
+        "src/SecureUtils.cpp",
+        "src/TaskScheduler.cpp",
+    ],
+    hdrs = glob(["include/*.hpp"]),
+    includes = ["include"],
+    deps = [":nlohmann_json"],
+    copts = [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Ithird_party",
+    ],
+    linkopts = [
+        "-lcurl",
+        "-lpthread",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "portfolio_health",
+    srcs = ["src/main.cpp"],
+    deps = [":portfolio_health_core"],
+    copts = [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Ithird_party",
+    ],
+)

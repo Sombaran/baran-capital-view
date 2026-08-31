@@ -34,6 +34,32 @@ using nlohmann::json;
 #define PORTFOLIO_HEALTH_VERSION "unknown"
 #endif
 
+std::string normalizeSymbol(std::string symbol) {
+    const auto first = symbol.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return {};
+    const auto last = symbol.find_last_not_of(" \t\r\n");
+    symbol = symbol.substr(first, last - first + 1);
+    std::transform(symbol.begin(), symbol.end(), symbol.begin(),
+                   [](unsigned char character) {
+                       return static_cast<char>(std::toupper(character));
+                   });
+    return symbol;
+}
+
+std::vector<std::string> deeperAnalysisCategoryOrder() {
+    return {"Neutral news", "No recent news", "going good", "invest more", "sell it off"};
+}
+
+std::string normalizeDecisionAction(const std::string& value) {
+    const std::string trimmed = value;
+    if (trimmed.rfind("Consider", 0) == 0) return "Consider adding";
+    if (trimmed.rfind("Do not", 0) == 0) return "Do not add";
+    if (trimmed.rfind("Hold", 0) == 0) return "Hold / wait";
+    if (trimmed.rfind("Buy", 0) == 0) return "Buy / review";
+    if (trimmed.rfind("Sell", 0) == 0) return "Sell / review";
+    return trimmed.empty() ? "Hold / wait" : trimmed;
+}
+
 namespace {
 
 const char* loginPage() {
@@ -54,14 +80,14 @@ std::string dashboardVersion() {
 }
 
 const char* categoryEnhancements() {
-    return R"JS(<script>(function(){const render=()=>{if(document.querySelector('.tab.active')?.dataset.tab!=='deeper-analysis'||document.querySelector('.deeper-categories')||!window.deeperCategories)return;const data=window.deeperCategories,labels=Object.keys(data.counts||{}),panel=document.createElement('section');panel.className='panel deeper-categories';panel.innerHTML='<div class="label">News categorization</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+labels.map(label=>'<button type="button" style="padding:10px 14px;border:1px solid #0d7774;background:#fffdf8;color:#172126;cursor:pointer"><b>'+String(data.counts[label])+'</b> '+label+'</button>').join('')+'</div><p class="category-stocks" style="margin-bottom:0">Select a category to see its stocks.</p>';panel.querySelectorAll('button').forEach((button,index)=>button.onclick=()=>{const label=labels[index],names=data.stocks[label]||[];panel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});document.querySelector('#view').prepend(panel)};const originalFetch=window.fetch;window.fetch=async function(){const response=await originalFetch.apply(this,arguments);if(String(arguments[0]).includes('/api/deeper-analysis')){const copy=response.clone();copy.json().then(data=>{window.deeperCategories={counts:data.category_counts||{},stocks:data.category_stocks||{}};render()}).catch(()=>{})}return response};new MutationObserver(render).observe(document.querySelector('#view'),{childList:true});})()</script>)JS";
+    return R"JS(<script>(function(){const categoryOrder=['Neutral news','No recent news','going good','invest more','sell it off'];function normalizeLabel(value){const label=String(value||'').trim();const map={"neutral news":"Neutral news","no recent news":"No recent news","going good":"going good","invest more":"invest more","sell it off":"sell it off"};return map[label.toLowerCase()]||label||'Neutral news'};const render=()=>{if(document.querySelector('.tab.active')?.dataset.tab!=='deeper-analysis'||document.querySelector('.deeper-categories')||!window.deeperCategories)return;const data=window.deeperCategories;const orderedLabels=categoryOrder.filter(label=>Object.prototype.hasOwnProperty.call(data.counts||{},label)||Object.prototype.hasOwnProperty.call(data.stocks||{},label));const labels=orderedLabels.length?orderedLabels:(Object.keys(data.counts||{}).map(normalizeLabel));const panel=document.createElement('section');panel.className='panel deeper-categories';panel.innerHTML='<div class="label">News categorization</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+labels.map(label=>'<button type="button" style="padding:10px 14px;border:1px solid #0d7774;background:#fffdf8;color:#172126;cursor:pointer"><b>'+String(data.counts?.[label]??0)+'</b> '+label+'</button>').join('')+'</div><p class="category-stocks" style="margin-bottom:0">Select a category to see its stocks.</p>';panel.querySelectorAll('button').forEach((button,index)=>button.onclick=()=>{const label=labels[index],names=data.stocks?.[label]||[];panel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});document.querySelector('#view').prepend(panel)};const originalFetch=window.fetch;window.fetch=async function(){const response=await originalFetch.apply(this,arguments);if(String(arguments[0]).includes('/api/deeper-analysis')){const copy=response.clone();copy.json().then(data=>{const counts={};const stocks={};const ordered=Object.keys(data.category_counts||{});for(const key of categoryOrder){const normalized=normalizeLabel(key);counts[normalized]=Number(data.category_counts?.[key]??data.category_counts?.[normalized]??0);stocks[normalized]=Array.isArray(data.category_stocks?.[key])?data.category_stocks[key]:Array.isArray(data.category_stocks?.[normalized])?data.category_stocks[normalized]:[];}for(const key of ordered){const normalized=normalizeLabel(key);if(!(normalized in counts)){counts[normalized]=Number(data.category_counts?.[key]??0);stocks[normalized]=data.category_stocks?.[key]||[]}}window.deeperCategories={counts,stocks};render();}).catch(()=>{})}return response};new MutationObserver(render).observe(document.querySelector('#view'),{childList:true});})()</script>)JS";
 }
 
 std::string releaseNotice() {
     return std::string("<script>(function(){const version='") + PORTFOLIO_HEALTH_VERSION +
            R"JS(';if(localStorage.getItem('baran-capital-view-release-seen')===version)return;const box=document.createElement('aside');box.setAttribute('role','dialog');box.setAttribute('aria-label','What is new');box.style.cssText='position:fixed;z-index:50;right:24px;top:24px;width:min(380px,calc(100% - 48px));padding:18px 20px;background:#fffdf8;color:#172126;border:1px solid #0d7774;box-shadow:0 16px 40px #17212630;font:14px/1.45 Arial,sans-serif';box.innerHTML='<button type="button" aria-label="Close release notes" style="float:right;border:0;background:transparent;color:#6b777b;font-size:22px;line-height:1;cursor:pointer">&times;</button><div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#0d7774;font-weight:700">What is new · v)JS" +
            PORTFOLIO_HEALTH_VERSION +
-           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Market value fix + release summary</strong><p style="margin:8px 0 0;color:#6b777b">This patch corrects the live market-value mismatch by keeping the broker-reported current_value/market_value before falling back to price × quantity, while keeping the x.x.x version and popup in sync with the shipped code changes.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Market Value now prefers the broker-reported current_value or market_value when available</li><li>Derived values still fall back to last_price × quantity × multiplier for safe offline and cached snapshots</li><li>Upstox traffic remains restricted to HTTPS, trusted hosts, and secure failure handling</li><li>The right-side summary reflects the actual fix shipped in this semver patch</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
+           R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">Web UX + categorization fix</strong><p style="margin:8px 0 0;color:#6b777b">This patch repairs the broken Alerts tab, standardizes the Deeper analysis category labels, and keeps the x.x.x release summary aligned with the shipped code changes.</p><ul style="margin:10px 0 0 18px;padding:0;color:#47575d;line-height:1.6"><li>Alerts now render from a single canonical data path to avoid duplicate tab logic</li><li>Deeper analysis categories and decisions share the same normalized labels and action names</li><li>Upstox traffic stays HTTPS-only with trusted-host validation and safe failure handling</li><li>The right-side summary reflects the actual fix shipped in this semver patch</li></ul>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
 }
 
 const char* page() {
@@ -90,11 +116,11 @@ function refreshView(){if(refreshInFlight)return;cache={};refreshInFlight=true;o
 let updatesPaused=false;
 function toggleUpdates(){updatesPaused=!updatesPaused;document.querySelector('#pause-refresh').textContent=updatesPaused?'Resume updates':'Pause updates';document.querySelector('#pause-refresh').setAttribute('aria-pressed',String(updatesPaused))}
 function fail(e){view.innerHTML='<div class="panel error">Unable to load this view: '+esc(e.message)+'</div>';status.textContent='Request failed'}
-function rows(data){return Object.entries(data).flatMap(([key,items])=>items.map(x=>({...x,instrument_key:key})))}
-async function holdings(){let p=await get('holdings','/api/holdings'),d=p.data||[];status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();let value=d.reduce((n,x)=>n+(x.last_price||0)*(x.quantity||0),0);view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>INR '+d.reduce((n,x)=>n+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>'<tr><td><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></td><td>'+x.quantity+'</td><td>'+x.average_price+'</td><td>'+x.last_price+'</td><td>'+x.pnl+'</td></tr>').join('')+'</table></div></div>'}
-async function holdings(){let p=await get('holdings','/api/holdings'),n=await get('news','/api/news'),d=p.data||[],alerts=n.alerts||[],byKey={};alerts.forEach(x=>byKey[x.instrument_key]=x);d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();let value=d.reduce((n,x)=>n+holdingValue(x),0);view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((n,x)=>n+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc">Highest first</option><option value="asc">Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{let key=x.instrument_token||'',a=byKey[key],items=(n.data||{})[key]||[],article=items[0],action=a?a.action:'No recent news',reason=a?a.rationale:'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(action)+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news &rarr;</a>':'<small>No related article available.</small>')+'</span></td><td>'+x.quantity+'</td><td>'+x.average_price+'</td><td>'+x.last_price+'</td><td>'+x.pnl+'</td></tr>'}).join('')+'</table></div></div>'}
+function rows(data){return Object.entries(data).flatMap(([key,items])=>items.map(x=>({...x,instrument_key:key}))) }
+function decisionSummary(action){const normalized=(action||'').trim();if(!normalized)return 'Hold / wait';const lower=normalized.toLowerCase();if(lower.includes('consider'))return 'Consider adding';if(lower.includes('do not'))return 'Do not add';if(lower.includes('hold'))return 'Hold / wait';if(lower.includes('buy'))return 'Buy / review';if(lower.includes('sell'))return 'Sell / review';return normalized}
+function normalizeCategoryLabel(value){const label=String(value||'').trim();const map={'neutral news':'Neutral news','no recent news':'No recent news','going good':'going good','invest more':'invest more','sell it off':'sell it off'};return map[label.toLowerCase()]||label||'Neutral news'}
+async function holdings(){const p=await get('holdings','/api/holdings');const n=await get('news','/api/news');const d=(p.data||[]).slice();const alerts=n.alerts||[];const byKey={};for(const x of alerts){byKey[x.instrument_key]=x;}d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();const value=d.reduce((sum,x)=>sum+holdingValue(x),0);status.textContent=d.length+' live holdings · updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((sum,x)=>sum+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{const key=x.instrument_token||'';const alert=byKey[key]||{};const items=(n.data||{})[key]||[];const article=items[0];const action=alert.action||'No recent news';const reason=alert.rationale||'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(decisionSummary(action))+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news</a>':'')+'</span></td><td>'+x.quantity+'</td><td>'+((x.average_price===undefined||x.average_price===null)?'—':x.average_price)+'</td><td>'+((x.last_price===undefined||x.last_price===null)?'—':x.last_price)+'</td><td>'+((x.pnl===undefined||x.pnl===null)?'—':x.pnl)+'</td></tr>'}).join('')+'</table></div></div>'}
 async function news(){let p=await get('news','/api/news'),a=rows(p.data||{}).sort((left,right)=>Number(right.published_time||0)-Number(left.published_time||0));status.textContent=a.length+' articles from holding.csv · newest first';view.innerHTML='<div class="panel"><h2>News for your holdings</h2><p>Articles matched to the symbols in <b>holding.csv</b>, newest first.</p><div class="news">'+a.map(x=>'<article class="story"><small>'+esc(x.instrument_key)+'</small><h3>'+esc(x.heading)+'</h3><p>'+esc(x.summary||'')+'</p><a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">Read article &rarr;</a></article>').join('')+'</div></div>'}
-async function alerts(){let p=await get('news','/api/news'),h=await get('holdings','/api/holdings'),a=sortByConfidence(p.alerts||[]),names={};(h.data||[]).forEach(x=>names[x.instrument_token]=x.company_name||x.trading_symbol||x.tradingsymbol||'Unknown company');status.textContent=a.length+' portfolio decisions / updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><h2>Should I add more?</h2><p>Each row combines recent news sentiment, article agreement, and recency. It is a review prompt for stocks in <b>holding.csv</b>, not an automatic trade.</p><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><div class="grid"><div class="metric"><span class="label">Consider adding</span><b>'+a.filter(x=>(x.action||'').startsWith('Consider')).length+'</b></div><div class="metric"><span class="label">Risk review</span><b>'+a.filter(x=>(x.action||'').startsWith('Do not')).length+'</b></div><div class="metric"><span class="label">Hold / wait</span><b>'+a.filter(x=>(x.action||'').startsWith('Hold')).length+'</b></div><div class="metric"><span class="label">Confidence</span><b>0 to 100%</b></div></div><p><b>Consider adding</b> means positive news deserves review. <b>Do not add</b> means negative news deserves risk review. <b>Hold / wait</b> means the signal is mixed or not confident enough. Always read the articles and check valuation before acting.</p><div class="table-wrap"><table class="table"><tr><th>Stock</th><th>Company</th><th>News score</th><th>Confidence</th><th>Decision</th><th>Why</th><th>Articles</th></tr>'+a.map(x=>'<tr><td><b>'+esc((x.instrument_key||'').replace(/^.*\\|/,''))+'</b></td><td>'+esc(names[x.instrument_key]||'Unknown company')+'</td><td>'+Number(x.sentiment_score||0).toFixed(2)+'</td><td>'+Math.round(Number(x.confidence||0)*100)+'%</td><td><span class="decision '+((x.action||'').startsWith('Consider')?'decision-add':(x.action||'').startsWith('Do not')?'decision-risk':'decision-hold')+'">'+esc(x.action||'Hold / wait')+'</span></td><td>'+esc(x.rationale||'')+'</td><td>'+x.article_count+'</td></tr>').join('')+'</table></div></div>'}
 async function alerts(){let p=await get('news','/api/news'),h=await get('holdings','/api/holdings'),byKey={};(p.alerts||[]).forEach(x=>byKey[x.instrument_key]=x);let a=(h.data||[]).map(x=>{let key=x.instrument_token||'',alert=byKey[key]||{},items=(p.data||{})[key]||[],article=items[0];return {...alert,instrument_key:key,company_name:x.company_name||x.trading_symbol||x.tradingsymbol||'Unknown company',article_count:items.length,article_link:article?.article_link||''}});a=sortByConfidence(a);status.textContent=a.length+' stocks in portfolio · updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><h2>Should I add more?</h2><p>Every holding is shown, including stocks without recent matching news. Each row combines sentiment, article agreement, and recency. It is a review prompt, not an automatic trade.</p><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><div class="grid"><div class="metric"><span class="label">Consider adding</span><b>'+a.filter(x=>(x.action||'').startsWith('Consider')).length+'</b></div><div class="metric"><span class="label">Risk review</span><b>'+a.filter(x=>(x.action||'').startsWith('Do not')).length+'</b></div><div class="metric"><span class="label">Hold / wait</span><b>'+a.filter(x=>(x.action||'').startsWith('Hold')||!x.action).length+'</b></div><div class="metric"><span class="label">Total stocks</span><b>'+a.length+'</b></div></div><p><b>Consider adding</b> means positive news deserves review. <b>Do not add</b> means negative news deserves risk review. <b>Hold / wait</b> means the signal is mixed or not confident enough. Always read the articles and check valuation before acting.</p><div class="table-wrap"><table class="table"><tr><th>#</th><th>Company</th><th>News score</th><th>Confidence</th><th>Decision</th><th>Why</th><th>Articles</th></tr>'+a.map((x,index)=>'<tr><td>'+String(index+1)+'</td><td>'+esc(x.company_name)+'</td><td>'+Number(x.sentiment_score||0).toFixed(2)+'</td><td>'+Math.round(Number(x.confidence||0)*100)+'%</td><td><span class="decision '+((x.action||'').startsWith('Consider')?'decision-add':(x.action||'').startsWith('Do not')?'decision-risk':'decision-hold')+'">'+esc(x.action||'Hold / wait')+'</span></td><td>'+esc(x.rationale||'No matching news in the recent feed.')+(x.article_link?' <a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">View news</a>':'')+'</td><td>'+x.article_count+'</td></tr>').join('')+'</table></div></div>'}
 async function raw(name,url,title){let p=await get(name,url);status.textContent='Live API response';view.innerHTML='<div class="panel"><h2>'+title+'</h2><pre style="white-space:pre-wrap;overflow:auto;font:12px/1.5 monospace">'+esc(JSON.stringify(p,null,2))+'</pre></div>'}
 async function config(){view.innerHTML='<div class="panel"><h2>Configuration</h2><p>The Upstox access token is loaded from the server environment and is never sent to the browser.</p><p class="label">Holdings filter</p><p>News is restricted to symbols listed in config/holding.csv.</p></div>'}
@@ -130,18 +156,6 @@ document.addEventListener('click',event=>{const target=event.target.closest('.ho
 setInterval(()=>{if(activeTab==='deeper-analysis'&&!updatesPaused){cache={};openTab(activeTab,false)}},30000);
 refreshTimer=setInterval(()=>{updateMarketStatus();if(!updatesPaused&&!refreshInFlight&&activeTab!=='config'&&activeTab!=='deeper-analysis'){cache={};refreshInFlight=true;openTab(activeTab,false).finally(()=>refreshInFlight=false)}},15000);
 </script></body></html>)HTML";
-}
-
-std::string normalizeSymbol(std::string symbol) {
-    const auto first = symbol.find_first_not_of(" \t\r\n");
-    if (first == std::string::npos) return {};
-    const auto last = symbol.find_last_not_of(" \t\r\n");
-    symbol = symbol.substr(first, last - first + 1);
-    std::transform(symbol.begin(), symbol.end(), symbol.begin(),
-                   [](unsigned char character) {
-                       return static_cast<char>(std::toupper(character));
-                   });
-    return symbol;
 }
 
 std::unordered_set<std::string> csvSymbols(const std::string& path) {
@@ -840,66 +854,67 @@ std::string WebServer::runDeeperAnalysis() const {
             }
         }
     }
-    json categoryStocks = {
-        {"going good", json::array()}, {"invest more", json::array()},
-        {"sell it off", json::array()}, {"Neutral news", json::array()},
-        {"No recent news", json::array()}};
+    json categoryStocks = json::object();
+    for (const auto& label : deeperAnalysisCategoryOrder()) {
+        categoryStocks[label] = json::array();
+    }
     for (const auto& holding : holdings.positions) {
-            const std::string symbol = holding.tradingSymbol;
-            const std::string key = holding.instrumentToken;
-            const auto savedEntry = recentSavedData.find(key);
-            const bool hasSavedNews = savedEntry != recentSavedData.end() && savedEntry->is_array() && !savedEntry->empty();
-            const auto savedAlert = savedAlerts.find(key);
-            const double score = savedEntry != recentSavedData.end()
-                ? decideNews(*savedEntry).score
-                : savedAlert == savedAlerts.end()
-                    ? 0.0 : savedAlert->second.value("sentiment_score", 0.0);
-            const bool savedPositive = score >= 0.30;
-            const bool savedNegative = score <= -0.30;
-            const std::string normalizedSymbol = normalizeSymbol(symbol);
-            const bool hasFreshRecommendation = recommendations.count(normalizedSymbol) != 0 &&
-                                                recommendations[normalizedSymbol] != "No recent news";
-            const std::string python = hasFreshRecommendation
-                ? recommendations[normalizedSymbol]
-                : hasSavedNews ? (savedPositive ? "Saved news: positive" : savedNegative ? "Saved news: negative" : "Saved news: neutral")
-                               : "No recent news";
-            const bool pythonPositive = hasFreshRecommendation &&
-                                        (python == "invest more" || python == "going good");
-            const bool pythonNegative = hasFreshRecommendation && python == "sell it off";
-            const std::string category = hasFreshRecommendation ? python
-                : hasSavedNews ? "Neutral news" : "No recent news";
-            if (categoryStocks.contains(category)) categoryStocks[category].push_back(symbol);
-            std::string action = "Hold / review";
-            std::string analysis = "Signals are mixed or neutral.";
-            if (savedPositive && pythonPositive) {
-                action = "Buy / review";
-                analysis = "Saved portfolio news and fresh Python news are positive.";
-            } else if (savedNegative && pythonNegative) {
-                action = "Sell / review";
-                analysis = "Saved portfolio news and fresh Python news are negative.";
-            } else if (savedPositive || savedNegative || pythonPositive || pythonNegative) {
-                analysis = hasFreshRecommendation
-                    ? "Saved and fresh news disagree; investigate before acting."
-                    : "Fresh Python news is unavailable; review the saved portfolio news.";
-            }
-            if (!hasFreshRecommendation && hasSavedNews) {
-                analysis = "Fresh Python news is unavailable; saved portfolio news is available for review.";
-            }
-            result.push_back({
-                {"symbol", symbol},
-                {"saved_signal", savedPositive ? "Positive" : savedNegative ? "Negative" : "Neutral"},
-                {"python_recommendation", python},
-                {"python_source", hasFreshRecommendation ? "fresh Python news" : hasSavedNews ? "saved portfolio news fallback" : "no news source"},
-                {"analysis", analysis},
-                {"action", action},
-                {"market_value", holding.marketValue()},
-                {"article_count", hasSavedNews ? savedEntry->size() : 0}});
+        const std::string symbol = holding.tradingSymbol;
+        const std::string key = holding.instrumentToken;
+        const auto savedEntry = recentSavedData.find(key);
+        const bool hasSavedNews = savedEntry != recentSavedData.end() && savedEntry->is_array() && !savedEntry->empty();
+        const auto savedAlert = savedAlerts.find(key);
+        const double score = savedEntry != recentSavedData.end()
+            ? decideNews(*savedEntry).score
+            : savedAlert == savedAlerts.end()
+                ? 0.0 : savedAlert->second.value("sentiment_score", 0.0);
+        const bool savedPositive = score >= 0.30;
+        const bool savedNegative = score <= -0.30;
+        const std::string normalizedSymbol = normalizeSymbol(symbol);
+        const bool hasFreshRecommendation = recommendations.count(normalizedSymbol) != 0 &&
+                                            recommendations[normalizedSymbol] != "No recent news";
+        const std::string python = hasFreshRecommendation
+            ? recommendations[normalizedSymbol]
+            : hasSavedNews ? (savedPositive ? "Saved news: positive" : savedNegative ? "Saved news: negative" : "Saved news: neutral")
+                           : "No recent news";
+        const bool pythonPositive = hasFreshRecommendation &&
+                                    (python == "invest more" || python == "going good");
+        const bool pythonNegative = hasFreshRecommendation && python == "sell it off";
+        const std::string category = hasFreshRecommendation ? python
+            : hasSavedNews ? "Neutral news" : "No recent news";
+        if (categoryStocks.contains(category)) categoryStocks[category].push_back(symbol);
+        std::string action = "Hold / wait";
+        std::string analysis = "Signals are mixed or neutral.";
+        if (savedPositive && pythonPositive) {
+            action = "Buy / review";
+            analysis = "Saved portfolio news and fresh Python news are positive.";
+        } else if (savedNegative && pythonNegative) {
+            action = "Sell / review";
+            analysis = "Saved portfolio news and fresh Python news are negative.";
+        } else if (savedPositive || savedNegative || pythonPositive || pythonNegative) {
+            analysis = hasFreshRecommendation
+                ? "Saved and fresh news disagree; investigate before acting."
+                : "Fresh Python news is unavailable; review the saved portfolio news.";
+        }
+        if (!hasFreshRecommendation && hasSavedNews) {
+            analysis = "Fresh Python news is unavailable; saved portfolio news is available for review.";
+        }
+        result.push_back({
+            {"symbol", symbol},
+            {"saved_signal", savedPositive ? "Positive" : savedNegative ? "Negative" : "Neutral"},
+            {"python_recommendation", python},
+            {"python_source", hasFreshRecommendation ? "fresh Python news" : hasSavedNews ? "saved portfolio news fallback" : "no news source"},
+            {"analysis", analysis},
+            {"action", normalizeDecisionAction(action)},
+            {"market_value", holding.marketValue()},
+            {"article_count", hasSavedNews ? savedEntry->size() : 0}});
     }
     json categoryCounts = json::object();
     for (const auto& entry : categoryStocks.items())
         categoryCounts[entry.key()] = entry.value().size();
     return json({{"stocks", result}, {"category_counts", categoryCounts},
                  {"category_stocks", categoryStocks},
+                 {"category_order", deeperAnalysisCategoryOrder()},
                  {"source", "config/portfolio_news.json + stock_alert_nlp.py + Upstox holdings"}}).dump(2);
 }
 

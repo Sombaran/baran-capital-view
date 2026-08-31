@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.6
+Version: 2.0.9
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,7 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.6
+Current release: 2.0.9
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -39,10 +39,23 @@ Build targets:
 
 ## Build
 
+The project supports both the existing CMake workflow and a Bazel build path for compatibility with alternative CI pipelines.
+
 ```bash
 cd /home/ritup2404/baran-capital-view
-./buildCode.sh --rebuild
+
+# 1 = CMake build with Conan integration
+./buildCode.sh 1 --rebuild
+
+# 2 = Bazel build (requires Bazel or Bazelisk to be installed locally)
+./buildCode.sh 2 --rebuild
+
+# legacy explicit flags remain supported
+./buildCode.sh --cmake --rebuild
+./buildCode.sh --bazel --rebuild
 ```
+
+Use either the numeric selector (`1` or `2`) or the explicit flags for build backend selection in automation. If Bazel is not installed, prefer the CMake path with `1` to keep the default workflow functional.
 
 ## Testing
 
@@ -89,9 +102,10 @@ This keeps the broker API and stock data behind one trusted boundary and avoids 
 
 ## Recent fix summary
 
-Version 2.0.6 includes:
+Version 2.0.7 includes:
 
-- fixed the live Market Value mismatch by preferring the broker-reported `current_value`/`market_value` before falling back to price × quantity
+- fixed the broken Alerts tab and duplicate tab-rendering logic so the UI consistently loads every holding and decision row without stale script conflicts
+- corrected the Deeper analysis categorization labels and action normalization so the category counts, actions, and browser buttons reflect the same canonical values
 - kept the release popup and project docs aligned to the actual x.x.x code-change version so the right-side fix summary matches the shipped patch
 - secured the stock API boundary by preserving HTTPS-only, trusted-host, and safe-failure enforcement around Upstox traffic
 - kept the local-first architecture, browser cache behavior, and saved-news fallback path intact so existing features remain stable
