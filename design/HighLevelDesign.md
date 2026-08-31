@@ -104,10 +104,10 @@ Credentials are supplied through the environment or an external secret
 manager; repository scripts and JSON configuration contain no live secrets.
 The client restricts authenticated traffic to approved Upstox HTTPS hosts and
 the web service remains bound to loopback.
-The myFolio Python analyzer uses configured API providers first and falls back to
+The baran-capital-view Python analyzer uses configured API providers first and falls back to
 Google News RSS when providers are rate-limited, rejected, or unavailable;
 all provider queries include the configured market query suffix.
-Its implementation and dependencies are stored under myFolio, so Deeper
+Its implementation and dependencies are stored under baran-capital-view, so Deeper
 analysis has no runtime dependency on the sibling `market` directory.
 Deeper analysis refreshes its live comparison at most every five minutes,
 preventing an open-session result from being reused after the market closes.

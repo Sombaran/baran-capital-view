@@ -113,7 +113,7 @@ queries, and falls back once per stock to Google News RSS when all API
 providers are unavailable. Its recommendation contract uses
 `No recent news` for missing evidence and `Neutral news` for article text with
 no directional keywords; C++ treats both as non-directional.
-The myFolio analyzer and its `requirements.txt` are local to this project;
+The baran-capital-view analyzer and its `requirements.txt` are local to this project;
 config lookup uses the project directory and does not depend on the caller's
 working directory.
 Deeper analysis joins from `holdings.positions`, not from saved-news keys. This
@@ -127,7 +127,7 @@ The server normalizes portfolio symbols by trimming whitespace and uppercasing
 before matching `config/holding.csv` to live holdings, preventing unrelated
 news keys from entering `/api/news`.
 The authenticated page injects a version-aware `What is new` dialog. Its close
-button stores `myfolio-release-seen` in local storage, so repeat visits for the
+button stores `baran-capital-view-release-seen` in local storage, so repeat visits for the
 same version do not create another request or interrupt the dashboard.
 The Overview refresh metric is a manual action that clears the browser cache
 and requests a new snapshot. The existing five-second snapshot cache remains

@@ -241,7 +241,10 @@ PositionsResult parseBrokerBody(const std::string& body) {
             p.unrealised = row.value("unrealised", 0.0);
             p.realised   = row.value("realised", 0.0);
             p.pnl        = row.value("pnl", 0.0);
-            p.value      = row.value("value", 0.0);
+            p.currentValue = row.value("current_value", 0.0);
+            if (std::fabs(p.currentValue) <= 0.0) p.currentValue = row.value("market_value", 0.0);
+            p.value = row.value("value", 0.0);
+            if (std::fabs(p.value) <= 0.0 && std::fabs(p.currentValue) > 0.0) p.value = p.currentValue;
             p.multiplier = row.value("multiplier", 1);
             if (p.multiplier == 0) p.multiplier = 1;
             out.positions.push_back(std::move(p));

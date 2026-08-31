@@ -56,7 +56,7 @@
 
 ```
 [100%] Built target portfolio_health
-Binary: /home/usomgupta/gitHub/tesctCode/myFolio/build/portfolio_health
+Binary: /home/ritup2404/baran-capital-view/build/portfolio_health
 Size: 790 KB
 Status: Ready to run
 ```

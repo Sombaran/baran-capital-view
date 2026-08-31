@@ -1,8 +1,8 @@
-# myFolio
+# baran-capital-view
 
-Version: 2.0.5
+Version: 2.0.6
 
-myFolio is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
+baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
 ## Highlights
 
@@ -23,7 +23,7 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.5
+Current release: 2.0.6
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -40,7 +40,7 @@ Build targets:
 ## Build
 
 ```bash
-cd /home/ritup2404/myFolio
+cd /home/ritup2404/baran-capital-view
 ./buildCode.sh --rebuild
 ```
 
@@ -62,7 +62,7 @@ The C++ tests cover the secure symbol, quantity, and price validation helpers us
 ## Run web UI
 
 ```bash
-cd /home/ritup2404/myFolio
+cd /home/ritup2404/baran-capital-view
 ./run.sh --web
 ```
 
@@ -76,7 +76,7 @@ cd /home/ritup2404/myFolio
 
 ## Architecture recommendation
 
-The best architecture for myFolio is a local monolith first, with an internal task scheduler and async worker queue for non-blocking background work.
+The best architecture for baran-capital-view is a local monolith first, with an internal task scheduler and async worker queue for non-blocking background work.
 
 Recommended pattern:
 
@@ -89,15 +89,13 @@ This keeps the broker API and stock data behind one trusted boundary and avoids 
 
 ## Recent fix summary
 
-Version 2.0.5 includes:
+Version 2.0.6 includes:
 
-- fixed the login flow so the configured secret from `.folio_login_code` or `FOLIO_LOGIN_CODE` is trimmed, URL-decoded, and compared safely before creating a session
-- kept the release popup summary aligned to the actual patch so the right-side fix summary reflects the current code change set
-- tightened the Upstox HTTP client to validate hosts, reject unsafe redirects, and block non-HTTPS or untrusted API destinations
-- fixed Python-based deeper-analysis execution to remain portable across working directories while preserving the saved-news fallback path
-- hardened the browser and server behavior for missing, expired, or stale stock API and news responses without exposing sensitive details
-- kept the local-first architecture and async task scheduling in place to avoid broadening the broker API attack surface
-- refreshed the project documentation and versioning metadata to the x.x.x semver format used in production releases
+- fixed the live Market Value mismatch by preferring the broker-reported `current_value`/`market_value` before falling back to price × quantity
+- kept the release popup and project docs aligned to the actual x.x.x code-change version so the right-side fix summary matches the shipped patch
+- secured the stock API boundary by preserving HTTPS-only, trusted-host, and safe-failure enforcement around Upstox traffic
+- kept the local-first architecture, browser cache behavior, and saved-news fallback path intact so existing features remain stable
+- refreshed the project documentation and runtime version metadata to the x.x.x semver format used in production releases
 
 ## Project structure
 

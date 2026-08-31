@@ -72,7 +72,7 @@ Verify (only prints the length, not the value):
 
 Run the tool live:
 
-    cd /home/lwadmin/Q2/myFolio
+    cd /home/ritup2404/baran-capital-view
     ./build/portfolio_health                                       # live account
     ./build/portfolio_health --portfolio config/my_portfolio.csv --fetch-ltp
 

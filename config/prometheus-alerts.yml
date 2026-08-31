@@ -1,22 +1,22 @@
 groups:
-  - name: myfolio
+  - name: baran-capital-view
     rules:
-      - alert: MyFolioRiskReview
+      - alert: BaranCapitalViewRiskReview
         expr: portfolio_news_review_total{action="risk"} > 0
         for: 5m
         labels:
           severity: warning
-          service: myfolio
+          service: baran-capital-view
         annotations:
-          summary: MyFolio has a risk-review news signal
+          summary: baran-capital-view has a risk-review news signal
           description: Review the Alerts page and linked news articles before taking action.
 
-      - alert: MyFolioPortfolioLoss
+      - alert: BaranCapitalViewPortfolioLoss
         expr: portfolio_total_pnl < -10000
         for: 5m
         labels:
           severity: warning
-          service: myfolio
+          service: baran-capital-view
         annotations:
-          summary: MyFolio portfolio loss threshold crossed
+          summary: baran-capital-view portfolio loss threshold crossed
           description: Portfolio total P&L is below the configured INR 10,000 loss threshold.

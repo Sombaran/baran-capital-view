@@ -32,13 +32,15 @@ struct Position {
     double realised = 0.0;        // booked P&L for the day
     double pnl = 0.0;             // unrealised + realised (as sent by broker)
     double value = 0.0;           // signed exposure of the open leg
+    double currentValue = 0.0;    // broker-reported live valuation, e.g. current_value/market_value
 
     int multiplier = 1;           // lot / contract multiplier
 
     // Derived helpers ------------------------------------------------------
     double marketValue() const {
+        const double reported = std::abs(currentValue) > 0.0 ? currentValue : value;
         const double derived = lastPrice * quantity * multiplier;
-        return std::abs(value) > 0.0 ? value : derived;
+        return std::abs(reported) > 0.0 ? reported : derived;
     }
     double exposure()    const { return marketValue() >= 0 ? marketValue() : -marketValue(); }
     double totalPnl()    const { return unrealised + realised; }

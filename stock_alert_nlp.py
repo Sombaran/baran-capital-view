@@ -40,7 +40,7 @@ def safe_json_response(response):
 
 
 def api_news(query, config):
-    headers = {"User-Agent": "myfolio-stock-alert/1.11"}
+    headers = {"User-Agent": "baran-capital-view-stock-alert/1.11"}
     for entry in config.get("api_keys", [])[:3]:
         endpoint = entry.get("endpoint")
         if not endpoint:
@@ -69,7 +69,7 @@ def rss_news(query):
         response = requests.get(
             "https://news.google.com/rss/search",
             params={"q": query, "hl": "en-IN", "gl": "IN", "ceid": "IN:en"},
-            headers={"User-Agent": "myfolio-stock-alert/1.11"}, timeout=10)
+            headers={"User-Agent": "baran-capital-view-stock-alert/1.11"}, timeout=10)
         response.raise_for_status()
         root = ET.fromstring(response.content)
     except (requests.RequestException, ET.ParseError):

@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cmath>
 #include <stdexcept>
 #include <map>
 #include <utility>
@@ -70,7 +71,10 @@ Position parseOne(const json& j) {
     p.unrealised = asDouble(j, "unrealised");
     p.realised   = asDouble(j, "realised");
     p.pnl        = asDouble(j, "pnl");
-    p.value      = asDouble(j, "value");
+    p.currentValue = asDouble(j, "current_value");
+    if (std::fabs(p.currentValue) <= 0.0) p.currentValue = asDouble(j, "market_value");
+    p.value = asDouble(j, "value");
+    if (std::fabs(p.value) <= 0.0 && std::fabs(p.currentValue) > 0.0) p.value = p.currentValue;
 
     p.multiplier = static_cast<int>(asLong(j, "multiplier", 1));
     if (p.multiplier == 0) p.multiplier = 1;

@@ -100,6 +100,17 @@ TEST(Position, MarketValuePrefersBrokerReportedValue) {
     EXPECT_DOUBLE_EQ(pos.marketValue(), 1234.56);
 }
 
+TEST(Position, MarketValuePrefersCurrentValueAliasWhenPresent) {
+    folio::Position pos{};
+    pos.lastPrice = 100.0;
+    pos.quantity = 10;
+    pos.multiplier = 1;
+    pos.value = 0.0;
+    pos.currentValue = 987.65;
+
+    EXPECT_DOUBLE_EQ(pos.marketValue(), 987.65);
+}
+
 TEST(PortfolioHealth, AnalyzeAggregatesExposureAndHealth) {
     folio::Position p1{};
     p1.exchange = "NSE";

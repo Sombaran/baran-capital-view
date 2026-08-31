@@ -44,7 +44,7 @@ nothing else is required.
 ### Option A — one-shot script
 
 ```bash
-cd myFolio
+cd /home/ritup2404/baran-capital-view
 ./run.sh
 ```
 
@@ -59,7 +59,7 @@ cd myFolio
 ### Option B — manual CMake
 
 ```bash
-cd myFolio
+cd /home/ritup2404/baran-capital-view
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ```

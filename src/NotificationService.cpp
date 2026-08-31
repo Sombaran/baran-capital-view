@@ -18,21 +18,32 @@ std::string NotificationService::send(Notification& notification) {
     notification.id = generateNotificationId();
     notification.createdTime = time(nullptr);
 
+    // Queue the notification even when a policy gate blocks immediate delivery.
+    // This keeps the service observable and prevents silent drops when quiet
+    // hours or rate limits intentionally suppress outbound sending.
+    auto queueNotification = [&]() {
+        notification.sentTime = time(nullptr);
+        history_.push_back(notification);
+    };
+
     // Check rate limits
     if (!passesRateLimit(notification.type, notification.symbolsInvolved)) {
         notification.error = "Rate limit exceeded";
+        queueNotification();
         return notification.id;
     }
 
     // Check quiet hours
     if (config_.quietHoursEnabled && isInQuietHours()) {
         notification.error = "Quiet hours active";
+        queueNotification();
         return notification.id;
     }
 
     // Check severity threshold
     if (notification.severity < config_.minSeverityForAlert) {
         notification.error = "Severity below threshold";
+        queueNotification();
         return notification.id;
     }
 

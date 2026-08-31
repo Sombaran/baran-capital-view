@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.5`
+**Version:** `2.0.6`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -54,7 +54,7 @@ The browser UI provides Overview, News, Alerts, Deeper analysis, Positions, JSON
 
 ### Architecture guidance
 
-The recommended production pattern for myFolio is a local monolith with an internal task scheduler and async worker queue. This approach keeps the stock API, the browser UI, and the analysis jobs tightly controlled in one trusted process, instead of expanding the system into a distributed workflow mesh too early.
+The recommended production pattern for baran-capital-view is a local monolith with an internal task scheduler and async worker queue. This approach keeps the stock API, the browser UI, and the analysis jobs tightly controlled in one trusted process, instead of expanding the system into a distributed workflow mesh too early.
 
 The local-first design provides:
 - a single entry point for credential handling
@@ -63,6 +63,7 @@ The local-first design provides:
 
 ### Release notes
 
+* `2.0.6` — Fixed the live Market Value mismatch by preferring the broker-reported `current_value`/`market_value` before falling back to price × quantity, refreshed the right-side release summary so it describes the actual fix shipped in this patch, preserved the upstream stock API hardening and local-first design, and kept the build metadata aligned with the x.x.x semver format.
 * `2.0.5` — Fixed the login secret validation so `.folio_login_code` and `FOLIO_LOGIN_CODE` values are trimmed, URL-decoded, and compared safely before a session is created; refreshed the right-side release popup to summarize the fix; preserved the stock API hardening and local-first architecture; and kept the build metadata aligned with the x.x.x semver format.
 * `2.0.4` — Tightened the stock API boundary by validating Upstox hosts, disabling unsafe redirects, and blocking non-HTTPS or untrusted broker routes; refreshed the versioned right-side fix summary popup to reflect the current patch; preserved the local-first task scheduler and saved-news fallbacks; added gtest and pytest regression coverage for security and Python analysis flows; and kept the web and CLI release notes consistent with the x.x.x semver format.
 * `2.0.3` — Fixed the Deeper analysis backend CLI pathing issue so the Python runner works from any working directory, hardened the external API calls against missing/expired auth and invalid host patterns, improved the news page fallback behavior for empty or stale results, aligned the fundamentals popup layout for the browser UI, introduced a local-first internal task scheduler and async worker queue for background jobs, and refreshed the right-side summary popup to document the actual production fixes.
@@ -70,8 +71,8 @@ The local-first design provides:
 * `2.0.1` — Hardened the live stock API path with HTTPS-only enforcement, trusted-Host allowlisting for Upstox endpoints, strict input validation for symbols/quantities/prices, secure memory-safe token handling, and a release-notes summary popup that explains the applied security fix in the right-side UI.
 * `2.0.0` — Added real-time WebSocket streaming for holdings and market quotes, expanded technical indicators (RSI, MACD, Bollinger Bands, Stochastic), integrated ML models for predictive analysis, added signal generation engine with automated risk scoring, implemented Orders API integration for automated trade execution, added push notifications for mobile/desktop alerts, and created comprehensive WebSocket streaming infrastructure.
 * `1.13.0` — Removed embedded broker and news-provider credentials, blocked bearer-token forwarding to untrusted API hosts, disabled credential-bearing HTTP traces, and stopped exposing upstream response bodies in errors.
-* `1.12.0` — Moved the Deeper analysis Python implementation and dependencies into myFolio so it no longer runs code from the sibling market directory.
-* `1.11.0` — Made Deeper analysis refresh its live snapshot every five minutes, added atomic end-of-day `holding.csv` updates, and made the myFolio Python launcher independent of the current working directory.
+* `1.12.0` — Moved the Deeper analysis Python implementation and dependencies into baran-capital-view so it no longer runs code from the sibling market directory.
+* `1.11.0` — Made Deeper analysis refresh its live snapshot every five minutes, added atomic end-of-day `holding.csv` updates, and made the baran-capital-view Python launcher independent of the current working directory.
 * `1.10.0` — Fixed the Deeper analysis iterator error and added a Google News RSS fallback with configured India-market query context when API providers are rate-limited, rejected, or unavailable.
 * `1.9.9` — Prevented raw saved news from bypassing Sombaran portfolio and 30-day filtering during fallback; Deeper Analysis categories now score only retained recent articles.
 * `1.9.8` — Added Deeper Analysis news categorization counts with clickable stock lists and enforced a maximum 30-day article window for portfolio news.
@@ -474,7 +475,7 @@ news export provides continuity but is clearly not a fresh market feed.
 ## Project Layout
 
 ```
-myFolio/
+baran-capital-view/
 ├── CMakeLists.txt          ← build + run targets
 ├── run.sh                  ← one-shot build + run
 ├── config/                 ← credentials, portfolios, and sample data
