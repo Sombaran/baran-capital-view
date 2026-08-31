@@ -133,7 +133,7 @@ std::string releaseNotice() {
 }
 
 const char* sortingReleaseNotice() {
-    return R"JS(<script>const releaseBox=document.querySelector('[role="dialog"]');if(releaseBox){releaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Alerts and regression improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Renamed the Alerts view to Portfolio news review, removed duplicate confidence sorting, and added secure hover/focus stock lists for Consider adding, Risk review, and Hold / wait. CMake and Bazel builds run their C++ regression tests plus pytest automatically. Sorting, filtering, and stock lists stay client-side without exposing credentials or adding Stock API requests.</p>')}</script>)JS";
+    return R"JS(<script>const releaseBox=document.querySelector('[role="dialog"]');if(releaseBox){releaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Dashboard category improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Deeper analysis category controls now show associated stocks on hover or keyboard focus for No recent news, Neutral news, going good, invest more, and sell it off. Existing click details remain available. This is client-side and makes no extra Stock API requests or expose credentials.</p>')}</script>)JS";
 }
 
 const char* page() {
@@ -162,7 +162,9 @@ function normalizeOverviewControls(){if(activeTab!=='overview')return;view.query
 new MutationObserver(normalizeOverviewControls).observe(view,{childList:true,subtree:true});
 function normalizeAlertsControls(){if(activeTab!=='alerts')return;view.querySelectorAll('label').forEach(label=>{if(label.textContent.trim().startsWith('Confidence order'))label.remove()});const heading=[...view.querySelectorAll('h2')].find(item=>item.textContent.trim()==='Should I add more?');if(heading)heading.textContent='Portfolio news review';const table=view.querySelector('.table');if(!table)return;const rows=[...table.rows].slice(1),groups={'Consider adding':[],'Risk review':[],'Hold / wait':[]};rows.forEach(row=>{const cells=[...row.cells],company=cells[1]?.textContent.trim(),decision=cells[4]?.textContent.trim()||'';if(!company)return;const label=decision.startsWith('Consider')?'Consider adding':decision.startsWith('Do not')?'Risk review':'Hold / wait';groups[label].push(company)});view.querySelectorAll('.metric').forEach(metric=>{const label=metric.querySelector('.label')?.textContent.trim();if(!groups[label])return;const names=groups[label].length?groups[label].join(', '):'No matching stocks';metric.classList.add('metric-stock-list');metric.dataset.stockList=names;metric.setAttribute('tabindex','0');metric.setAttribute('aria-label',label+': '+names)})}
 new MutationObserver(normalizeAlertsControls).observe(view,{childList:true,subtree:true});
-document.head.insertAdjacentHTML('beforeend','<style>.metric-stock-list{position:relative;cursor:help}.metric-stock-list:hover::after,.metric-stock-list:focus-visible::after{content:attr(data-stock-list);position:absolute;z-index:20;left:12px;top:calc(100% + 8px);width:max-content;max-width:min(360px,calc(100vw - 40px));padding:9px 11px;background:var(--ink);color:var(--panel);border:1px solid #ffffff33;box-shadow:0 10px 24px #17212645;font:12px/1.45 Arial,sans-serif;white-space:normal;text-transform:none;letter-spacing:0;pointer-events:none}.metric-stock-list:hover::before,.metric-stock-list:focus-visible::before{content:"Stocks";position:absolute;z-index:21;left:12px;top:calc(100% + 8px);transform:translateY(-1px);padding:9px 11px;color:#f4c95d;font:700 12px/1.45 Arial,sans-serif;pointer-events:none;opacity:0}</style>');
+function normalizeDeeperCategories(){if(activeTab!=='deeper-analysis')return;const panel=view.querySelector('.deeper-categories');if(!panel||panel.dataset.stockHintsReady)return;const data=window.deeperCategories||{},labels=[...panel.querySelectorAll('button')].map(button=>button.textContent.replace(/^\s*\d+\s*/,'').trim());panel.querySelectorAll('button').forEach((button,index)=>{const label=labels[index],names=(data.stocks?.[label]||[]).map(value=>String(value||'').trim()).filter(Boolean),stockList=names.length?names.join(', '):'No stocks';button.dataset.stockList=stockList;button.title=label+': '+stockList;button.setAttribute('aria-label',label+': '+stockList)});panel.dataset.stockHintsReady='1'}
+new MutationObserver(normalizeDeeperCategories).observe(view,{childList:true,subtree:true});
+document.head.insertAdjacentHTML('beforeend','<style>.metric-stock-list{position:relative;cursor:help}.metric-stock-list:hover::after,.metric-stock-list:focus-visible::after{content:attr(data-stock-list);position:absolute;z-index:20;left:12px;top:calc(100% + 8px);width:max-content;max-width:min(360px,calc(100vw - 40px));padding:9px 11px;background:var(--ink);color:var(--panel);border:1px solid #ffffff33;box-shadow:0 10px 24px #17212645;font:12px/1.45 Arial,sans-serif;white-space:normal;text-transform:none;letter-spacing:0;pointer-events:none}.metric-stock-list:hover::before,.metric-stock-list:focus-visible::before{content:"Stocks";position:absolute;z-index:21;left:12px;top:calc(100% + 8px);transform:translateY(-1px);padding:9px 11px;color:#f4c95d;font:700 12px/1.45 Arial,sans-serif;pointer-events:none;opacity:0}.deeper-categories button{position:relative}.deeper-categories button:hover::after,.deeper-categories button:focus-visible::after{content:attr(data-stock-list);position:absolute;z-index:20;left:0;top:calc(100% + 8px);width:max-content;max-width:min(360px,calc(100vw - 40px));padding:9px 11px;background:var(--ink);color:var(--panel);border:1px solid #ffffff33;box-shadow:0 10px 24px #17212645;font:12px/1.45 Arial,sans-serif;white-space:normal;text-align:left;pointer-events:none}.deeper-categories button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}</style>');
 function numberField(item,keys){for(const key of keys){const value=Number(item[key]);if(Number.isFinite(value))return value}return 0}
 function holdingValue(item){const reported=numberField(item,['current_value','market_value','value']);if(reported)return reported;return numberField(item,['last_price'])*numberField(item,['quantity'])*Math.max(1,numberField(item,['multiplier'])||1)}
 function stockCount(items){return new Set(items.map(item=>(item.trading_symbol||item.tradingsymbol||'').trim()).filter(Boolean)).size}
@@ -875,13 +877,23 @@ std::string WebServer::runDeeperAnalysis() const {
     const auto holdings = client_.getHoldings();
     if (!holdings.ok) throw std::runtime_error(holdings.error);
 
-    const std::string outputPath = "/tmp/baran_capital_view_nlp_" +
-                                   std::to_string(static_cast<long long>(getpid())) + ".csv";
+    const std::string processId = std::to_string(static_cast<long long>(getpid()));
+    const std::string inputPath = "/tmp/baran_capital_view_live_holdings_" + processId + ".csv";
+    const std::string outputPath = "/tmp/baran_capital_view_nlp_" + processId + ".csv";
     const std::string scriptPath = projectPythonScript();
-    const auto root = projectRoot();
-    const auto holdingsFile = (root / "config" / "holding.csv").string();
-    const std::string command = "python3 \"" + scriptPath + "\" \"" + holdingsFile + "\" \"" + outputPath + "\" --fast";
+    {
+        std::ofstream liveHoldings(inputPath);
+        if (!liveHoldings) throw std::runtime_error("cannot create live holdings input file");
+        liveHoldings << "symbol,name\n";
+        for (const auto& holding : holdings.positions) {
+            const std::string symbol = holding.tradingSymbol;
+            if (symbol.empty() || symbol.find_first_of("\\r\\n,\"") != std::string::npos) continue;
+            liveHoldings << symbol << ",\n";
+        }
+    }
+    const std::string command = "python3 \"" + scriptPath + "\" \"" + inputPath + "\" \"" + outputPath + "\" --fast";
     const int exitCode = std::system(command.c_str());
+    std::remove(inputPath.c_str());
     if (exitCode != 0) {
         std::remove(outputPath.c_str());
         throw std::runtime_error("stock_alert_nlp.py failed; check config/news_config.json");
