@@ -65,7 +65,12 @@ put it in browser JavaScript.
 
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
-- **[Release Notes v2.0.22](RELEASE_NOTES_V2.0.22.md)** — current: Recover dashboard views after system sleep
+- **[Release Notes v2.0.27](RELEASE_NOTES_V2.0.27.md)** — current: Compact responsive dashboard navigation
+- **[Release Notes v2.0.26](RELEASE_NOTES_V2.0.26.md)** — Responsive navigation optimization
+- **[Release Notes v2.0.25](RELEASE_NOTES_V2.0.25.md)** — Global news error handling and release summary
+- **[Release Notes v2.0.24](RELEASE_NOTES_V2.0.24.md)** — Global market news and Summary Dashboard tabs
+- **[Release Notes v2.0.23](RELEASE_NOTES_V2.0.23.md)** — Retry Deeper analysis after wake/network interruption
+- **[Release Notes v2.0.22](RELEASE_NOTES_V2.0.22.md)** — Recover dashboard views after system sleep
 - **[Release Notes v2.0.21](RELEASE_NOTES_V2.0.21.md)** — Recover from transient DNS failures during long runs
 - **[Release Notes v2.0.20](RELEASE_NOTES_V2.0.20.md)** — Prevent stale fallback values being shown as live
 - **[Release Notes v2.0.19](RELEASE_NOTES_V2.0.19.md)** — Live holdings valuation and fallback diagnostics

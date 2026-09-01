@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.22
+Version: 2.0.27
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,28 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.22
+Current release: 2.0.27
+
+Dashboard navigation is compact and adaptive: desktop keeps tabs in one
+horizontal row with overflow support, while mobile uses a balanced two-column
+layout. Long tab labels remain readable without creating an oversized empty
+row.
+
+The dashboard navigation uses balanced responsive rows for all tabs, with
+stable button sizing on desktop and mobile so long labels do not create an
+isolated or visually broken second row.
+
+Global market news now uses the broad Upstox category and preserves the real
+HTTP, token, or network error in the UI. It no longer collapses an unavailable
+feed into a generic "Unable to load this view" message.
+
+The dashboard includes a Global market news tab backed by the authenticated
+Upstox news feed and a Summary Dashboard tab that aggregates the existing
+holdings and portfolio-news snapshots without additional broker requests.
+
+Deeper analysis retries transient wake or network failures before showing an
+error, while the server worker remains asynchronous and can rebuild an
+expired or failed result on the next request.
 
 The browser dashboard recovers after system sleep or tab suspension by
 clearing interrupted view requests and refreshing the active page when the
