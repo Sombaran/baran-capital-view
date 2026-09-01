@@ -65,7 +65,9 @@ put it in browser JavaScript.
 
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
-- **[Release Notes v2.0.20](RELEASE_NOTES_V2.0.20.md)** — current: Prevent stale fallback values being shown as live
+- **[Release Notes v2.0.22](RELEASE_NOTES_V2.0.22.md)** — current: Recover dashboard views after system sleep
+- **[Release Notes v2.0.21](RELEASE_NOTES_V2.0.21.md)** — Recover from transient DNS failures during long runs
+- **[Release Notes v2.0.20](RELEASE_NOTES_V2.0.20.md)** — Prevent stale fallback values being shown as live
 - **[Release Notes v2.0.19](RELEASE_NOTES_V2.0.19.md)** — Live holdings valuation and fallback diagnostics
 - **[Release Notes v2.0.18](RELEASE_NOTES_V2.0.18.md)** — Accuracy-first Deeper analysis and dashboard reliability
 - **[Release Notes v2.0.17](RELEASE_NOTES_V2.0.17.md)** — News fallback and Overview market-value reliability

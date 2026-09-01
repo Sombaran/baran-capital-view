@@ -11,6 +11,7 @@
 #include <iostream>
 #include <mutex>
 #include <string>
+#include <thread>
 
 namespace folio {
 
@@ -127,6 +128,8 @@ HttpResponse HttpClient::get(const std::string& url,
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 0L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeoutSeconds);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
+    // Refresh resolver results during long-running dashboard sessions.
+    curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 60L);
     if (hdrList) {
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hdrList);
     }
@@ -188,7 +191,22 @@ HttpResponse HttpClient::get(const std::string& url,
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     }
 
-    const CURLcode rc = curl_easy_perform(curl);
+    CURLcode rc = CURLE_OK;
+    constexpr int maxTransportAttempts = 3;
+    for (int attempt = 1; attempt <= maxTransportAttempts; ++attempt) {
+        result.body.clear();
+        result.error.clear();
+        result.statusCode = 0;
+        rc = curl_easy_perform(curl);
+        if (rc == CURLE_OK ||
+            (rc != CURLE_COULDNT_RESOLVE_HOST && rc != CURLE_COULDNT_CONNECT &&
+             rc != CURLE_OPERATION_TIMEDOUT)) {
+            break;
+        }
+        if (attempt < maxTransportAttempts) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(250 * attempt));
+        }
+    }
     if (rc != CURLE_OK) {
         result.error = curl_easy_strerror(rc);
         if (rc == CURLE_SSL_CONNECT_ERROR || rc == CURLE_SSL_CACERT ||
