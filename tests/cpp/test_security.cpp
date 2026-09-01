@@ -48,6 +48,13 @@ TEST(WebServer, SecretCodeNormalizationAndValidationStaySafe) {
     EXPECT_FALSE(folio::validateLoginCode("", "070923"));
 }
 
+TEST(WebServer, StaleAccessTokenDetectionMatchesBrokerErrors) {
+    EXPECT_TRUE(folio::isAccessTokenStale("HTTP 401 Unauthorized from Upstox holdings"));
+    EXPECT_TRUE(folio::isAccessTokenStale("token expired"));
+    EXPECT_FALSE(folio::isAccessTokenStale("HTTP 500 from Upstox"));
+    EXPECT_FALSE(folio::isAccessTokenStale("market data is temporarily unavailable"));
+}
+
 TEST(SecurityUtils, ValidateQuantityAndPriceBounds) {
     EXPECT_TRUE(folio::security::validateQuantity(10));
     EXPECT_FALSE(folio::security::validateQuantity(0));
@@ -133,6 +140,26 @@ TEST(Position, MarketValuePrefersCurrentValueAliasWhenPresent) {
     pos.currentValue = 987.65;
 
     EXPECT_DOUBLE_EQ(pos.marketValue(), 987.65);
+}
+
+TEST(Position, MarketValueUsesLivePriceBeforeStaleExposureValue) {
+    folio::Position pos{};
+    pos.lastPrice = 120.0;
+    pos.quantity = 10;
+    pos.multiplier = 1;
+    pos.currentValue = 1200.0;
+    pos.value = 900.0;
+
+    EXPECT_DOUBLE_EQ(pos.marketValue(), 1200.0);
+}
+
+TEST(Position, MarketValueUsesLivePriceWhenCurrentValueIsMissing) {
+    folio::Position pos{};
+    pos.lastPrice = 120.0;
+    pos.quantity = 10;
+    pos.multiplier = 1;
+
+    EXPECT_DOUBLE_EQ(pos.marketValue(), 1200.0);
 }
 
 TEST(PortfolioHealth, AnalyzeAggregatesExposureAndHealth) {

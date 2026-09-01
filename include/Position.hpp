@@ -38,9 +38,9 @@ struct Position {
 
     // Derived helpers ------------------------------------------------------
     double marketValue() const {
-        const double reported = std::abs(currentValue) > 0.0 ? currentValue : value;
-        const double derived = lastPrice * quantity * multiplier;
-        return std::abs(reported) > 0.0 ? reported : derived;
+        if (std::abs(currentValue) > 0.0) return currentValue;
+        if (std::abs(value) > 0.0) return value;
+        return lastPrice * quantity * multiplier;
     }
     double exposure()    const { return marketValue() >= 0 ? marketValue() : -marketValue(); }
     double totalPnl()    const { return unrealised + realised; }

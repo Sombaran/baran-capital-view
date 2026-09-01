@@ -169,6 +169,10 @@ PositionsResult UpstoxClient::getHoldings() const {
         out.positions.reserve(it->size());
         for (const auto& item : *it) {
             Position holding = parseOne(item);
+            if (std::fabs(holding.currentValue) <= 0.0 &&
+                std::fabs(holding.lastPrice) > 0.0) {
+                holding.currentValue = holding.lastPrice * holding.quantity * holding.multiplier;
+            }
             holding.unrealised = holding.pnl;
             out.positions.push_back(std::move(holding));
         }

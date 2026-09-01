@@ -17,6 +17,7 @@ std::vector<std::string> deeperAnalysisCategoryOrder();
 std::string normalizeDecisionAction(const std::string& value);
 std::string normalizeLoginCode(const std::string& value);
 bool validateLoginCode(const std::string& submittedValue, const std::string& configuredValue);
+bool isAccessTokenStale(const std::string& message);
 
 class WebServer {
 public:

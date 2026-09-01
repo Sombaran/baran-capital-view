@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.16
+Version: 2.0.20
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -23,7 +23,21 @@ The project follows semantic versioning in x.x.x format:
 - MINOR: new features or major enhancements
 - PATCH: fixes, hardening, and stability improvements
 
-Current release: 2.0.16
+Current release: 2.0.20
+
+When Upstox returns HTTP 401, the Overview no longer presents local CSV
+values as live market data. It keeps the holdings list available, marks the
+market value unavailable, and logs that the access token must be renewed.
+
+The holdings parser derives live market value from Upstox `last_price`,
+quantity, and multiplier when the API does not provide an explicit valuation.
+If the live request fails, the UI uses a clearly marked local fallback instead
+of silently treating `config/holding.csv` as live data.
+
+Deeper analysis uses the transformer sentiment model by default for the most
+accurate available classification. If the model or a news provider is
+unavailable, the existing keyword-based fallback keeps the page usable and
+labels the result as fallback analysis.
 
 The build and the browser popup both read the same version identifier from the CMake project definition so the release notes, UI banner, and runtime binary stay aligned with the shipped code change set.
 
@@ -126,6 +140,12 @@ Recommended pattern:
 This keeps the broker API and stock data behind one trusted boundary and avoids exposing new attack surfaces.
 
 ## Recent fix summary
+
+Version 2.0.17 fixes the empty News fallback and stale Overview market value
+issues. Saved portfolio news now degrades gracefully when the Upstox token is
+stale or when holdings are temporarily unavailable, and the live broker value is
+preferred before any derived fallback. The backend and browser both log a clear
+stale-token warning when the access token has expired.
 
 Version 2.0.16 optimizes Deeper analysis category controls. Hovering or
 focusing `No recent news`, `Neutral news`, `going good`, `invest more`, or

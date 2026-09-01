@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <initializer_list>
+#include <iostream>
 #include <mutex>
 #include <string>
 
@@ -190,13 +191,18 @@ HttpResponse HttpClient::get(const std::string& url,
     const CURLcode rc = curl_easy_perform(curl);
     if (rc != CURLE_OK) {
         result.error = curl_easy_strerror(rc);
-        // Surface libcurl's detailed message when available.
         if (rc == CURLE_SSL_CONNECT_ERROR || rc == CURLE_SSL_CACERT ||
             rc == CURLE_PEER_FAILED_VERIFICATION) {
             result.error +=
                 " (TLS handshake failed. If you are behind a proxy set "
                 "HTTPS_PROXY; if your host uses a custom CA set "
                 "CURL_CA_BUNDLE and inspect the HTTP status for details.)";
+        }
+        if (result.error.find("token") != std::string::npos ||
+            result.error.find("unauthorized") != std::string::npos ||
+            result.error.find("forbidden") != std::string::npos) {
+            std::cerr << "Backend: Upstox access token stale or expired while calling "
+                      << url << " :: " << result.error << "\n";
         }
     } else {
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &result.statusCode);

@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.16`
+**Version:** `2.0.20`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -65,7 +65,11 @@ put it in browser JavaScript.
 
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
-- **[Release Notes v2.0.16](RELEASE_NOTES_V2.0.16.md)** — current: Deeper analysis category stock visibility
+- **[Release Notes v2.0.20](RELEASE_NOTES_V2.0.20.md)** — current: Prevent stale fallback values being shown as live
+- **[Release Notes v2.0.19](RELEASE_NOTES_V2.0.19.md)** — Live holdings valuation and fallback diagnostics
+- **[Release Notes v2.0.18](RELEASE_NOTES_V2.0.18.md)** — Accuracy-first Deeper analysis and dashboard reliability
+- **[Release Notes v2.0.17](RELEASE_NOTES_V2.0.17.md)** — News fallback and Overview market-value reliability
+- **[Release Notes v2.0.16](RELEASE_NOTES_V2.0.16.md)** — Deeper analysis category stock visibility
 - **[Release Notes v2.0.15](RELEASE_NOTES_V2.0.15.md)** — Alerts usability and decision-group stock visibility
 - **[Release Notes v2.0.14](RELEASE_NOTES_V2.0.14.md)** — automated CMake and Bazel regression testing
 - **[Release Notes v2.0.13](RELEASE_NOTES_V2.0.13.md)** — resilient dashboard JSON handling
@@ -93,6 +97,8 @@ The local-first design provides:
 
 * `2.0.8` — Added Bazel build compatibility alongside the existing CMake path, tightened repository hygiene by ignoring generated Python and secret files, refreshed the right-side fix summary to cover the build and repo-cleanup patch, and updated the build helper to select the appropriate backend without changing the live stock API security or the browser contract.
 * `2.0.7` — Fixed the broken Alerts tab and duplicate browser-rendering logic, corrected the Deeper analysis category labels and action normalization so the counts and buttons match the same canonical values, refreshed the right-side fix summary to document the shipped patch, preserved the stock API hardening and local-first design, and kept the build metadata aligned with the x.x.x semver format.
+* `2.0.17` — Fixed the empty News fallback and stale Overview market-value rendering by retaining recent saved articles when the broker token is stale or the holdings key set is empty, preferring broker-reported `current_value`/`market_value` before any derived fallback, logging a stale access-token warning in the browser and backend, and refreshing the right-side release summary to document the actual production fix shipped in this patch.
+
 * `2.0.6` — Fixed the live Market Value mismatch by preferring the broker-reported `current_value`/`market_value` before falling back to price × quantity, refreshed the right-side release summary so it describes the actual fix shipped in this patch, preserved the upstream stock API hardening and local-first design, and kept the build metadata aligned with the x.x.x semver format.
 * `2.0.5` — Fixed the login secret validation so `.folio_login_code` and `FOLIO_LOGIN_CODE` values are trimmed, URL-decoded, and compared safely before a session is created; refreshed the right-side release popup to summarize the fix; preserved the stock API hardening and local-first architecture; and kept the build metadata aligned with the x.x.x semver format.
 * `2.0.4` — Tightened the stock API boundary by validating Upstox hosts, disabling unsafe redirects, and blocking non-HTTPS or untrusted broker routes; refreshed the versioned right-side fix summary popup to reflect the current patch; preserved the local-first task scheduler and saved-news fallbacks; added gtest and pytest regression coverage for security and Python analysis flows; and kept the web and CLI release notes consistent with the x.x.x semver format.

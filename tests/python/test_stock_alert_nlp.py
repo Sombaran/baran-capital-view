@@ -26,6 +26,14 @@ def test_recommendation_uses_sentiment_logic():
     assert stock_alert_nlp.recommendation(["market update", "company note"]) == "Neutral news"
 
 
+def test_recommendation_uses_model_scores_when_available():
+    class FakeModel:
+        def __call__(self, text):
+            return [{"label": "POSITIVE", "score": 0.90}]
+
+    assert stock_alert_nlp.recommendation(["the company reports stable results"], FakeModel()) == "invest more"
+
+
 def test_resolve_input_path_prefers_existing_project_file():
     project_dir = Path(stock_alert_nlp.PROJECT_DIR)
     candidate = project_dir / "config" / "holding.csv"
