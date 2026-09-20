@@ -34,3 +34,8 @@ dist/
 # OS / editor noise
 .DS_Store
 Thumbs.db
+
+# build folder
+build/
+builds/
+builds-*
