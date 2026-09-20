@@ -38,4 +38,4 @@ Thumbs.db
 # build folder
 build/
 builds/
-builds-*
+build-coverage
