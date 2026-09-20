@@ -1,0 +1,93 @@
+        -:    0:Source:/home/ritup2404/.conan2/p/nlohm0567ffc90cfc1/p/include/nlohmann/detail/json_ref.hpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/UpstoxClient.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/UpstoxClient.cpp.gcda
+        -:    0:Runs:2
+        -:    1://     __ _____ _____ _____
+        -:    2://  __|  |   __|     |   | |  JSON for Modern C++
+        -:    3:// |  |  |__   |  |  | | | |  version 3.11.3
+        -:    4:// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+        -:    5://
+        -:    6:// SPDX-FileCopyrightText: 2013-2023 Niels Lohmann <https://nlohmann.me>
+        -:    7:// SPDX-License-Identifier: MIT
+        -:    8:
+        -:    9:#pragma once
+        -:   10:
+        -:   11:#include <initializer_list>
+        -:   12:#include <utility>
+        -:   13:
+        -:   14:#include <nlohmann/detail/abi_macros.hpp>
+        -:   15:#include <nlohmann/detail/meta/type_traits.hpp>
+        -:   16:
+        -:   17:NLOHMANN_JSON_NAMESPACE_BEGIN
+        -:   18:namespace detail
+        -:   19:{
+        -:   20:
+        -:   21:template<typename BasicJsonType>
+        -:   22:class json_ref
+        -:   23:{
+        -:   24:  public:
+        -:   25:    using value_type = BasicJsonType;
+        -:   26:
+        -:   27:    json_ref(value_type&& value)
+        -:   28:        : owned_value(std::move(value))
+        -:   29:    {}
+        -:   30:
+        -:   31:    json_ref(const value_type& value)
+        -:   32:        : value_ref(&value)
+        -:   33:    {}
+        -:   34:
+        -:   35:    json_ref(std::initializer_list<json_ref> init)
+        -:   36:        : owned_value(init)
+        -:   37:    {}
+        -:   38:
+        -:   39:    template <
+        -:   40:        class... Args,
+        -:   41:        enable_if_t<std::is_constructible<value_type, Args...>::value, int> = 0 >
+        -:   42:    json_ref(Args && ... args)
+        -:   43:        : owned_value(std::forward<Args>(args)...)
+        -:   44:    {}
+        -:   45:
+        -:   46:    // class should be movable only
+        -:   47:    json_ref(json_ref&&) noexcept = default;
+        -:   48:    json_ref(const json_ref&) = delete;
+        -:   49:    json_ref& operator=(const json_ref&) = delete;
+        -:   50:    json_ref& operator=(json_ref&&) = delete;
+        -:   51:    ~json_ref() = default;
+        -:   52:
+function _ZNK8nlohmann16json_abi_v3_11_36detail8json_refINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES5_IhSaIhEEvEEE15moved_or_copiedEv called 0 returned 0% blocks executed 0%
+    #####:   53:    value_type moved_or_copied() const
+        -:   54:    {
+    #####:   55:        if (value_ref == nullptr)
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:   56:        {
+    #####:   57:            return std::move(owned_value);
+call    0 never executed
+call    1 never executed
+        -:   58:        }
+    #####:   59:        return *value_ref;
+call    0 never executed
+        -:   60:    }
+        -:   61:
+function _ZNK8nlohmann16json_abi_v3_11_36detail8json_refINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES5_IhSaIhEEvEEEdeEv called 0 returned 0% blocks executed 0%
+    #####:   62:    value_type const& operator*() const
+        -:   63:    {
+    #####:   64:        return value_ref ? *value_ref : owned_value;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:   65:    }
+        -:   66:
+function _ZNK8nlohmann16json_abi_v3_11_36detail8json_refINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES5_IhSaIhEEvEEEptEv called 0 returned 0% blocks executed 0%
+    #####:   67:    value_type const* operator->() const
+        -:   68:    {
+    #####:   69:        return &** this;
+call    0 never executed
+        -:   70:    }
+        -:   71:
+        -:   72:  private:
+        -:   73:    mutable value_type owned_value = nullptr;
+        -:   74:    value_type const* value_ref = nullptr;
+        -:   75:};
+        -:   76:
+        -:   77:}  // namespace detail
+        -:   78:NLOHMANN_JSON_NAMESPACE_END

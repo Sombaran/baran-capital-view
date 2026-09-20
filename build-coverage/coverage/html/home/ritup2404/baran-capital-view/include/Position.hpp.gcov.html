@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - baran-capital-view coverage - home/ritup2404/baran-capital-view/include/Position.hpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../index.html">top level</a> - <a href="index.html">/home/ritup2404/baran-capital-view/include</a> - Position.hpp<span style="font-size: 80%;"> (source / <a href="Position.hpp.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">baran-capital-view coverage</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-09-20 06:55:09</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+          </tr>
+                  <tr><td><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : #pragma once</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : #include &lt;cmath&gt;</span>
+<span id="L4"><span class="lineNum">       4</span>              : #include &lt;string&gt;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              : namespace folio {</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // Single position record as returned by Upstox</span>
+<span id="L9"><span class="lineNum">       9</span>              : // GET /v2/portfolio/short-term-positions.</span>
+<span id="L10"><span class="lineNum">      10</span>              : // Field names mirror the JSON payload documented at</span>
+<span id="L11"><span class="lineNum">      11</span>              : // https://upstox.com/developer/api-documentation/get-positions</span>
+<span id="L12"><span class="lineNum">      12</span>              : struct Position {</span>
+<span id="L13"><span class="lineNum">      13</span>              :     std::string exchange;         // e.g. &quot;NSE&quot;, &quot;BSE&quot;, &quot;NFO&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :     std::string tradingSymbol;    // e.g. &quot;INFY&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :     std::string instrumentToken;  // e.g. &quot;NSE_EQ|INE009A01021&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :     std::string product;          // &quot;I&quot; (intraday), &quot;D&quot; (delivery/CNC), &quot;M&quot; (margin)</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              :     long   quantity = 0;          // net quantity (buy - sell)</span>
+<span id="L19"><span class="lineNum">      19</span>              :     long   overnightQuantity = 0; // carry-forward qty from previous session</span>
+<span id="L20"><span class="lineNum">      20</span>              :     long   dayBuyQuantity = 0;</span>
+<span id="L21"><span class="lineNum">      21</span>              :     long   daySellQuantity = 0;</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              :     double averagePrice = 0.0;    // avg price of the net position</span>
+<span id="L24"><span class="lineNum">      24</span>              :     double lastPrice = 0.0;       // current LTP</span>
+<span id="L25"><span class="lineNum">      25</span>              :     double closePrice = 0.0;      // previous-day close (used for day P&amp;L)</span>
+<span id="L26"><span class="lineNum">      26</span>              :     double buyPrice = 0.0;</span>
+<span id="L27"><span class="lineNum">      27</span>              :     double sellPrice = 0.0;</span>
+<span id="L28"><span class="lineNum">      28</span>              :     double buyValue = 0.0;</span>
+<span id="L29"><span class="lineNum">      29</span>              :     double sellValue = 0.0;</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              :     double unrealised = 0.0;      // MTM P&amp;L on open qty</span>
+<span id="L32"><span class="lineNum">      32</span>              :     double realised = 0.0;        // booked P&amp;L for the day</span>
+<span id="L33"><span class="lineNum">      33</span>              :     double pnl = 0.0;             // unrealised + realised (as sent by broker)</span>
+<span id="L34"><span class="lineNum">      34</span>              :     double value = 0.0;           // signed exposure of the open leg</span>
+<span id="L35"><span class="lineNum">      35</span>              :     double currentValue = 0.0;    // broker-reported live valuation, e.g. current_value/market_value</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              :     int multiplier = 1;           // lot / contract multiplier</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              :     // Derived helpers ------------------------------------------------------</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           8 :     double marketValue() const {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           8 :         if (std::abs(currentValue) &gt; 0.0) return currentValue;</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           6 :         if (std::abs(value) &gt; 0.0) return value;</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           5 :         return lastPrice * quantity * multiplier;</span></span>
+<span id="L44"><span class="lineNum">      44</span>              :     }</span>
+<span id="L45"><span class="lineNum">      45</span>              :     double exposure()    const { return marketValue() &gt;= 0 ? marketValue() : -marketValue(); }</span>
+<span id="L46"><span class="lineNum">      46</span>              :     double totalPnl()    const { return unrealised + realised; }</span>
+<span id="L47"><span class="lineNum">      47</span>              : };</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : } // namespace folio</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

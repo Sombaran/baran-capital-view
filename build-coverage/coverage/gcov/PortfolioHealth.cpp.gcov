@@ -1,0 +1,1020 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/PortfolioHealth.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/PortfolioHealth.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/PortfolioHealth.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "PortfolioHealth.hpp"
+        -:    2:
+        -:    3:#include <algorithm>
+        -:    4:#include <cmath>
+        -:    5:#include <cstdlib>
+        -:    6:#include <iomanip>
+        -:    7:#include <iostream>
+        -:    8:#include <sstream>
+        -:    9:#include <unordered_map>
+        -:   10:
+        -:   11:namespace folio {
+        -:   12:
+        -:   13:namespace {
+        -:   14:
+function _ZN5folio12_GLOBAL__N_16absValEd called 16 returned 100% blocks executed 80%
+      16*:   15:double absVal(double x) { return x < 0 ? -x : x; }
+branch  0 taken 0 (fallthrough)
+branch  1 taken 16
+        -:   16:
+        -:   17:// Format an INR amount as "1,23,456.78" (Indian numbering). Kept dependency-
+        -:   18:// free rather than relying on a locale that may not be installed.
+function _ZN5folio12_GLOBAL__N_16fmtInrEd called 0 returned 0% blocks executed 0%
+    #####:   19:std::string fmtInr(double v) {
+    #####:   20:    std::ostringstream os;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   21:    os.setf(std::ios::fixed);
+call    0 never executed
+    #####:   22:    os << std::setprecision(2) << absVal(v);
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:   23:    std::string s = os.str();
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   24:    const auto dot = s.find('.');
+call    0 never executed
+    #####:   25:    std::string whole = s.substr(0, dot);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   26:    std::string frac  = s.substr(dot);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   27:
+        -:   28:    // Indian grouping: last 3 digits, then groups of 2.
+    #####:   29:    std::string grouped;
+call    0 never executed
+    #####:   30:    const int n = static_cast<int>(whole.size());
+call    0 never executed
+    #####:   31:    for (int i = 0; i < n; ++i) {
+branch  0 never executed
+branch  1 never executed (fallthrough)
+    #####:   32:        const int fromRight = n - i;
+    #####:   33:        if (i > 0 && ((fromRight == 3) || (fromRight > 3 && (fromRight - 3) % 2 == 0))) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed
+    #####:   34:            grouped.push_back(',');
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   35:        }
+    #####:   36:        grouped.push_back(whole[i]);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+        -:   37:    }
+    #####:   38:    return (v < 0 ? "-" : "") + grouped + frac;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed (throw)
+call    8 never executed
+call    9 never executed
+    #####:   39:}
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+call    5 never executed
+call    6 never executed
+call    7 never executed
+call    8 never executed
+call    9 never executed
+        -:   40:
+function _ZN5folio12_GLOBAL__N_16fmtPctEd called 4 returned 100% blocks executed 86%
+        4:   41:std::string fmtPct(double v) {
+        4:   42:    std::ostringstream os;
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        4:   43:    os.setf(std::ios::fixed);
+call    0 returned 4
+        4:   44:    os << std::setprecision(2) << v << "%";
+call    0 returned 4
+call    1 returned 4
+call    2 returned 4
+branch  3 taken 4 (fallthrough)
+branch  4 taken 0 (throw)
+call    5 returned 4
+branch  6 taken 4 (fallthrough)
+branch  7 taken 0 (throw)
+        8:   45:    return os.str();
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        4:   46:}
+call    0 returned 4
+call    1 never executed
+        -:   47:
+function _ZN5folio12_GLOBAL__N_15gradeEi called 2 returned 100% blocks executed 22%
+        2:   48:std::string grade(int score) {
+       2*:   49:    if (score >= 85) return "A";
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+       2*:   50:    if (score >= 70) return "B";
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+        6:   51:    if (score >= 55) return "C";
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+call    5 never executed
+    #####:   52:    if (score >= 40) return "D";
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+    #####:   53:    return "F";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   54:}
+        -:   55:
+        -:   56:} // namespace
+        -:   57:
+function _ZN5folio7analyzeERKSt6vectorINS_8PositionESaIS1_EE called 2 returned 100% blocks executed 54%
+        2:   58:PortfolioHealth analyze(const std::vector<Position>& positions) {
+        2:   59:    PortfolioHealth h;
+call    0 returned 2
+        2:   60:    h.openPositions = 0;
+        -:   61:
+        6:   62:    for (const auto& p : positions) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 4
+call    3 returned 4
+call    4 returned 6
+branch  5 taken 4
+branch  6 taken 2 (fallthrough)
+       4*:   63:        if (p.quantity == 0) continue; // closed intraday leg; ignore for exposure
+branch  0 taken 0 (fallthrough)
+branch  1 taken 4
+        -:   64:
+        4:   65:        ++h.openPositions;
+        4:   66:        const double mv        = p.marketValue();          // signed
+call    0 returned 4
+        4:   67:        const double invested  = absVal(p.averagePrice * p.quantity * p.multiplier);
+call    0 returned 4
+        4:   68:        const double dayLegPnl = (p.lastPrice - p.closePrice) *
+        4:   69:                                 p.quantity * p.multiplier;
+        -:   70:
+        4:   71:        h.grossExposure   += absVal(mv);
+call    0 returned 4
+        4:   72:        h.netExposure     += mv;
+        4:   73:        h.investedCapital += invested;
+        4:   74:        h.totalUnrealised += p.unrealised;
+        4:   75:        h.dayPnl          += dayLegPnl;
+        -:   76:
+        4:   77:        if (mv >= 0) { ++h.longCount;  h.longExposure  += mv;  }
+branch  0 taken 4 (fallthrough)
+branch  1 taken 0
+    #####:   78:        else         { ++h.shortCount; h.shortExposure += -mv; }
+        -:   79:
+        4:   80:        if (p.unrealised > 0)      ++h.winningCount;
+branch  0 taken 4 (fallthrough)
+branch  1 taken 0
+    #####:   81:        else if (p.unrealised < 0) ++h.losingCount;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:   82:
+        4:   83:        h.topGainers.push_back({p.tradingSymbol, p.unrealised});
+call    0 returned 4
+call    1 never executed
+        4:   84:        h.topLosers.push_back({p.tradingSymbol, p.unrealised});
+call    0 returned 4
+call    1 never executed
+        4:   85:        h.topExposures.push_back({p.tradingSymbol, absVal(mv)});
+call    0 returned 4
+call    1 never executed
+        -:   86:    }
+        -:   87:
+        -:   88:    // Realised P&L is a whole-day figure and is reported per broker row even
+        -:   89:    // for legs that have closed out (qty == 0), so sum it separately.
+        6:   90:    for (const auto& p : positions) h.totalRealised += p.realised;
+call    0 returned 2
+call    1 returned 2
+call    2 returned 4
+call    3 returned 4
+call    4 returned 6
+branch  5 taken 4
+branch  6 taken 2 (fallthrough)
+        2:   91:    h.totalPnl = h.totalUnrealised + h.totalRealised;
+        -:   92:
+        2:   93:    if (h.investedCapital > 0.0) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        2:   94:        h.pnlPercent = h.totalPnl / h.investedCapital * 100.0;
+        -:   95:    }
+        -:   96:
+        -:   97:    // Concentration is measured by symbol so multiple rows for one name are
+        -:   98:    // not incorrectly treated as independent diversification.
+        2:   99:    if (h.grossExposure > 0.0) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        2:  100:        std::unordered_map<std::string, double> exposureBySymbol;
+call    0 returned 2
+        6:  101:        for (const auto& p : positions) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 4
+call    3 returned 4
+call    4 returned 6
+branch  5 taken 4
+branch  6 taken 2 (fallthrough)
+        4:  102:            if (p.quantity != 0) {
+branch  0 taken 4 (fallthrough)
+branch  1 taken 0
+        4:  103:                exposureBySymbol[p.tradingSymbol] += absVal(p.marketValue());
+call    0 returned 4
+call    1 returned 4
+call    2 returned 4
+branch  3 taken 4 (fallthrough)
+branch  4 taken 0 (throw)
+        -:  104:            }
+        -:  105:        }
+        2:  106:        double topShare = 0.0;
+        6:  107:        for (const auto& [symbol, exposure] : exposureBySymbol) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 4
+call    3 returned 4
+call    4 returned 4
+call    5 returned 4
+call    6 returned 6
+branch  7 taken 4
+branch  8 taken 2 (fallthrough)
+        -:  108:            (void)symbol;
+        4:  109:            const double w = exposure / h.grossExposure;
+        4:  110:            h.herfindahlIndex += w * w;
+        4:  111:            if (exposure > topShare) topShare = exposure;
+branch  0 taken 2 (fallthrough)
+branch  1 taken 2
+        -:  112:        }
+        2:  113:        h.concentrationPct = topShare / h.grossExposure * 100.0;
+        2:  114:    }
+call    0 returned 2
+call    1 never executed
+        -:  115:
+        -:  116:    // Order the "top N" tables (keep only the informative rows).
+        2:  117:    std::sort(h.topGainers.begin(), h.topGainers.end(),
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+function _ZZN5folio7analyzeERKSt6vectorINS_8PositionESaIS1_EEENKUlRKNS_11ContributorES8_E_clES8_S8_ called 4 returned 100% blocks executed 100%
+        4:  118:              [](const Contributor& a, const Contributor& b) { return a.value > b.value; });
+        2:  119:    std::sort(h.topLosers.begin(), h.topLosers.end(),
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+function _ZZN5folio7analyzeERKSt6vectorINS_8PositionESaIS1_EEENKUlRKNS_11ContributorES8_E0_clES8_S8_ called 4 returned 100% blocks executed 100%
+        4:  120:              [](const Contributor& a, const Contributor& b) { return a.value < b.value; });
+        2:  121:    std::sort(h.topExposures.begin(), h.topExposures.end(),
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+function _ZZN5folio7analyzeERKSt6vectorINS_8PositionESaIS1_EEENKUlRKNS_11ContributorES8_E1_clES8_S8_ called 2 returned 100% blocks executed 100%
+        2:  122:              [](const Contributor& a, const Contributor& b) { return a.value > b.value; });
+        -:  123:
+function _ZZN5folio7analyzeERKSt6vectorINS_8PositionESaIS1_EEENKUlRS0_INS_11ContributorESaIS6_EEmE_clES9_m called 6 returned 100% blocks executed 75%
+        6:  124:    auto trim = [](std::vector<Contributor>& v, std::size_t n) {
+       6*:  125:        if (v.size() > n) v.resize(n);
+call    0 returned 6
+branch  1 taken 0 (fallthrough)
+branch  2 taken 6
+call    3 never executed
+        6:  126:    };
+        2:  127:    trim(h.topGainers,   5);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  128:    trim(h.topLosers,    5);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  129:    trim(h.topExposures, 5);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  130:
+        -:  131:    // Heuristic health score in [0, 100]. Weights are intentionally simple:
+        -:  132:    //   50 pts  - P&L percentage (clipped at +/- 25%)
+        -:  133:    //   30 pts  - Win rate on open legs
+        -:  134:    //   20 pts  - Diversification (1 - Herfindahl)
+        2:  135:    const double pnlComponent = std::max(-25.0, std::min(25.0, h.pnlPercent));
+call    0 returned 2
+call    1 returned 2
+        2:  136:    const double pnlScore = 25.0 + pnlComponent; // -> 0..50
+       2*:  137:    const double winRate  = h.openPositions == 0 ? 0.5
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        2:  138:                          : static_cast<double>(h.winningCount) / h.openPositions;
+        2:  139:    const double winScore = winRate * 30.0;
+        2:  140:    const double diversityScore = (1.0 - h.herfindahlIndex) * 20.0;
+        -:  141:
+        2:  142:    double raw = pnlScore + winScore + diversityScore;
+       2*:  143:    if (raw < 0.0)   raw = 0.0;
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+       2*:  144:    if (raw > 100.0) raw = 100.0;
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+        2:  145:    h.healthScore = static_cast<int>(raw + 0.5);
+        2:  146:    h.healthGrade = grade(h.healthScore);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+        -:  147:
+        -:  148:    // Alerts -------------------------------------------------------------
+        2:  149:    if (h.openPositions == 0) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  150:        h.alerts.push_back("No open positions.");
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  151:    }
+        2:  152:    if (h.concentrationPct > 40.0) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        6:  153:        h.alerts.push_back("High single-name concentration (" +
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        8:  154:                           fmtPct(h.concentrationPct) + ").");
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 returned 2
+call    8 never executed
+call    9 never executed
+        -:  155:    }
+        2:  156:    if (h.herfindahlIndex > 0.35) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        6:  157:        h.alerts.push_back("Portfolio is poorly diversified (HHI=" +
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        8:  158:                           fmtPct(h.herfindahlIndex * 100.0) + ").");
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 returned 2
+call    8 never executed
+call    9 never executed
+        -:  159:    }
+        2:  160:    if (h.pnlPercent < -10.0) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  161:        h.alerts.push_back("Drawdown exceeds 10% of invested capital.");
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  162:    }
+        2:  163:    if (h.openPositions > 0 &&
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        2:  164:        h.losingCount * 4 > h.openPositions * 3) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+        -:  165:        // (losers > 75% of positions)
+    #####:  166:        h.alerts.push_back("Majority of open positions are underwater.");
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  167:    }
+        4:  168:    return h;
+       12:  169:}
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 4
+branch  4 taken 4 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 4
+branch  7 taken 4 (fallthrough)
+branch  8 taken 0 (throw)
+call    9 returned 4
+branch 10 taken 4 (fallthrough)
+branch 11 taken 0 (throw)
+call   12 returned 4
+branch 13 taken 4 (fallthrough)
+branch 14 taken 0 (throw)
+call   15 returned 4
+call   16 returned 4
+branch 17 taken 4 (fallthrough)
+branch 18 taken 0 (throw)
+branch 19 never executed (fallthrough)
+branch 20 never executed
+call   21 never executed
+branch 22 never executed (fallthrough)
+branch 23 never executed
+call   24 never executed
+branch 25 never executed (fallthrough)
+branch 26 never executed
+call   27 never executed
+call   28 never executed
+        -:  170:
+function _ZN5folio11printReportERKSt6vectorINS_8PositionESaIS1_EERKNS_15PortfolioHealthE called 0 returned 0% blocks executed 0%
+    #####:  171:void printReport(const std::vector<Position>& positions,
+        -:  172:                 const PortfolioHealth& h) {
+    #####:  173:    std::ostream& os = std::cout;
+    #####:  174:    os << "\n===================== Portfolio Health =====================\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  175:    os << "Score            : " << h.healthScore << " / 100  (grade "
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  176:       << h.healthGrade << ")\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+    #####:  177:    os << "Open positions   : " << h.openPositions
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  178:       << "  (long " << h.longCount
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  179:       << ", short " << h.shortCount << ")\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+    #####:  180:    os << "Winners / losers : " << h.winningCount << " / " << h.losingCount << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+branch 13 never executed (fallthrough)
+branch 14 never executed (throw)
+    #####:  181:    os << "\n-- Exposure ------------------------------------------------\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  182:    os << "Invested capital : INR " << fmtInr(h.investedCapital) << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  183:    os << "Gross exposure   : INR " << fmtInr(h.grossExposure)   << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  184:    os << "Net exposure     : INR " << fmtInr(h.netExposure)     << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  185:    os << "Long exposure    : INR " << fmtInr(h.longExposure)    << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  186:    os << "Short exposure   : INR " << fmtInr(h.shortExposure)   << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  187:    os << "Top-1 concentr.  : " << fmtPct(h.concentrationPct)    << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  188:    os << "Herfindahl index : " << fmtPct(h.herfindahlIndex * 100.0)
+call    0 never executed
+call    1 never executed
+    #####:  189:       << "  (lower = better diversified)\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+        -:  190:
+    #####:  191:    os << "\n-- P&L -----------------------------------------------------\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  192:    os << "Unrealised P&L   : INR " << fmtInr(h.totalUnrealised) << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  193:    os << "Realised   P&L   : INR " << fmtInr(h.totalRealised)   << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+    #####:  194:    os << "Total      P&L   : INR " << fmtInr(h.totalPnl)
+call    0 never executed
+    #####:  195:       << "   (" << fmtPct(h.pnlPercent) << " of invested)\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+branch 13 never executed (fallthrough)
+branch 14 never executed (throw)
+call   15 never executed
+branch 16 never executed (fallthrough)
+branch 17 never executed (throw)
+call   18 never executed
+branch 19 never executed (fallthrough)
+branch 20 never executed (throw)
+call   21 never executed
+call   22 never executed
+call   23 never executed
+    #####:  196:    os << "Day        P&L   : INR " << fmtInr(h.dayPnl) << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+        -:  197:
+function _ZZN5folio11printReportERKSt6vectorINS_8PositionESaIS1_EERKNS_15PortfolioHealthEENKUlPKcRKS0_INS_11ContributorESaISB_EEbE_clESA_SF_b called 0 returned 0% blocks executed 0%
+    #####:  198:    auto printTable = [&](const char* title,
+        -:  199:                          const std::vector<Contributor>& rows,
+        -:  200:                          bool asPct) {
+    #####:  201:        if (rows.empty()) return;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  202:        os << "\n-- " << title << " --\n";
+call    0 never executed
+call    1 never executed
+call    2 never executed
+    #####:  203:        for (const auto& r : rows) {
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+branch  4 never executed
+branch  5 never executed (fallthrough)
+    #####:  204:            os << "  " << std::left << std::setw(16) << r.label
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  205:               << "  " << (asPct ? fmtPct(r.value / (h.grossExposure > 0 ? h.grossExposure : 1) * 100.0)
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed (throw)
+call    8 never executed
+call    9 never executed
+    #####:  206:                                 : std::string("INR ") + fmtInr(r.value))
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+branch  6 never executed (fallthrough)
+branch  7 never executed
+call    8 never executed
+branch  9 never executed (fallthrough)
+branch 10 never executed
+branch 11 never executed (fallthrough)
+branch 12 never executed
+call   13 never executed
+call   14 never executed
+branch 15 never executed (fallthrough)
+branch 16 never executed
+call   17 never executed
+branch 18 never executed (fallthrough)
+branch 19 never executed
+branch 20 never executed (fallthrough)
+branch 21 never executed
+call   22 never executed
+    #####:  207:               << "\n";
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed (throw)
+branch  8 never executed (fallthrough)
+branch  9 never executed
+call   10 never executed
+branch 11 never executed (fallthrough)
+branch 12 never executed (throw)
+call   13 never executed
+branch 14 never executed (fallthrough)
+branch 15 never executed (throw)
+        -:  208:        }
+    #####:  209:    };
+    #####:  210:    printTable("Top gainers (unrealised P&L)", h.topGainers,   false);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  211:    printTable("Top losers  (unrealised P&L)", h.topLosers,    false);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  212:    printTable("Top exposures (|market value|)", h.topExposures, false);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  213:
+    #####:  214:    os << "\n-- Positions -----------------------------------------------\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  215:    os << std::left
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  216:       << std::setw(14) << "Symbol"
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+    #####:  217:       << std::right
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  218:       << std::setw(6)  << "Qty"
+        -:  219:       << std::setw(12) << "Avg"
+        -:  220:       << std::setw(12) << "LTP"
+        -:  221:       << std::setw(16) << "Unrealised"
+        -:  222:       << std::setw(16) << "Realised"
+    #####:  223:       << "\n";
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+call    6 never executed
+call    7 never executed
+branch  8 never executed (fallthrough)
+branch  9 never executed (throw)
+call   10 never executed
+call   11 never executed
+call   12 never executed
+branch 13 never executed (fallthrough)
+branch 14 never executed (throw)
+call   15 never executed
+call   16 never executed
+call   17 never executed
+branch 18 never executed (fallthrough)
+branch 19 never executed (throw)
+call   20 never executed
+call   21 never executed
+call   22 never executed
+branch 23 never executed (fallthrough)
+branch 24 never executed (throw)
+call   25 never executed
+branch 26 never executed (fallthrough)
+branch 27 never executed (throw)
+    #####:  224:    os << std::string(76, '-') << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+call   10 never executed
+    #####:  225:    for (const auto& p : positions) {
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+branch  5 never executed
+branch  6 never executed (fallthrough)
+    #####:  226:        if (p.quantity == 0 && p.realised == 0.0) continue;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:  227:        os << std::left  << std::setw(14) << p.tradingSymbol
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+call    5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed (throw)
+    #####:  228:           << std::right << std::setw(6)  << p.quantity
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+call    5 never executed
+branch  6 never executed (fallthrough)
+branch  7 never executed (throw)
+    #####:  229:           << std::setw(12) << fmtInr(p.averagePrice)
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+    #####:  230:           << std::setw(12) << fmtInr(p.lastPrice)
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+    #####:  231:           << std::setw(16) << fmtInr(p.unrealised)
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+    #####:  232:           << std::setw(16) << fmtInr(p.realised)
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+call    5 never executed
+    #####:  233:           << "\n";
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+call    5 never executed
+call    6 never executed
+call    7 never executed
+branch  8 never executed (fallthrough)
+branch  9 never executed (throw)
+call   10 never executed
+call   11 never executed
+call   12 never executed
+branch 13 never executed (fallthrough)
+branch 14 never executed (throw)
+call   15 never executed
+call   16 never executed
+call   17 never executed
+branch 18 never executed (fallthrough)
+branch 19 never executed (throw)
+call   20 never executed
+branch 21 never executed (fallthrough)
+branch 22 never executed (throw)
+        -:  234:    }
+        -:  235:
+    #####:  236:    if (!h.alerts.empty()) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  237:        os << "\n-- Alerts --------------------------------------------------\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  238:        for (const auto& a : h.alerts) os << "  * " << a << "\n";
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+call    9 never executed
+branch 10 never executed (fallthrough)
+branch 11 never executed (throw)
+call   12 never executed
+call   13 never executed
+branch 14 never executed
+branch 15 never executed (fallthrough)
+        -:  239:    }
+    #####:  240:    os << "============================================================\n\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  241:}
+        -:  242:
+        -:  243:} // namespace folio

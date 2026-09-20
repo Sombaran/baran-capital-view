@@ -25,9 +25,16 @@ TEST(SecurityUtils, ValidateSymbolAcceptsExpectedFormat) {
     EXPECT_FALSE(folio::security::validateSymbol("nse_eq|ine009a01021"));
 }
 
+TEST(WebServer, NormalizeSymbolKeepsDashboardKeysCanonical) {
+    EXPECT_EQ(folio::normalizeSymbol("  nse_eq|ine009a01021 \n"), "NSE_EQ|INE009A01021");
+    EXPECT_EQ(folio::normalizeSymbol("\t"), "");
+}
+
 TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
     const auto categories = folio::deeperAnalysisCategoryOrder();
     EXPECT_EQ(categories.size(), 5u);
+    EXPECT_EQ(categories, (std::vector<std::string>{
+        "Neutral news", "No recent news", "going good", "invest more", "sell it off"}));
     EXPECT_EQ(categories[0], "Neutral news");
     EXPECT_EQ(categories[1], "No recent news");
     EXPECT_EQ(categories[2], "going good");
@@ -48,11 +55,68 @@ TEST(WebServer, SecretCodeNormalizationAndValidationStaySafe) {
     EXPECT_FALSE(folio::validateLoginCode("", "070923"));
 }
 
+TEST(WebServer, GlobalNewsCategoryValidationPreventsInjection) {
+    // Valid categories should be lowercase alphanumeric with underscores, max 32 chars
+    EXPECT_TRUE(folio::security::validateNewsCategory("global"));
+    EXPECT_TRUE(folio::security::validateNewsCategory("holdings"));
+    EXPECT_TRUE(folio::security::validateNewsCategory("portfolio_news"));
+    
+    // Invalid categories should fail
+    EXPECT_FALSE(folio::security::validateNewsCategory(""));  // empty
+    EXPECT_FALSE(folio::security::validateNewsCategory("Global"));  // uppercase
+    EXPECT_FALSE(folio::security::validateNewsCategory("global-news"));  // dash not allowed
+    EXPECT_FALSE(folio::security::validateNewsCategory("global news"));  // space not allowed
+    EXPECT_FALSE(folio::security::validateNewsCategory("global/news"));  // slash not allowed
+    EXPECT_FALSE(folio::security::validateNewsCategory(std::string(33, 'a')));  // too long (>32)
+    EXPECT_FALSE(folio::security::validateNewsCategory("news?category=all"));  // injection attempt
+}
+
+TEST(UpstoxClient, GlobalNewsErrorHandlingReturnsClearMessages) {
+    // Test that news error responses include descriptive error messages
+    // These test the backend's ability to handle various error scenarios
+    
+    // Token expiration should be clearly identified
+    EXPECT_TRUE(folio::security::isAccessTokenStale("access token expired or unauthorized (HTTP 401)"));
+    EXPECT_TRUE(folio::security::isAccessTokenStale("access token expired or unauthorized (HTTP 403)"));
+    
+    // Generic HTTP errors should not be mistaken for auth failures
+    EXPECT_FALSE(folio::security::isAccessTokenStale("HTTP 500 from Upstox news API"));
+    EXPECT_FALSE(folio::security::isAccessTokenStale("HTTP 503 Service Unavailable"));
+    
+    // Network errors should be distinguishable
+    EXPECT_FALSE(folio::security::isAccessTokenStale("network error: DNS resolution failed"));
+    EXPECT_FALSE(folio::security::isAccessTokenStale("network error: Connection refused"));
+}
+
+TEST(UpstoxClient, GlobalNewsResponseValidationRequiresDataField) {
+    // Test that the response structure is validated on the backend
+    // Valid response should have a data field
+    EXPECT_TRUE(folio::security::isValidNewsResponse(R"({"status":"success","data":[]})"));
+    EXPECT_TRUE(folio::security::isValidNewsResponse(R"({"status":"success","data":{}})"));
+    EXPECT_TRUE(folio::security::isValidNewsResponse(
+        R"({"status":"success","data":{"NSE_EQ|INE009A01021":[{"heading":"Test","summary":"Test article"}]}})"
+    ));
+    
+    // Invalid responses should fail validation
+    EXPECT_FALSE(folio::security::isValidNewsResponse(R"({"status":"success"})"));  // missing data field
+    EXPECT_FALSE(folio::security::isValidNewsResponse(R"({"status":"error","error":"Not found"})"));  // error status
+    EXPECT_FALSE(folio::security::isValidNewsResponse(""));  // empty
+    EXPECT_FALSE(folio::security::isValidNewsResponse("not json"));  // malformed
+}
+
+TEST(UpstoxClient, GlobalNewsMalformedResponseHandling) {
+    // Test JSON parse error handling
+    const std::string malformedJson = R"({"status":"success","data":[)";  // incomplete JSON
+    
+    // This should not crash; it should return an error structure
+    EXPECT_TRUE(folio::security::isJsonParseError(malformedJson));
+}
+
 TEST(WebServer, StaleAccessTokenDetectionMatchesBrokerErrors) {
-    EXPECT_TRUE(folio::isAccessTokenStale("HTTP 401 Unauthorized from Upstox holdings"));
-    EXPECT_TRUE(folio::isAccessTokenStale("token expired"));
-    EXPECT_FALSE(folio::isAccessTokenStale("HTTP 500 from Upstox"));
-    EXPECT_FALSE(folio::isAccessTokenStale("market data is temporarily unavailable"));
+    EXPECT_TRUE(folio::security::isAccessTokenStale("HTTP 401 Unauthorized from Upstox holdings"));
+    EXPECT_TRUE(folio::security::isAccessTokenStale("token expired"));
+    EXPECT_FALSE(folio::security::isAccessTokenStale("HTTP 500 from Upstox"));
+    EXPECT_FALSE(folio::security::isAccessTokenStale("market data is temporarily unavailable"));
 }
 
 TEST(SecurityUtils, ValidateQuantityAndPriceBounds) {

@@ -1,0 +1,384 @@
+        -:    0:Source:/usr/include/c++/13/bits/locale_classes.tcc
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/SecureUtils.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/SecureUtils.cpp.gcda
+        -:    0:Runs:2
+        -:    1:// Locale support -*- C++ -*-
+        -:    2:
+        -:    3:// Copyright (C) 2007-2023 Free Software Foundation, Inc.
+        -:    4://
+        -:    5:// This file is part of the GNU ISO C++ Library.  This library is free
+        -:    6:// software; you can redistribute it and/or modify it under the
+        -:    7:// terms of the GNU General Public License as published by the
+        -:    8:// Free Software Foundation; either version 3, or (at your option)
+        -:    9:// any later version.
+        -:   10:
+        -:   11:// This library is distributed in the hope that it will be useful,
+        -:   12:// but WITHOUT ANY WARRANTY; without even the implied warranty of
+        -:   13:// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        -:   14:// GNU General Public License for more details.
+        -:   15:
+        -:   16:// Under Section 7 of GPL version 3, you are granted additional
+        -:   17:// permissions described in the GCC Runtime Library Exception, version
+        -:   18:// 3.1, as published by the Free Software Foundation.
+        -:   19:
+        -:   20:// You should have received a copy of the GNU General Public License and
+        -:   21:// a copy of the GCC Runtime Library Exception along with this program;
+        -:   22:// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+        -:   23:// <http://www.gnu.org/licenses/>.
+        -:   24:
+        -:   25:/** @file bits/locale_classes.tcc
+        -:   26: *  This is an internal header file, included by other library headers.
+        -:   27: *  Do not attempt to use it directly. @headername{locale}
+        -:   28: */
+        -:   29:
+        -:   30://
+        -:   31:// ISO C++ 14882: 22.1  Locales
+        -:   32://
+        -:   33:
+        -:   34:#ifndef _LOCALE_CLASSES_TCC
+        -:   35:#define _LOCALE_CLASSES_TCC 1
+        -:   36:
+        -:   37:#pragma GCC system_header
+        -:   38:
+        -:   39:namespace std _GLIBCXX_VISIBILITY(default)
+        -:   40:{
+        -:   41:_GLIBCXX_BEGIN_NAMESPACE_VERSION
+        -:   42:
+        -:   43:  template<typename _Facet>
+        -:   44:    locale::
+        -:   45:    locale(const locale& __other, _Facet* __f)
+        -:   46:    {
+        -:   47:      _M_impl = new _Impl(*__other._M_impl, 1);
+        -:   48:
+        -:   49:      __try
+        -:   50:	{ _M_impl->_M_install_facet(&_Facet::id, __f); }
+        -:   51:      __catch(...)
+        -:   52:	{
+        -:   53:	  _M_impl->_M_remove_reference();
+        -:   54:	  __throw_exception_again;
+        -:   55:	}
+        -:   56:      delete [] _M_impl->_M_names[0];
+        -:   57:      _M_impl->_M_names[0] = 0;   // Unnamed.
+        -:   58:    }
+        -:   59:
+        -:   60:  template<typename _Facet>
+        -:   61:    locale
+        -:   62:    locale::
+        -:   63:    combine(const locale& __other) const
+        -:   64:    {
+        -:   65:      _Impl* __tmp = new _Impl(*_M_impl, 1);
+        -:   66:      __try
+        -:   67:	{
+        -:   68:	  __tmp->_M_replace_facet(__other._M_impl, &_Facet::id);
+        -:   69:	}
+        -:   70:      __catch(...)
+        -:   71:	{
+        -:   72:	  __tmp->_M_remove_reference();
+        -:   73:	  __throw_exception_again;
+        -:   74:	}
+        -:   75:      return locale(__tmp);
+        -:   76:    }
+        -:   77:
+        -:   78:  template<typename _CharT, typename _Traits, typename _Alloc>
+        -:   79:    bool
+        -:   80:    locale::
+        -:   81:    operator()(const basic_string<_CharT, _Traits, _Alloc>& __s1,
+        -:   82:	       const basic_string<_CharT, _Traits, _Alloc>& __s2) const
+        -:   83:    {
+        -:   84:      typedef std::collate<_CharT> __collate_type;
+        -:   85:      const __collate_type& __collate = use_facet<__collate_type>(*this);
+        -:   86:      return (__collate.compare(__s1.data(), __s1.data() + __s1.length(),
+        -:   87:				__s2.data(), __s2.data() + __s2.length()) < 0);
+        -:   88:    }
+        -:   89:
+        -:   90:  template<typename _Facet>
+        -:   91:    inline const _Facet*
+function _ZSt15__try_use_facetIKSt5ctypeIcEEPKT_RKSt6locale called 2 returned 100% blocks executed 78%
+        2:   92:    __try_use_facet(const locale& __loc) _GLIBCXX_NOTHROW
+        -:   93:    {
+        2:   94:      const size_t __i = _Facet::id._M_id();
+call    0 returned 2
+        2:   95:      const locale::facet** __facets = __loc._M_impl->_M_facets;
+        -:   96:
+        -:   97:      // We know these standard facets are always installed in every locale
+        -:   98:      // so dynamic_cast always succeeds, just use static_cast instead.
+        -:   99:#define _GLIBCXX_STD_FACET(...) \
+        -:  100:      if _GLIBCXX17_CONSTEXPR (__is_same(_Facet, __VA_ARGS__)) \
+        -:  101:	return static_cast<const _Facet*>(__facets[__i])
+        -:  102:
+        -:  103:      _GLIBCXX_STD_FACET(ctype<char>);
+        -:  104:      _GLIBCXX_STD_FACET(num_get<char>);
+        -:  105:      _GLIBCXX_STD_FACET(num_put<char>);
+        -:  106:      _GLIBCXX_STD_FACET(codecvt<char, char, mbstate_t>);
+        -:  107:      _GLIBCXX_STD_FACET(collate<char>);
+        -:  108:      _GLIBCXX_STD_FACET(moneypunct<char>);
+        -:  109:      _GLIBCXX_STD_FACET(moneypunct<char, true>);
+        -:  110:      _GLIBCXX_STD_FACET(money_get<char>);
+        -:  111:      _GLIBCXX_STD_FACET(money_put<char>);
+        -:  112:      _GLIBCXX_STD_FACET(numpunct<char>);
+        -:  113:      _GLIBCXX_STD_FACET(time_get<char>);
+        -:  114:      _GLIBCXX_STD_FACET(time_put<char>);
+        -:  115:      _GLIBCXX_STD_FACET(messages<char>);
+        -:  116:
+        -:  117:#ifdef _GLIBCXX_USE_WCHAR_T
+        -:  118:      _GLIBCXX_STD_FACET(ctype<wchar_t>);
+        -:  119:      _GLIBCXX_STD_FACET(num_get<wchar_t>);
+        -:  120:      _GLIBCXX_STD_FACET(num_put<wchar_t>);
+        -:  121:      _GLIBCXX_STD_FACET(codecvt<wchar_t, char, mbstate_t>);
+        -:  122:      _GLIBCXX_STD_FACET(collate<wchar_t>);
+        -:  123:      _GLIBCXX_STD_FACET(moneypunct<wchar_t>);
+        -:  124:      _GLIBCXX_STD_FACET(moneypunct<wchar_t, true>);
+        -:  125:      _GLIBCXX_STD_FACET(money_get<wchar_t>);
+        -:  126:      _GLIBCXX_STD_FACET(money_put<wchar_t>);
+        -:  127:      _GLIBCXX_STD_FACET(numpunct<wchar_t>);
+        -:  128:      _GLIBCXX_STD_FACET(time_get<wchar_t>);
+        -:  129:      _GLIBCXX_STD_FACET(time_put<wchar_t>);
+        -:  130:      _GLIBCXX_STD_FACET(messages<wchar_t>);
+        -:  131:#endif
+        -:  132:#if __cplusplus >= 201103L
+        -:  133:      _GLIBCXX_STD_FACET(codecvt<char16_t, char, mbstate_t>);
+        -:  134:      _GLIBCXX_STD_FACET(codecvt<char32_t, char, mbstate_t>);
+        -:  135:#endif
+        -:  136:
+        -:  137:#undef _GLIBCXX_STD_FACET
+        -:  138:
+        2:  139:      if (__i >= __loc._M_impl->_M_facets_size || !__facets[__i])
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+branch  2 taken 0 (fallthrough)
+branch  3 taken 2
+    #####:  140:	return 0;
+        -:  141:
+        -:  142:#if __cpp_rtti
+       2*:  143:      return dynamic_cast<const _Facet*>(__facets[__i]);
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        -:  144:#else
+        -:  145:      return static_cast<const _Facet*>(__facets[__i]);
+        -:  146:#endif
+        -:  147:    }
+        -:  148:
+        -:  149:  /**
+        -:  150:   *  @brief  Test for the presence of a facet.
+        -:  151:   *  @ingroup locales
+        -:  152:   *
+        -:  153:   *  has_facet tests the locale argument for the presence of the facet type
+        -:  154:   *  provided as the template parameter.  Facets derived from the facet
+        -:  155:   *  parameter will also return true.
+        -:  156:   *
+        -:  157:   *  @tparam  _Facet  The facet type to test the presence of.
+        -:  158:   *  @param  __loc  The locale to test.
+        -:  159:   *  @return  true if @p __loc contains a facet of type _Facet, else false.
+        -:  160:  */
+        -:  161:  template<typename _Facet>
+        -:  162:    inline bool
+        -:  163:    has_facet(const locale& __loc) throw()
+        -:  164:    {
+        -:  165:#if __cplusplus >= 201103L
+        -:  166:      static_assert(__is_base_of(locale::facet, _Facet),
+        -:  167:		    "template argument must be derived from locale::facet");
+        -:  168:#else
+        -:  169:      (void) static_cast<const _Facet*>(static_cast<const locale::facet*>(0));
+        -:  170:#endif
+        -:  171:      return std::__try_use_facet<_Facet>(__loc) != 0;
+        -:  172:    }
+        -:  173:
+        -:  174:  /**
+        -:  175:   *  @brief  Return a facet.
+        -:  176:   *  @ingroup locales
+        -:  177:   *
+        -:  178:   *  use_facet looks for and returns a reference to a facet of type Facet
+        -:  179:   *  where Facet is the template parameter.  If has_facet(locale) is true,
+        -:  180:   *  there is a suitable facet to return.  It throws std::bad_cast if the
+        -:  181:   *  locale doesn't contain a facet of type Facet.
+        -:  182:   *
+        -:  183:   *  @tparam  _Facet  The facet type to access.
+        -:  184:   *  @param  __loc  The locale to use.
+        -:  185:   *  @return  Reference to facet of type Facet.
+        -:  186:   *  @throw  std::bad_cast if @p __loc doesn't contain a facet of type _Facet.
+        -:  187:  */
+        -:  188:#pragma GCC diagnostic push
+        -:  189:#pragma GCC diagnostic ignored "-Wdangling-reference"
+        -:  190:  template<typename _Facet>
+        -:  191:    inline const _Facet&
+function _ZSt9use_facetIKSt5ctypeIcEERKT_RKSt6locale called 2 returned 100% blocks executed 80%
+        2:  192:    use_facet(const locale& __loc)
+        -:  193:    {
+        -:  194:#if __cplusplus >= 201103L
+        -:  195:      static_assert(__is_base_of(locale::facet, _Facet),
+        -:  196:		    "template argument must be derived from locale::facet");
+        -:  197:#else
+        -:  198:      (void) static_cast<const _Facet*>(static_cast<const locale::facet*>(0));
+        -:  199:#endif
+        2:  200:      if (const _Facet* __f = std::__try_use_facet<_Facet>(__loc))
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+        2:  201:	return *__f;
+    #####:  202:      __throw_bad_cast();
+call    0 never executed
+        -:  203:    }
+        -:  204:#pragma GCC diagnostic pop
+        -:  205:
+        -:  206:
+        -:  207:  // Generic version does nothing.
+        -:  208:  template<typename _CharT>
+        -:  209:    int
+        -:  210:    collate<_CharT>::_M_compare(const _CharT*, const _CharT*) const throw ()
+        -:  211:    { return 0; }
+        -:  212:
+        -:  213:  // Generic version does nothing.
+        -:  214:  template<typename _CharT>
+        -:  215:    size_t
+        -:  216:    collate<_CharT>::_M_transform(_CharT*, const _CharT*, size_t) const throw ()
+        -:  217:    { return 0; }
+        -:  218:
+        -:  219:  template<typename _CharT>
+        -:  220:    int
+        -:  221:    collate<_CharT>::
+        -:  222:    do_compare(const _CharT* __lo1, const _CharT* __hi1,
+        -:  223:	       const _CharT* __lo2, const _CharT* __hi2) const
+        -:  224:    {
+        -:  225:      // strcoll assumes zero-terminated strings so we make a copy
+        -:  226:      // and then put a zero at the end.
+        -:  227:      const string_type __one(__lo1, __hi1);
+        -:  228:      const string_type __two(__lo2, __hi2);
+        -:  229:
+        -:  230:      const _CharT* __p = __one.c_str();
+        -:  231:      const _CharT* __pend = __one.data() + __one.length();
+        -:  232:      const _CharT* __q = __two.c_str();
+        -:  233:      const _CharT* __qend = __two.data() + __two.length();
+        -:  234:
+        -:  235:      // strcoll stops when it sees a nul character so we break
+        -:  236:      // the strings into zero-terminated substrings and pass those
+        -:  237:      // to strcoll.
+        -:  238:      for (;;)
+        -:  239:	{
+        -:  240:	  const int __res = _M_compare(__p, __q);
+        -:  241:	  if (__res)
+        -:  242:	    return __res;
+        -:  243:
+        -:  244:	  __p += char_traits<_CharT>::length(__p);
+        -:  245:	  __q += char_traits<_CharT>::length(__q);
+        -:  246:	  if (__p == __pend && __q == __qend)
+        -:  247:	    return 0;
+        -:  248:	  else if (__p == __pend)
+        -:  249:	    return -1;
+        -:  250:	  else if (__q == __qend)
+        -:  251:	    return 1;
+        -:  252:
+        -:  253:	  __p++;
+        -:  254:	  __q++;
+        -:  255:	}
+        -:  256:    }
+        -:  257:
+        -:  258:  template<typename _CharT>
+        -:  259:    typename collate<_CharT>::string_type
+        -:  260:    collate<_CharT>::
+        -:  261:    do_transform(const _CharT* __lo, const _CharT* __hi) const
+        -:  262:    {
+        -:  263:      string_type __ret;
+        -:  264:
+        -:  265:      // strxfrm assumes zero-terminated strings so we make a copy
+        -:  266:      const string_type __str(__lo, __hi);
+        -:  267:
+        -:  268:      const _CharT* __p = __str.c_str();
+        -:  269:      const _CharT* __pend = __str.data() + __str.length();
+        -:  270:
+        -:  271:      size_t __len = (__hi - __lo) * 2;
+        -:  272:
+        -:  273:      _CharT* __c = new _CharT[__len];
+        -:  274:
+        -:  275:      __try
+        -:  276:	{
+        -:  277:	  // strxfrm stops when it sees a nul character so we break
+        -:  278:	  // the string into zero-terminated substrings and pass those
+        -:  279:	  // to strxfrm.
+        -:  280:	  for (;;)
+        -:  281:	    {
+        -:  282:	      // First try a buffer perhaps big enough.
+        -:  283:	      size_t __res = _M_transform(__c, __p, __len);
+        -:  284:	      // If the buffer was not large enough, try again with the
+        -:  285:	      // correct size.
+        -:  286:	      if (__res >= __len)
+        -:  287:		{
+        -:  288:		  __len = __res + 1;
+        -:  289:		  delete [] __c, __c = 0;
+        -:  290:		  __c = new _CharT[__len];
+        -:  291:		  __res = _M_transform(__c, __p, __len);
+        -:  292:		}
+        -:  293:
+        -:  294:	      __ret.append(__c, __res);
+        -:  295:	      __p += char_traits<_CharT>::length(__p);
+        -:  296:	      if (__p == __pend)
+        -:  297:		break;
+        -:  298:
+        -:  299:	      __p++;
+        -:  300:	      __ret.push_back(_CharT());
+        -:  301:	    }
+        -:  302:	}
+        -:  303:      __catch(...)
+        -:  304:	{
+        -:  305:	  delete [] __c;
+        -:  306:	  __throw_exception_again;
+        -:  307:	}
+        -:  308:
+        -:  309:      delete [] __c;
+        -:  310:
+        -:  311:      return __ret;
+        -:  312:    }
+        -:  313:
+        -:  314:  template<typename _CharT>
+        -:  315:    long
+        -:  316:    collate<_CharT>::
+        -:  317:    do_hash(const _CharT* __lo, const _CharT* __hi) const
+        -:  318:    {
+        -:  319:      unsigned long __val = 0;
+        -:  320:      for (; __lo < __hi; ++__lo)
+        -:  321:	__val =
+        -:  322:	  *__lo + ((__val << 7)
+        -:  323:		   | (__val >> (__gnu_cxx::__numeric_traits<unsigned long>::
+        -:  324:				__digits - 7)));
+        -:  325:      return static_cast<long>(__val);
+        -:  326:    }
+        -:  327:
+        -:  328:  // Inhibit implicit instantiations for required instantiations,
+        -:  329:  // which are defined via explicit instantiations elsewhere.
+        -:  330:#if _GLIBCXX_EXTERN_TEMPLATE
+        -:  331:  extern template class collate<char>;
+        -:  332:  extern template class collate_byname<char>;
+        -:  333:
+        -:  334:  extern template
+        -:  335:    const collate<char>*
+        -:  336:    __try_use_facet<collate<char> >(const locale&) _GLIBCXX_NOTHROW;
+        -:  337:
+        -:  338:  extern template
+        -:  339:    const collate<char>&
+        -:  340:    use_facet<collate<char> >(const locale&);
+        -:  341:
+        -:  342:  extern template
+        -:  343:    bool
+        -:  344:    has_facet<collate<char> >(const locale&);
+        -:  345:
+        -:  346:#ifdef _GLIBCXX_USE_WCHAR_T
+        -:  347:  extern template class collate<wchar_t>;
+        -:  348:  extern template class collate_byname<wchar_t>;
+        -:  349:
+        -:  350:  extern template
+        -:  351:    const collate<wchar_t>*
+        -:  352:    __try_use_facet<collate<wchar_t> >(const locale&) _GLIBCXX_NOTHROW;
+        -:  353:
+        -:  354:  extern template
+        -:  355:    const collate<wchar_t>&
+        -:  356:    use_facet<collate<wchar_t> >(const locale&);
+        -:  357:
+        -:  358:  extern template
+        -:  359:    bool
+        -:  360:    has_facet<collate<wchar_t> >(const locale&);
+        -:  361:#endif
+        -:  362:#endif
+        -:  363:
+        -:  364:_GLIBCXX_END_NAMESPACE_VERSION
+        -:  365:} // namespace std
+        -:  366:
+        -:  367:#endif

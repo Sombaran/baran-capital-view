@@ -1,0 +1,220 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/StreamingClient.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/StreamingClient.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/StreamingClient.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "StreamingClient.hpp"
+        -:    2:#include <iostream>
+        -:    3:#include <thread>
+        -:    4:
+        -:    5:namespace folio {
+        -:    6:
+        -:    7:class StreamingClient::Impl {
+        -:    8:public:
+        -:    9:    // WebSocket implementation will go here
+        -:   10:    // For now, we have a stub that maintains the interface
+        -:   11:};
+        -:   12:
+function _ZN5folio15StreamingClientC2ENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_ called 2 returned 100% blocks executed 52%
+        2:   13:StreamingClient::StreamingClient(std::string accessToken, std::string baseUrl)
+        2:   14:    : accessToken_(std::move(accessToken)),
+call    0 returned 2
+call    1 returned 2
+        2:   15:      baseUrl_(std::move(baseUrl)),
+call    0 returned 2
+call    1 returned 2
+        2:   16:      impl_(std::make_unique<Impl>()) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+call    3 returned 2
+call    4 returned 2
+call    5 returned 2
+branch  6 taken 2 (fallthrough)
+branch  7 taken 0 (throw)
+        2:   17:}
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+call    5 never executed
+        -:   18:
+function _ZN5folio15StreamingClientD2Ev called 2 returned 100% blocks executed 100%
+        2:   19:StreamingClient::~StreamingClient() = default;
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+call    3 returned 2
+call    4 returned 2
+call    5 returned 2
+call    6 returned 2
+        -:   20:
+function _ZNK5folio15StreamingClient18getAuthorizedWsUrlB5cxx11Ev called 0 returned 0% blocks executed 0%
+    #####:   21:std::string StreamingClient::getAuthorizedWsUrl() const {
+        -:   22:    // Call Upstox market feed authorization endpoint
+        -:   23:    // Return authorized WebSocket URL
+        -:   24:    // TODO: Implement actual HTTP call to /v2/market-feed/authorize
+    #####:   25:    return "";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   26:}
+        -:   27:
+function _ZN5folio15StreamingClient7connectERKSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS7_EE called 2 returned 100% blocks executed 100%
+        2:   28:bool StreamingClient::connect(const std::vector<std::string>& instrumentKeys) {
+        -:   29:    // Establish WebSocket connection
+        -:   30:    // Subscribe to instruments
+        -:   31:    // TODO: Implement WebSocket connection logic using libwebsockets or similar
+        2:   32:    connected_ = true;
+        2:   33:    return true;
+        -:   34:}
+        -:   35:
+function _ZN5folio15StreamingClient10disconnectEv called 2 returned 100% blocks executed 100%
+        2:   36:void StreamingClient::disconnect() {
+        -:   37:    // Close WebSocket connection
+        -:   38:    // TODO: Implement connection cleanup
+        2:   39:    connected_ = false;
+        2:   40:}
+        -:   41:
+function _ZNK5folio15StreamingClient11isConnectedEv called 4 returned 100% blocks executed 100%
+        4:   42:bool StreamingClient::isConnected() const {
+        4:   43:    return connected_;
+        -:   44:}
+        -:   45:
+function _ZN5folio15StreamingClient9subscribeERKSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS7_EE called 0 returned 0% blocks executed 0%
+    #####:   46:void StreamingClient::subscribe(const std::vector<std::string>& instrumentKeys) {
+        -:   47:    // Send subscription message to WebSocket
+        -:   48:    // TODO: Implement subscription protocol
+    #####:   49:}
+        -:   50:
+function _ZN5folio15StreamingClient11unsubscribeERKSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS7_EE called 0 returned 0% blocks executed 0%
+    #####:   51:void StreamingClient::unsubscribe(const std::vector<std::string>& instrumentKeys) {
+        -:   52:    // Send unsubscription message to WebSocket
+        -:   53:    // TODO: Implement unsubscription protocol
+    #####:   54:}
+        -:   55:
+function _ZNK5folio15StreamingClient8getQuoteERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:   56:StreamingClient::Quote StreamingClient::getQuote(const std::string& instrumentKey) const {
+    #####:   57:    std::lock_guard<std::mutex> lock(quoteMutex_);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   58:    auto it = quoteCache_.find(instrumentKey);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   59:    if (it != quoteCache_.end()) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:   60:        return it->second;
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:   61:    }
+    #####:   62:    return Quote();
+call    0 never executed
+    #####:   63:}
+call    0 never executed
+call    1 never executed
+        -:   64:
+function _ZNK5folio15StreamingClient8getDepthERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:   65:StreamingClient::DepthData StreamingClient::getDepth(const std::string& instrumentKey) const {
+    #####:   66:    std::lock_guard<std::mutex> lock(quoteMutex_);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   67:    auto it = depthCache_.find(instrumentKey);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   68:    if (it != depthCache_.end()) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:   69:        return it->second;
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:   70:    }
+    #####:   71:    return DepthData();
+call    0 never executed
+    #####:   72:}
+call    0 never executed
+call    1 never executed
+        -:   73:
+function _ZN5folio15StreamingClient16setQuoteCallbackESt8functionIFvRKNS0_5QuoteEEE called 0 returned 0% blocks executed 0%
+    #####:   74:void StreamingClient::setQuoteCallback(QuoteCallback callback) {
+    #####:   75:    quoteCallback_ = callback;
+call    0 never executed
+    #####:   76:}
+        -:   77:
+function _ZN5folio15StreamingClient16setDepthCallbackESt8functionIFvRKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_9DepthDataEEE called 0 returned 0% blocks executed 0%
+    #####:   78:void StreamingClient::setDepthCallback(DepthCallback callback) {
+    #####:   79:    depthCallback_ = callback;
+call    0 never executed
+    #####:   80:}
+        -:   81:
+function _ZN5folio15StreamingClient16setAutoReconnectEbl called 0 returned 0% blocks executed 0%
+    #####:   82:void StreamingClient::setAutoReconnect(bool enable, long delayMs) {
+    #####:   83:    autoReconnect_ = enable;
+    #####:   84:    reconnectDelayMs_ = delayMs;
+    #####:   85:}
+        -:   86:
+function _ZN5folio15StreamingClient13onQuoteUpdateERKNS0_5QuoteE called 0 returned 0% blocks executed 0%
+    #####:   87:void StreamingClient::onQuoteUpdate(const Quote& quote) {
+        -:   88:    {
+    #####:   89:        std::lock_guard<std::mutex> lock(quoteMutex_);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   90:        quoteCache_[quote.instrumentKey] = quote;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:   91:    }
+call    0 never executed
+call    1 never executed
+    #####:   92:    if (quoteCallback_) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:   93:        quoteCallback_(quote);
+call    0 never executed
+        -:   94:    }
+    #####:   95:}
+        -:   96:
+function _ZN5folio15StreamingClient13onDepthUpdateERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_9DepthDataE called 0 returned 0% blocks executed 0%
+    #####:   97:void StreamingClient::onDepthUpdate(const std::string& instrumentKey, const DepthData& depth) {
+        -:   98:    {
+    #####:   99:        std::lock_guard<std::mutex> lock(quoteMutex_);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  100:        depthCache_[instrumentKey] = depth;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  101:    }
+call    0 never executed
+call    1 never executed
+    #####:  102:    if (depthCallback_) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  103:        depthCallback_(instrumentKey, depth);
+call    0 never executed
+        -:  104:    }
+    #####:  105:}
+        -:  106:
+        -:  107:}  // namespace folio

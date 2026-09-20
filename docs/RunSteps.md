@@ -71,8 +71,40 @@ Artefact: `build/portfolio_health`.
 | Flag                                     | Effect                                              |
 | ---------------------------------------- | --------------------------------------------------- |
 | `-DCMAKE_BUILD_TYPE=Debug`               | Debug symbols, no optimisations.                     |
+| `-DPORTFOLIO_HEALTH_ENABLE_COVERAGE=ON`  | GCC/Clang gcov instrumentation for coverage reports. |
 | `-DPORTFOLIO_HEALTH_FETCH_JSON=ON`       | Ignore the vendored header, pull from GitHub.        |
 | `-DCMAKE_TOOLCHAIN_FILE=<vcpkg.cmake>`   | Use vcpkg for libcurl on Windows.                    |
+
+### Coverage reports
+
+Install `lcov` for the percentage summary and HTML report. On Debian or
+Ubuntu, use `sudo apt install -y lcov`; on Fedora or RHEL, use
+`sudo dnf install -y lcov`. Then configure a separate instrumented build:
+
+```bash
+cmake -S . -B build-coverage -DCMAKE_BUILD_TYPE=Debug \
+   -DPORTFOLIO_HEALTH_ENABLE_COVERAGE=ON
+cmake --build build-coverage --target coverage
+```
+
+The `coverage` target runs CTest, prints the lcov coverage percentage, and
+writes the browsable report to
+`build-coverage/coverage/html/index.html`. To generate raw per-source gcov
+files without lcov, run:
+
+```bash
+cmake --build build-coverage --target coverage-gcov
+```
+
+Those files are written to `build-coverage/coverage/gcov`.
+
+The equivalent script options are:
+
+```bash
+./buildCode.sh 1 --coverage
+./buildCode.sh 1 --coverage-gcov
+./buildCode.sh 1 --coverage --coverage-build-dir /tmp/baran-coverage
+```
 
 ---
 

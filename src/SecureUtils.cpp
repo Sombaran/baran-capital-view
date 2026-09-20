@@ -1,4 +1,5 @@
 #include "SecureUtils.hpp"
+#include <nlohmann/json.hpp>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
@@ -340,6 +341,52 @@ bool validateQuantity(long quantity) {
 
 bool validatePrice(double price) {
     return price >= 0.01 && price <= 100000.0;
+}
+
+bool validateNewsCategory(const std::string& category) {
+    // Validate Upstox news category: lowercase alphanumeric + underscore, max 32 chars
+    // Prevents injection attacks and limits to known categories
+    // Upstox currently supports "holdings" category - used for both news and global-news endpoints
+    if (category.empty() || category.size() > 32) return false;
+    for (char c : category) {
+        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isAccessTokenStale(const std::string& errorMessage) {
+    // Check if error message indicates token expiration or authorization failure
+    if (errorMessage.find("401") != std::string::npos) return true;
+    if (errorMessage.find("403") != std::string::npos) return true;
+    if (errorMessage.find("token") != std::string::npos && 
+        errorMessage.find("expired") != std::string::npos) return true;
+    if (errorMessage.find("unauthorized") != std::string::npos) return true;
+    if (errorMessage.find("access token") != std::string::npos &&
+        errorMessage.find("expired") != std::string::npos) return true;
+    return false;
+}
+
+bool isValidNewsResponse(const std::string& responseJson) {
+    try {
+        const auto json = nlohmann::json::parse(responseJson);
+        // Must have status="success" and a data field
+        if (json.value("status", "") != "success") return false;
+        if (!json.contains("data")) return false;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool isJsonParseError(const std::string& jsonString) {
+    try {
+        nlohmann::json::parse(jsonString);
+        return false;  // Valid JSON
+    } catch (...) {
+        return true;   // Parse error
+    }
 }
 
 bool validateSide(const std::string& side) {

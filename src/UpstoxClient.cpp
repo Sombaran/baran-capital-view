@@ -1,4 +1,5 @@
 #include "UpstoxClient.hpp"
+#include "SecureUtils.hpp"
 
 #include <nlohmann/json.hpp>
 
@@ -185,6 +186,12 @@ PositionsResult UpstoxClient::getHoldings() const {
 
 NewsResult UpstoxClient::getNews(const std::string& category) const {
     NewsResult out;
+    // Validate category to prevent injection; support both 'holdings' and 'global' categories
+    if (!security::validateNewsCategory(category)) {
+        out.error = "invalid news category: " + category;
+        return out;
+    }
+    
     const std::string url = baseUrl_ + "/v2/news?category=" + category;
 
     const std::map<std::string, std::string> headers = {
@@ -201,14 +208,25 @@ NewsResult UpstoxClient::getNews(const std::string& category) const {
         return out;
     }
     if (!resp.ok()) {
-        out.error = "HTTP " + std::to_string(resp.statusCode) + " from Upstox news";
+        // Return descriptive HTTP errors for token renewal prompts
+        if (resp.statusCode == 401 || resp.statusCode == 403) {
+            out.error = "access token expired or unauthorized (HTTP " + std::to_string(resp.statusCode) + ")";
+        } else {
+            out.error = "HTTP " + std::to_string(resp.statusCode) + " from Upstox news API for category: " + category;
+        }
         return out;
     }
 
     try {
         const json j = json::parse(resp.body);
         if (j.value("status", "") != "success") {
-            out.error = "Upstox news status != success";
+            const std::string apiError = j.value("error_code", "");
+            out.error = !apiError.empty() ? "Upstox error: " + apiError : "Upstox news status != success";
+            return out;
+        }
+        // Verify that the response contains a data field
+        if (!j.contains("data")) {
+            out.error = "Upstox news response missing 'data' field";
             return out;
         }
         out.ok = true;

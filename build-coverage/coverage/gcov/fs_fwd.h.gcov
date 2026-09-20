@@ -1,0 +1,371 @@
+        -:    0:Source:/usr/include/c++/13/bits/fs_fwd.h
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_tests.dir/tests/cpp/test_security.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_tests.dir/tests/cpp/test_security.cpp.gcda
+        -:    0:Runs:2
+        -:    1:// Filesystem declarations -*- C++ -*-
+        -:    2:
+        -:    3:// Copyright (C) 2014-2023 Free Software Foundation, Inc.
+        -:    4://
+        -:    5:// This file is part of the GNU ISO C++ Library.  This library is free
+        -:    6:// software; you can redistribute it and/or modify it under the
+        -:    7:// terms of the GNU General Public License as published by the
+        -:    8:// Free Software Foundation; either version 3, or (at your option)
+        -:    9:// any later version.
+        -:   10:
+        -:   11:// This library is distributed in the hope that it will be useful,
+        -:   12:// but WITHOUT ANY WARRANTY; without even the implied warranty of
+        -:   13:// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        -:   14:// GNU General Public License for more details.
+        -:   15:
+        -:   16:// Under Section 7 of GPL version 3, you are granted additional
+        -:   17:// permissions described in the GCC Runtime Library Exception, version
+        -:   18:// 3.1, as published by the Free Software Foundation.
+        -:   19:
+        -:   20:// You should have received a copy of the GNU General Public License and
+        -:   21:// a copy of the GCC Runtime Library Exception along with this program;
+        -:   22:// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+        -:   23:// <http://www.gnu.org/licenses/>.
+        -:   24:
+        -:   25:/** @file include/bits/fs_fwd.h
+        -:   26: *  This is an internal header file, included by other library headers.
+        -:   27: *  Do not attempt to use it directly. @headername{filesystem}
+        -:   28: */
+        -:   29:
+        -:   30:#ifndef _GLIBCXX_FS_FWD_H
+        -:   31:#define _GLIBCXX_FS_FWD_H 1
+        -:   32:
+        -:   33:#if __cplusplus >= 201703L
+        -:   34:
+        -:   35:#include <system_error>
+        -:   36:#include <cstdint>
+        -:   37:#include <bits/chrono.h>
+        -:   38:
+        -:   39:namespace std _GLIBCXX_VISIBILITY(default)
+        -:   40:{
+        -:   41:_GLIBCXX_BEGIN_NAMESPACE_VERSION
+        -:   42:
+        -:   43:/// ISO C++ 2017 namespace for File System library
+        -:   44:namespace filesystem
+        -:   45:{
+        -:   46:#if _GLIBCXX_USE_CXX11_ABI
+        -:   47:/// @cond undocumented
+        -:   48:inline namespace __cxx11 __attribute__((__abi_tag__ ("cxx11"))) { }
+        -:   49:/// @endcond
+        -:   50:#endif
+        -:   51:
+        -:   52:/** @addtogroup filesystem
+        -:   53: *  @{
+        -:   54: */
+        -:   55:
+        -:   56:  class file_status;
+        -:   57:_GLIBCXX_BEGIN_NAMESPACE_CXX11
+        -:   58:  class path;
+        -:   59:  class filesystem_error;
+        -:   60:  class directory_entry;
+        -:   61:  class directory_iterator;
+        -:   62:  class recursive_directory_iterator;
+        -:   63:_GLIBCXX_END_NAMESPACE_CXX11
+        -:   64:
+        -:   65:  /// Information about free space on a disk
+        -:   66:  struct space_info
+        -:   67:  {
+        -:   68:    uintmax_t capacity;
+        -:   69:    uintmax_t free;
+        -:   70:    uintmax_t available;
+        -:   71:
+        -:   72:#if __cpp_impl_three_way_comparison >= 201907L
+        -:   73:    friend bool operator==(const space_info&, const space_info&) = default;
+        -:   74:#endif
+        -:   75:  };
+        -:   76:
+        -:   77:  /// Enumerated type representing the type of a file
+        -:   78:  enum class file_type : signed char {
+        -:   79:      none = 0, not_found = -1, regular = 1, directory = 2, symlink = 3,
+        -:   80:      block = 4, character = 5, fifo = 6, socket = 7, unknown = 8
+        -:   81:  };
+        -:   82:
+        -:   83:  /// Bitmask type controlling effects of `filesystem::copy`
+        -:   84:  enum class copy_options : unsigned short {
+        -:   85:      none = 0,
+        -:   86:      skip_existing = 1, overwrite_existing = 2, update_existing = 4,
+        -:   87:      recursive = 8,
+        -:   88:      copy_symlinks = 16, skip_symlinks = 32,
+        -:   89:      directories_only = 64, create_symlinks = 128, create_hard_links = 256
+        -:   90:  };
+        -:   91:
+        -:   92:  /// @{
+        -:   93:  /// @relates copy_options
+        -:   94:  constexpr copy_options
+        -:   95:  operator&(copy_options __x, copy_options __y) noexcept
+        -:   96:  {
+        -:   97:    using __utype = typename std::underlying_type<copy_options>::type;
+        -:   98:    return static_cast<copy_options>(
+        -:   99:	static_cast<__utype>(__x) & static_cast<__utype>(__y));
+        -:  100:  }
+        -:  101:
+        -:  102:  constexpr copy_options
+        -:  103:  operator|(copy_options __x, copy_options __y) noexcept
+        -:  104:  {
+        -:  105:    using __utype = typename std::underlying_type<copy_options>::type;
+        -:  106:    return static_cast<copy_options>(
+        -:  107:	static_cast<__utype>(__x) | static_cast<__utype>(__y));
+        -:  108:  }
+        -:  109:
+        -:  110:  constexpr copy_options
+        -:  111:  operator^(copy_options __x, copy_options __y) noexcept
+        -:  112:  {
+        -:  113:    using __utype = typename std::underlying_type<copy_options>::type;
+        -:  114:    return static_cast<copy_options>(
+        -:  115:	static_cast<__utype>(__x) ^ static_cast<__utype>(__y));
+        -:  116:  }
+        -:  117:
+        -:  118:  constexpr copy_options
+        -:  119:  operator~(copy_options __x) noexcept
+        -:  120:  {
+        -:  121:    using __utype = typename std::underlying_type<copy_options>::type;
+        -:  122:    return static_cast<copy_options>(~static_cast<__utype>(__x));
+        -:  123:  }
+        -:  124:
+        -:  125:  inline copy_options&
+        -:  126:  operator&=(copy_options& __x, copy_options __y) noexcept
+        -:  127:  { return __x = __x & __y; }
+        -:  128:
+        -:  129:  inline copy_options&
+        -:  130:  operator|=(copy_options& __x, copy_options __y) noexcept
+        -:  131:  { return __x = __x | __y; }
+        -:  132:
+        -:  133:  inline copy_options&
+        -:  134:  operator^=(copy_options& __x, copy_options __y) noexcept
+        -:  135:  { return __x = __x ^ __y; }
+        -:  136:  /// @}
+        -:  137:
+        -:  138:
+        -:  139:  /// Bitmask type representing file access permissions
+        -:  140:  enum class perms : unsigned {
+        -:  141:      none		=  0,
+        -:  142:      owner_read	=  0400,
+        -:  143:      owner_write	=  0200,
+        -:  144:      owner_exec	=  0100,
+        -:  145:      owner_all		=  0700,
+        -:  146:      group_read	=   040,
+        -:  147:      group_write	=   020,
+        -:  148:      group_exec	=   010,
+        -:  149:      group_all		=   070,
+        -:  150:      others_read	=    04,
+        -:  151:      others_write	=    02,
+        -:  152:      others_exec	=    01,
+        -:  153:      others_all	=    07,
+        -:  154:      all		=  0777,
+        -:  155:      set_uid		= 04000,
+        -:  156:      set_gid		= 02000,
+        -:  157:      sticky_bit	= 01000,
+        -:  158:      mask		= 07777,
+        -:  159:      unknown		=  0xFFFF,
+        -:  160:  };
+        -:  161:
+        -:  162:  /// @{
+        -:  163:  /// @relates perms
+        -:  164:  constexpr perms
+        -:  165:  operator&(perms __x, perms __y) noexcept
+        -:  166:  {
+        -:  167:    using __utype = typename std::underlying_type<perms>::type;
+        -:  168:    return static_cast<perms>(
+        -:  169:	static_cast<__utype>(__x) & static_cast<__utype>(__y));
+        -:  170:  }
+        -:  171:
+        -:  172:  constexpr perms
+function _ZNSt10filesystemorENS_5permsES0_ called 2 returned 100% blocks executed 100%
+        2:  173:  operator|(perms __x, perms __y) noexcept
+        -:  174:  {
+        -:  175:    using __utype = typename std::underlying_type<perms>::type;
+        -:  176:    return static_cast<perms>(
+        2:  177:	static_cast<__utype>(__x) | static_cast<__utype>(__y));
+        -:  178:  }
+        -:  179:
+        -:  180:  constexpr perms
+        -:  181:  operator^(perms __x, perms __y) noexcept
+        -:  182:  {
+        -:  183:    using __utype = typename std::underlying_type<perms>::type;
+        -:  184:    return static_cast<perms>(
+        -:  185:	static_cast<__utype>(__x) ^ static_cast<__utype>(__y));
+        -:  186:  }
+        -:  187:
+        -:  188:  constexpr perms
+        -:  189:  operator~(perms __x) noexcept
+        -:  190:  {
+        -:  191:    using __utype = typename std::underlying_type<perms>::type;
+        -:  192:    return static_cast<perms>(~static_cast<__utype>(__x));
+        -:  193:  }
+        -:  194:
+        -:  195:  inline perms&
+        -:  196:  operator&=(perms& __x, perms __y) noexcept
+        -:  197:  { return __x = __x & __y; }
+        -:  198:
+        -:  199:  inline perms&
+        -:  200:  operator|=(perms& __x, perms __y) noexcept
+        -:  201:  { return __x = __x | __y; }
+        -:  202:
+        -:  203:  inline perms&
+        -:  204:  operator^=(perms& __x, perms __y) noexcept
+        -:  205:  { return __x = __x ^ __y; }
+        -:  206:  /// @}
+        -:  207:
+        -:  208:  /// Bitmask type controlling changes to permissions
+        -:  209:  enum class perm_options : unsigned {
+        -:  210:      replace	= 0x1,
+        -:  211:      add	= 0x2,
+        -:  212:      remove	= 0x4,
+        -:  213:      nofollow	= 0x8
+        -:  214:  };
+        -:  215:
+        -:  216:  /// @{
+        -:  217:  /// @relates perm_options
+        -:  218:  constexpr perm_options
+        -:  219:  operator&(perm_options __x, perm_options __y) noexcept
+        -:  220:  {
+        -:  221:    using __utype = typename std::underlying_type<perm_options>::type;
+        -:  222:    return static_cast<perm_options>(
+        -:  223:	static_cast<__utype>(__x) & static_cast<__utype>(__y));
+        -:  224:  }
+        -:  225:
+        -:  226:  constexpr perm_options
+        -:  227:  operator|(perm_options __x, perm_options __y) noexcept
+        -:  228:  {
+        -:  229:    using __utype = typename std::underlying_type<perm_options>::type;
+        -:  230:    return static_cast<perm_options>(
+        -:  231:	static_cast<__utype>(__x) | static_cast<__utype>(__y));
+        -:  232:  }
+        -:  233:
+        -:  234:  constexpr perm_options
+        -:  235:  operator^(perm_options __x, perm_options __y) noexcept
+        -:  236:  {
+        -:  237:    using __utype = typename std::underlying_type<perm_options>::type;
+        -:  238:    return static_cast<perm_options>(
+        -:  239:	static_cast<__utype>(__x) ^ static_cast<__utype>(__y));
+        -:  240:  }
+        -:  241:
+        -:  242:  constexpr perm_options
+        -:  243:  operator~(perm_options __x) noexcept
+        -:  244:  {
+        -:  245:    using __utype = typename std::underlying_type<perm_options>::type;
+        -:  246:    return static_cast<perm_options>(~static_cast<__utype>(__x));
+        -:  247:  }
+        -:  248:
+        -:  249:  inline perm_options&
+        -:  250:  operator&=(perm_options& __x, perm_options __y) noexcept
+        -:  251:  { return __x = __x & __y; }
+        -:  252:
+        -:  253:  inline perm_options&
+        -:  254:  operator|=(perm_options& __x, perm_options __y) noexcept
+        -:  255:  { return __x = __x | __y; }
+        -:  256:
+        -:  257:  inline perm_options&
+        -:  258:  operator^=(perm_options& __x, perm_options __y) noexcept
+        -:  259:  { return __x = __x ^ __y; }
+        -:  260:  /// @}
+        -:  261:
+        -:  262:  /// Bitmask type controlling directory iteration
+        -:  263:  enum class directory_options : unsigned char {
+        -:  264:      none = 0, follow_directory_symlink = 1, skip_permission_denied = 2
+        -:  265:  };
+        -:  266:
+        -:  267:  /// @{
+        -:  268:  /// @relates directory_options
+        -:  269:  constexpr directory_options
+        -:  270:  operator&(directory_options __x, directory_options __y) noexcept
+        -:  271:  {
+        -:  272:    using __utype = typename std::underlying_type<directory_options>::type;
+        -:  273:    return static_cast<directory_options>(
+        -:  274:	static_cast<__utype>(__x) & static_cast<__utype>(__y));
+        -:  275:  }
+        -:  276:
+        -:  277:  constexpr directory_options
+        -:  278:  operator|(directory_options __x, directory_options __y) noexcept
+        -:  279:  {
+        -:  280:    using __utype = typename std::underlying_type<directory_options>::type;
+        -:  281:    return static_cast<directory_options>(
+        -:  282:	static_cast<__utype>(__x) | static_cast<__utype>(__y));
+        -:  283:  }
+        -:  284:
+        -:  285:  constexpr directory_options
+        -:  286:  operator^(directory_options __x, directory_options __y) noexcept
+        -:  287:  {
+        -:  288:    using __utype = typename std::underlying_type<directory_options>::type;
+        -:  289:    return static_cast<directory_options>(
+        -:  290:	static_cast<__utype>(__x) ^ static_cast<__utype>(__y));
+        -:  291:  }
+        -:  292:
+        -:  293:  constexpr directory_options
+        -:  294:  operator~(directory_options __x) noexcept
+        -:  295:  {
+        -:  296:    using __utype = typename std::underlying_type<directory_options>::type;
+        -:  297:    return static_cast<directory_options>(~static_cast<__utype>(__x));
+        -:  298:  }
+        -:  299:
+        -:  300:  inline directory_options&
+        -:  301:  operator&=(directory_options& __x, directory_options __y) noexcept
+        -:  302:  { return __x = __x & __y; }
+        -:  303:
+        -:  304:  inline directory_options&
+        -:  305:  operator|=(directory_options& __x, directory_options __y) noexcept
+        -:  306:  { return __x = __x | __y; }
+        -:  307:
+        -:  308:  inline directory_options&
+        -:  309:  operator^=(directory_options& __x, directory_options __y) noexcept
+        -:  310:  { return __x = __x ^ __y; }
+        -:  311:  /// @}
+        -:  312:
+        -:  313:  /// The type used for file timestamps
+        -:  314:  using file_time_type = __file_clock::time_point;
+        -:  315:
+        -:  316:  // operational functions
+        -:  317:
+        -:  318:  void copy(const path& __from, const path& __to, copy_options __options);
+        -:  319:  void copy(const path& __from, const path& __to, copy_options __options,
+        -:  320:	    error_code&);
+        -:  321:
+        -:  322:  bool copy_file(const path& __from, const path& __to, copy_options __option);
+        -:  323:  bool copy_file(const path& __from, const path& __to, copy_options __option,
+        -:  324:		 error_code&);
+        -:  325:
+        -:  326:  path current_path();
+        -:  327:
+        -:  328:  bool exists(file_status) noexcept;
+        -:  329:
+        -:  330:  bool is_other(file_status) noexcept;
+        -:  331:
+        -:  332:  uintmax_t file_size(const path&);
+        -:  333:  uintmax_t file_size(const path&, error_code&) noexcept;
+        -:  334:  uintmax_t hard_link_count(const path&);
+        -:  335:  uintmax_t hard_link_count(const path&, error_code&) noexcept;
+        -:  336:  file_time_type last_write_time(const path&);
+        -:  337:  file_time_type last_write_time(const path&, error_code&) noexcept;
+        -:  338:
+        -:  339:  void permissions(const path&, perms, perm_options, error_code&) noexcept;
+        -:  340:
+        -:  341:  path proximate(const path& __p, const path& __base, error_code& __ec);
+        -:  342:  path proximate(const path& __p, const path& __base, error_code& __ec);
+        -:  343:
+        -:  344:  path relative(const path& __p, const path& __base, error_code& __ec);
+        -:  345:
+        -:  346:  file_status status(const path&);
+        -:  347:  file_status status(const path&, error_code&) noexcept;
+        -:  348:
+        -:  349:  bool status_known(file_status) noexcept;
+        -:  350:
+        -:  351:  file_status symlink_status(const path&);
+        -:  352:  file_status symlink_status(const path&, error_code&) noexcept;
+        -:  353:
+        -:  354:  bool is_regular_file(file_status) noexcept;
+        -:  355:  bool is_symlink(file_status) noexcept;
+        -:  356:
+        -:  357:  bool remove(const path&, error_code&) noexcept;
+        -:  358:  uintmax_t remove_all(const path&);
+        -:  359:  uintmax_t remove_all(const path&, error_code&);
+        -:  360:
+        -:  361:/// @}
+        -:  362:} // namespace filesystem
+        -:  363:_GLIBCXX_END_NAMESPACE_VERSION
+        -:  364:} // namespace std
+        -:  365:#endif // C++17
+        -:  366:#endif // _GLIBCXX_FS_FWD_H

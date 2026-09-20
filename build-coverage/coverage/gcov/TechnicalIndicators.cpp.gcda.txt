@@ -1,0 +1,161 @@
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPKdSt6vectorIdSaIdEEEmiEl'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPKdSt6vectorIdSaIdEEE4baseEv'
+Lines executed:0.00% of 2
+
+Function '_ZN9__gnu_cxx17__normal_iteratorIPKdSt6vectorIdSaIdEEEC2ERKS2_'
+Lines executed:0.00% of 2
+
+Function '_ZSt4moveIRSaIcEEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__new_allocatorIcED2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZNKSt6vectorIdSaIdEE4backEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt6vectorIdSaIdEEixEm'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPKdSt6vectorIdSaIdEEEdeEv'
+Lines executed:100.00% of 2
+
+Function '_ZN9__gnu_cxx17__normal_iteratorIPKdSt6vectorIdSaIdEEEppEv'
+Lines executed:100.00% of 3
+
+Function '_ZN9__gnu_cxxneIPKdSt6vectorIdSaIdEEEEbRKNS_17__normal_iteratorIT_T0_EESB_'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt6vectorIdSaIdEE3endEv'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6vectorIdSaIdEE5beginEv'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6vectorIdSaIdEE4sizeEv'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio12calculateEmaERKSt6vectorIdSaIdEEm'
+Lines executed:71.43% of 21
+
+Function '_ZN5folio12calculateAtrERKSt6vectorIdSaIdEES4_S4_m'
+Lines executed:80.00% of 25
+
+Function '_ZN5folio19calculateStochasticERKSt6vectorIdSaIdEES4_S4_m'
+Lines executed:0.00% of 23
+
+Function '_ZN5folio23calculateBollingerBandsERKSt6vectorIdSaIdEEmd'
+Lines executed:80.00% of 25
+
+Function '_ZN5folio13calculateMacdERKSt6vectorIdSaIdEE'
+Lines executed:88.46% of 26
+
+Function '_ZN5folio12calculateRsiERKSt6vectorIdSaIdEEm'
+Lines executed:83.78% of 37
+
+Function '_ZSt12setprecisioni'
+Lines executed:0.00% of 2
+
+Function '_ZSt5fixedRSt8ios_base'
+Lines executed:0.00% of 3
+
+Function '_ZNSt8ios_base4setfESt13_Ios_FmtflagsS0_'
+Lines executed:0.00% of 5
+
+Function '_ZStaNRSt13_Ios_FmtflagsS_'
+Lines executed:0.00% of 2
+
+Function '_ZStoRRSt13_Ios_FmtflagsS_'
+Lines executed:0.00% of 2
+
+Function '_ZStcoSt13_Ios_Fmtflags'
+Lines executed:0.00% of 2
+
+Function '_ZStorSt13_Ios_FmtflagsS_'
+Lines executed:0.00% of 2
+
+Function '_ZStanSt13_Ios_FmtflagsS_'
+Lines executed:0.00% of 2
+
+Function '_ZSt8isfinited'
+Lines executed:0.00% of 2
+
+Function '_ZSt3absd'
+Lines executed:0.00% of 2
+
+File '/usr/include/c++/13/bits/stl_iterator.h'
+Lines executed:69.23% of 13
+No branches
+Calls executed:100.00% of 3
+Creating 'stl_iterator.h.gcov'
+
+File '/usr/include/c++/13/bits/move.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'move.h.gcov'
+
+File '/usr/include/c++/13/bits/new_allocator.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'new_allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_vector.h'
+Lines executed:40.00% of 10
+No branches
+Calls executed:60.00% of 5
+Creating 'stl_vector.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.h'
+No executable lines
+No branches
+No calls
+Removing 'basic_string.h.gcov'
+
+File '/usr/include/c++/13/bits/allocator.h'
+No executable lines
+No branches
+No calls
+Removing 'allocator.h.gcov'
+
+File '/home/ritup2404/baran-capital-view/src/TechnicalIndicators.cpp'
+Lines executed:69.43% of 157
+Branches executed:69.33% of 150
+Taken at least once:42.67% of 150
+Calls executed:66.67% of 105
+Creating 'TechnicalIndicators.cpp.gcov'
+
+File '/home/ritup2404/baran-capital-view/include/TechnicalIndicators.hpp'
+No executable lines
+No branches
+No calls
+Removing 'TechnicalIndicators.hpp.gcov'
+
+File '/usr/include/c++/13/iomanip'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'iomanip.gcov'
+
+File '/usr/include/c++/13/bits/ios_base.h'
+Lines executed:0.00% of 18
+No branches
+Calls executed:0.00% of 7
+Creating 'ios_base.h.gcov'
+
+File '/usr/include/c++/13/cmath'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'cmath.gcov'
+
+File '/usr/include/c++/13/bits/std_abs.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'std_abs.h.gcov'
+
+Lines executed:58.94% of 207

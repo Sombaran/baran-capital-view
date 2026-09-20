@@ -1,0 +1,1 @@
+/usr/bin/c++ -m64 -g -m64 --coverage CMakeFiles/portfolio_health_tests.dir/tests/cpp/test_security.cpp.o -o portfolio_health_tests  -Wl,-rpath,/home/ritup2404/baran-capital-view/build-coverage libportfolio_health_core.so lib/libgtest_main.a /usr/lib/x86_64-linux-gnu/libcurl.so lib/libgtest.a 

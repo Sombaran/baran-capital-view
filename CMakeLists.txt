@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(portfolio_health VERSION 2.0.27 LANGUAGES CXX)
+project(portfolio_health VERSION 2.0.30 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(PORTFOLIO_HEALTH_ENABLE_IPO "Enable interprocedural optimization" OFF)
 option(PORTFOLIO_HEALTH_ENABLE_SANITIZERS "Enable Address/Undefined sanitizers" OFF)
+option(PORTFOLIO_HEALTH_ENABLE_COVERAGE "Build with gcov coverage instrumentation" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -106,6 +107,20 @@ if(PORTFOLIO_HEALTH_ENABLE_SANITIZERS AND NOT MSVC)
   target_link_options(portfolio_health PRIVATE -fsanitize=address,undefined)
 endif()
 
+if(PORTFOLIO_HEALTH_ENABLE_COVERAGE)
+  if(MSVC)
+    message(FATAL_ERROR "PORTFOLIO_HEALTH_ENABLE_COVERAGE requires GCC or Clang")
+  endif()
+
+  function(portfolio_health_enable_coverage target)
+    target_compile_options(${target} PRIVATE --coverage -O0 -g)
+    target_link_options(${target} PRIVATE --coverage)
+  endfunction()
+
+  portfolio_health_enable_coverage(portfolio_health_core)
+  portfolio_health_enable_coverage(portfolio_health)
+endif()
+
 if(MSVC)
   target_compile_options(portfolio_health_core PRIVATE /W4 /utf-8 /permissive-)
   target_compile_options(portfolio_health PRIVATE /W4 /utf-8 /permissive-)
@@ -141,7 +156,51 @@ if(BUILD_TESTING)
     PRIVATE portfolio_health_core GTest::gtest_main
   )
 
+  if(PORTFOLIO_HEALTH_ENABLE_COVERAGE)
+    portfolio_health_enable_coverage(portfolio_health_tests)
+  endif()
+
   add_test(NAME portfolio_health_tests COMMAND portfolio_health_tests)
+
+  if(PORTFOLIO_HEALTH_ENABLE_COVERAGE AND UNIX)
+    find_program(LCOV_EXECUTABLE lcov)
+    find_program(GENHTML_EXECUTABLE genhtml)
+
+    if(LCOV_EXECUTABLE AND GENHTML_EXECUTABLE)
+      add_custom_target(coverage
+        COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR} --output-on-failure
+        COMMAND ${LCOV_EXECUTABLE} --capture --directory ${CMAKE_BINARY_DIR}
+          --output-file ${CMAKE_BINARY_DIR}/coverage.info
+          --ignore-errors mismatch
+        COMMAND ${LCOV_EXECUTABLE} --remove ${CMAKE_BINARY_DIR}/coverage.info
+          '/usr/*' '*/_deps/*' '*/tests/*'
+          --output-file ${CMAKE_BINARY_DIR}/coverage.info
+          --ignore-errors unused
+        COMMAND ${LCOV_EXECUTABLE} --summary ${CMAKE_BINARY_DIR}/coverage.info
+        COMMAND ${GENHTML_EXECUTABLE} ${CMAKE_BINARY_DIR}/coverage.info
+          --output-directory ${CMAKE_BINARY_DIR}/coverage/html
+          --title "baran-capital-view coverage"
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS portfolio_health_tests
+        USES_TERMINAL
+        COMMENT "Running tests and generating the lcov HTML coverage report"
+      )
+    else()
+      message(STATUS "Coverage target unavailable: install lcov and genhtml")
+    endif()
+
+    add_custom_target(coverage-gcov
+      COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR} --output-on-failure
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/coverage/gcov
+      COMMAND ${CMAKE_COMMAND} -E env
+        bash ${CMAKE_CURRENT_SOURCE_DIR}/tools/generate_gcov_report.sh
+        ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/coverage/gcov
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      DEPENDS portfolio_health_tests
+      USES_TERMINAL
+      COMMENT "Running tests and generating raw gcov reports"
+    )
+  endif()
 endif()
 
 # --- Convenience run targets ---------------------------------------------

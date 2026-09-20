@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+source ~/.upstox.env
 cd "$(dirname "$0")"
 
 # Credentials must be injected by the shell, ~/.upstox.env, or a secret manager.

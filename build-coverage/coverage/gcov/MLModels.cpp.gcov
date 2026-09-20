@@ -1,0 +1,535 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/MLModels.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/MLModels.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/MLModels.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "MLModels.hpp"
+        -:    2:#include <cmath>
+        -:    3:#include <algorithm>
+        -:    4:#include <ctime>
+        -:    5:
+        -:    6:namespace folio {
+        -:    7:
+function _ZN5folio8MLModelsC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 100%
+        2:    8:MLModels::MLModels(const std::string& modelsPath)
+        2:    9:    : modelsPath_(modelsPath) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+        2:   10:}
+        -:   11:
+function _ZN5folio8MLModels12predictPriceERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_8OhlcDataE called 2 returned 100% blocks executed 56%
+        2:   12:MLModels::PricePrediction MLModels::predictPrice(const std::string& symbol,
+        -:   13:                                                   const OhlcData& ohlcData) {
+        2:   14:    PricePrediction result;
+call    0 returned 2
+        -:   15:    
+        -:   16:    // Check cache
+        2:   17:    if (isCacheValid(symbol)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   18:        auto it = predictionCache_.find(symbol);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   19:        if (it != predictionCache_.end()) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:   20:            return it->second.priceResult;
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:   21:        }
+        -:   22:    }
+        -:   23:    
+        2:   24:    if (ohlcData.closes.size() < 30) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:   25:        result.ok = false;
+    #####:   26:        result.reasoning = "Need at least 30 bars for prediction";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   27:        return result;
+call    0 never executed
+        -:   28:    }
+        -:   29:
+        -:   30:    // Extract features from OHLC data
+        2:   31:    std::vector<double> features = extractFeatures(ohlcData);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:   32:
+        -:   33:    // Run inference on pre-trained model
+        2:   34:    std::vector<double> predictions = runInference("price_predictor", features);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        -:   35:
+        2:   36:    if (predictions.empty()) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:   37:        result.ok = false;
+    #####:   38:        result.reasoning = "Model inference failed";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   39:        return result;
+call    0 never executed
+        -:   40:    }
+        -:   41:
+        -:   42:    // Predictions contain: [predicted_close, confidence, lower_bound, upper_bound]
+        2:   43:    result.predictedClose = predictions[0];
+call    0 returned 2
+       2*:   44:    result.confidence = predictions.size() > 1 ? predictions[1] : 50.0;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+call    3 returned 2
+       2*:   45:    result.confidenceInterval = predictions.size() > 2 ? predictions[2] : 5.0;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+call    3 returned 2
+        2:   46:    result.ok = true;
+        2:   47:    result.reasoning = "Based on 30+ historical bars and trained model";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:   48:
+        -:   49:    // Cache the result
+        2:   50:    CachedPrediction cached;
+call    0 returned 2
+        2:   51:    cached.priceResult = result;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   52:    cached.timestamp = time(nullptr);
+call    0 returned 2
+        2:   53:    predictionCache_[symbol] = cached;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+        -:   54:
+        2:   55:    return result;
+call    0 returned 2
+        2:   56:}
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+call    3 returned 2
+call    4 never executed
+call    5 never executed
+call    6 never executed
+call    7 never executed
+        -:   57:
+function _ZN5folio8MLModels12predictTrendERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_8OhlcDataE called 2 returned 100% blocks executed 57%
+        2:   58:MLModels::TrendPrediction MLModels::predictTrend(const std::string& symbol,
+        -:   59:                                                   const OhlcData& ohlcData) {
+        2:   60:    TrendPrediction result;
+call    0 returned 2
+        -:   61:    
+        2:   62:    if (ohlcData.closes.size() < 30) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:   63:        result.ok = false;
+    #####:   64:        return result;
+        -:   65:    }
+        -:   66:
+        2:   67:    std::vector<double> features = extractFeatures(ohlcData);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   68:    std::vector<double> predictions = runInference("trend_predictor", features);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        -:   69:
+        2:   70:    if (predictions.size() < 3) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:   71:        result.ok = false;
+    #####:   72:        return result;
+        -:   73:    }
+        -:   74:
+        2:   75:    result.upProbability = predictions[0] * 100.0;
+call    0 returned 2
+        2:   76:    result.downProbability = predictions[1] * 100.0;
+call    0 returned 2
+        2:   77:    result.neutralProbability = predictions[2] * 100.0;
+call    0 returned 2
+        -:   78:
+       2*:   79:    if (result.upProbability > result.downProbability &&
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:   80:        result.upProbability > result.neutralProbability) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   81:        result.trend = "uptrend";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        2:   82:    } else if (result.downProbability > result.neutralProbability) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:   83:        result.trend = "downtrend";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   84:    } else {
+        2:   85:        result.trend = "neutral";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:   86:    }
+        -:   87:
+        2:   88:    result.ok = true;
+        2:   89:    return result;
+        2:   90:}
+call    0 returned 2
+call    1 returned 2
+call    2 never executed
+call    3 never executed
+call    4 never executed
+        -:   91:
+function _ZN5folio8MLModels18forecastVolatilityERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_8OhlcDataE called 0 returned 0% blocks executed 0%
+    #####:   92:MLModels::VolatilityForecast MLModels::forecastVolatility(const std::string& symbol,
+        -:   93:                                                           const OhlcData& ohlcData) {
+    #####:   94:    VolatilityForecast result;
+call    0 never executed
+        -:   95:    
+    #####:   96:    if (ohlcData.closes.size() < 30) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:   97:        result.ok = false;
+    #####:   98:        return result;
+        -:   99:    }
+        -:  100:
+    #####:  101:    std::vector<double> features = extractFeatures(ohlcData);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  102:    std::vector<double> predictions = runInference("volatility_predictor", features);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  103:
+    #####:  104:    if (predictions.empty()) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  105:        result.ok = false;
+    #####:  106:        return result;
+        -:  107:    }
+        -:  108:
+    #####:  109:    result.predictedVolatility = predictions[0];
+call    0 never executed
+    #####:  110:    result.confidence = predictions.size() > 1 ? predictions[1] * 100.0 : 50.0;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+call    3 never executed
+        -:  111:
+    #####:  112:    if (result.predictedVolatility > 0.02) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  113:        result.level = "high";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  114:    } else if (result.predictedVolatility > 0.01) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  115:        result.level = "medium";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  116:    } else {
+    #####:  117:        result.level = "low";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  118:    }
+        -:  119:
+    #####:  120:    result.ok = true;
+    #####:  121:    return result;
+    #####:  122:}
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+        -:  123:
+function _ZN5folio8MLModels20predictMeanReversionERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKNS0_8OhlcDataEd called 0 returned 0% blocks executed 0%
+    #####:  124:MLModels::MeanReversionProbability MLModels::predictMeanReversion(
+        -:  125:    const std::string& symbol,
+        -:  126:    const OhlcData& ohlcData,
+        -:  127:    double currentPrice) {
+    #####:  128:    MeanReversionProbability result;
+call    0 never executed
+        -:  129:    
+    #####:  130:    if (ohlcData.closes.size() < 30) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  131:        result.ok = false;
+    #####:  132:        return result;
+        -:  133:    }
+        -:  134:
+    #####:  135:    std::vector<double> features = extractFeatures(ohlcData);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  136:    features.push_back(currentPrice);  // Add current price as additional feature
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  137:    
+    #####:  138:    std::vector<double> predictions = runInference("mean_reversion_predictor", features);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  139:
+    #####:  140:    if (predictions.size() < 2) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  141:        result.ok = false;
+    #####:  142:        return result;
+        -:  143:    }
+        -:  144:
+    #####:  145:    result.probability = predictions[0] * 100.0;
+call    0 never executed
+    #####:  146:    result.expectedTarget = predictions[1];
+call    0 never executed
+        -:  147:
+    #####:  148:    if (result.probability > 70.0) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  149:        result.strength = "strong";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  150:    } else if (result.probability > 50.0) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  151:        result.strength = "moderate";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  152:    } else {
+    #####:  153:        result.strength = "weak";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  154:    }
+        -:  155:
+    #####:  156:    result.ok = true;
+    #####:  157:    return result;
+    #####:  158:}
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+        -:  159:
+function _ZN5folio8MLModels9loadModelERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  160:bool MLModels::loadModel(const std::string& modelName) {
+        -:  161:    // Load model weights from disk
+        -:  162:    // TODO: Implement model loading (e.g., ONNX, TensorFlow Lite, custom format)
+    #####:  163:    return true;
+        -:  164:}
+        -:  165:
+function _ZN5folio8MLModels10clearCacheERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  166:void MLModels::clearCache(const std::string& symbol) {
+    #####:  167:    if (symbol.empty()) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  168:        predictionCache_.clear();
+call    0 never executed
+        -:  169:    } else {
+    #####:  170:        predictionCache_.erase(symbol);
+call    0 never executed
+        -:  171:    }
+    #####:  172:}
+        -:  173:
+function _ZNK5folio8MLModels12isCacheValidERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 73%
+        2:  174:bool MLModels::isCacheValid(const std::string& symbol) const {
+        2:  175:    auto it = predictionCache_.find(symbol);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  176:    if (it == predictionCache_.end()) {
+call    0 returned 2
+call    1 returned 2
+branch  2 taken 2 (fallthrough)
+branch  3 taken 0
+        2:  177:        return false;
+        -:  178:    }
+        -:  179:    
+    #####:  180:    time_t now = time(nullptr);
+call    0 never executed
+    #####:  181:    return (now - it->second.timestamp) < 3600;  // 1 hour cache
+call    0 never executed
+        -:  182:}
+        -:  183:
+function _ZNK5folio8MLModels21getLastPredictionTimeERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  184:time_t MLModels::getLastPredictionTime(const std::string& symbol) const {
+    #####:  185:    auto it = predictionCache_.find(symbol);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  186:    if (it == predictionCache_.end()) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:  187:        return 0;
+        -:  188:    }
+    #####:  189:    return it->second.timestamp;
+call    0 never executed
+        -:  190:}
+        -:  191:
+function _ZN5folio8MLModels12runInferenceERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt6vectorIdSaIdEE called 4 returned 100% blocks executed 88%
+        4:  192:std::vector<double> MLModels::runInference(const std::string& modelName,
+        -:  193:                                            const std::vector<double>& features) {
+        -:  194:    // TODO: Implement actual model inference
+        -:  195:    // For now, return placeholder results
+        4:  196:    std::vector<double> result(4);
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        4:  197:    if (!features.empty()) {
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0
+        4:  198:        result[0] = features.back();  // Placeholder
+call    0 returned 4
+call    1 returned 4
+        4:  199:        result[1] = 0.75;  // Confidence
+call    0 returned 4
+        4:  200:        result[2] = 0.95;
+call    0 returned 4
+        4:  201:        result[3] = 1.05;
+call    0 returned 4
+        -:  202:    }
+        4:  203:    return result;
+        -:  204:}
+        -:  205:
+function _ZN5folio8MLModels15extractFeaturesERKNS0_8OhlcDataE called 4 returned 100% blocks executed 88%
+        4:  206:std::vector<double> MLModels::extractFeatures(const OhlcData& ohlcData) {
+        4:  207:    std::vector<double> features;
+call    0 returned 4
+        -:  208:    
+        -:  209:    // Extract relevant features from OHLC data
+        4:  210:    if (ohlcData.closes.empty()) {
+call    0 returned 4
+branch  1 taken 0 (fallthrough)
+branch  2 taken 4
+    #####:  211:        return features;
+        -:  212:    }
+        -:  213:
+        -:  214:    // Recent price
+        4:  215:    features.push_back(ohlcData.closes.back());
+call    0 returned 4
+call    1 returned 4
+branch  2 taken 4 (fallthrough)
+branch  3 taken 0 (throw)
+        -:  216:
+        -:  217:    // Moving averages
+        4:  218:    double sma20 = 0.0;
+       4*:  219:    size_t start = ohlcData.closes.size() > 20 ? ohlcData.closes.size() - 20 : 0;
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0
+call    3 returned 4
+       84:  220:    for (size_t i = start; i < ohlcData.closes.size(); ++i) {
+call    0 returned 84
+branch  1 taken 80
+branch  2 taken 4 (fallthrough)
+       80:  221:        sma20 += ohlcData.closes[i];
+call    0 returned 80
+        -:  222:    }
+        4:  223:    sma20 /= (ohlcData.closes.size() - start);
+call    0 returned 4
+        4:  224:    features.push_back(sma20);
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  225:
+        -:  226:    // Volume average
+        4:  227:    double avgVolume = 0.0;
+      124:  228:    for (long vol : ohlcData.volumes) {
+call    0 returned 4
+call    1 returned 4
+call    2 returned 120
+call    3 returned 124
+branch  4 taken 120
+branch  5 taken 4 (fallthrough)
+      120:  229:        avgVolume += vol;
+call    0 returned 120
+        -:  230:    }
+        4:  231:    avgVolume /= ohlcData.volumes.size();
+call    0 returned 4
+        4:  232:    features.push_back(avgVolume);
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  233:
+        -:  234:    // Price change
+        4:  235:    if (ohlcData.closes.size() > 1) {
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0
+        4:  236:        double priceChange = (ohlcData.closes.back() - ohlcData.closes[ohlcData.closes.size() - 2]) /
+call    0 returned 4
+call    1 returned 4
+call    2 returned 4
+        4:  237:                            ohlcData.closes[ohlcData.closes.size() - 2];
+call    0 returned 4
+call    1 returned 4
+        4:  238:        features.push_back(priceChange);
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  239:    }
+        -:  240:
+        4:  241:    return features;
+    =====:  242:}
+call    0 never executed
+        -:  243:
+        -:  244:}  // namespace folio

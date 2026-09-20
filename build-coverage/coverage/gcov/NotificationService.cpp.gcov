@@ -1,0 +1,846 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/NotificationService.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/NotificationService.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/NotificationService.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "NotificationService.hpp"
+        -:    2:#include <ctime>
+        -:    3:#include <sstream>
+        -:    4:#include <iomanip>
+        -:    5:#include <random>
+        -:    6:
+        -:    7:#ifdef HAVE_UUID_H
+        -:    8:#include <uuid/uuid.h>
+        -:    9:#endif
+        -:   10:
+        -:   11:namespace folio {
+        -:   12:
+function _ZN5folio19NotificationServiceC2ERKNS0_18NotificationConfigE called 2 returned 100% blocks executed 100%
+        2:   13:NotificationService::NotificationService(const NotificationConfig& config)
+        2:   14:    : config_(config) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+call    3 returned 2
+call    4 returned 2
+call    5 returned 2
+call    6 returned 2
+call    7 returned 2
+        2:   15:}
+        -:   16:
+function _ZN5folio19NotificationService4sendB5cxx11ERNS0_12NotificationE called 2 returned 100% blocks executed 24%
+        2:   17:std::string NotificationService::send(Notification& notification) {
+        2:   18:    notification.id = generateNotificationId();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+        2:   19:    notification.createdTime = time(nullptr);
+call    0 returned 2
+        -:   20:
+        -:   21:    // Queue the notification even when a policy gate blocks immediate delivery.
+        -:   22:    // This keeps the service observable and prevents silent drops when quiet
+        -:   23:    // hours or rate limits intentionally suppress outbound sending.
+function _ZZN5folio19NotificationService4sendB5cxx11ERNS0_12NotificationEENKUlvE_clEv called 2 returned 100% blocks executed 100%
+        2:   24:    auto queueNotification = [&]() {
+        2:   25:        notification.sentTime = time(nullptr);
+call    0 returned 2
+        2:   26:        history_.push_back(notification);
+call    0 returned 2
+        4:   27:    };
+        -:   28:
+        -:   29:    // Check rate limits
+        2:   30:    if (!passesRateLimit(notification.type, notification.symbolsInvolved)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   31:        notification.error = "Rate limit exceeded";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   32:        queueNotification();
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   33:        return notification.id;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   34:    }
+        -:   35:
+        -:   36:    // Check quiet hours
+       2*:   37:    if (config_.quietHoursEnabled && isInQuietHours()) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+branch  5 taken 2 (fallthrough)
+branch  6 taken 0
+branch  7 taken 2 (fallthrough)
+branch  8 taken 0
+        2:   38:        notification.error = "Quiet hours active";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   39:        queueNotification();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   40:        return notification.id;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:   41:    }
+        -:   42:
+        -:   43:    // Check severity threshold
+    #####:   44:    if (notification.severity < config_.minSeverityForAlert) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   45:        notification.error = "Severity below threshold";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   46:        queueNotification();
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   47:        return notification.id;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   48:    }
+        -:   49:
+        -:   50:    // Send via enabled channels
+    #####:   51:    bool sentAny = false;
+        -:   52:
+    #####:   53:    if (config_.enableWebSocket && callback_) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed
+branch  5 never executed (fallthrough)
+branch  6 never executed
+    #####:   54:        if (sendViaWebSocket(notification)) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   55:            sentAny = true;
+        -:   56:        }
+        -:   57:    }
+        -:   58:
+    #####:   59:    if (config_.enableWebhooks) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   60:        for (const auto& endpoint : webhookEndpoints_) {
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+call    4 never executed
+branch  5 never executed
+branch  6 never executed (fallthrough)
+    #####:   61:            if (std::find(endpoint.subscribedTypes.begin(),
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:   62:                         endpoint.subscribedTypes.end(),
+    #####:   63:                         notification.type) != endpoint.subscribedTypes.end()) {
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   64:                if (sendViaWebhook(notification, endpoint)) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   65:                    sentAny = true;
+        -:   66:                }
+        -:   67:            }
+        -:   68:        }
+        -:   69:    }
+        -:   70:
+    #####:   71:    if (config_.enableFirebase) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   72:        if (sendViaFirebase(notification)) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   73:            sentAny = true;
+        -:   74:        }
+        -:   75:    }
+        -:   76:
+    #####:   77:    if (config_.enableEmail) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   78:        if (sendViaEmail(notification)) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   79:            sentAny = true;
+        -:   80:        }
+        -:   81:    }
+        -:   82:
+    #####:   83:    if (config_.enableSMS) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   84:        if (sendViaSMS(notification)) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+branch  3 never executed (fallthrough)
+branch  4 never executed
+    #####:   85:            sentAny = true;
+        -:   86:        }
+        -:   87:    }
+        -:   88:
+    #####:   89:    notification.sent = sentAny;
+    #####:   90:    notification.sentTime = time(nullptr);
+call    0 never executed
+        -:   91:
+        -:   92:    // Add to history
+    #####:   93:    history_.push_back(notification);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   94:
+    #####:   95:    return notification.id;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   96:}
+        -:   97:
+function _ZN5folio19NotificationService9sendAlertENS0_9AlertTypeERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_S9_d called 0 returned 0% blocks executed 0%
+    #####:   98:std::string NotificationService::sendAlert(AlertType type,
+        -:   99:                                            const std::string& title,
+        -:  100:                                            const std::string& message,
+        -:  101:                                            const std::string& details,
+        -:  102:                                            double severity) {
+    #####:  103:    Notification notif;
+call    0 never executed
+    #####:  104:    notif.type = type;
+    #####:  105:    notif.title = title;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  106:    notif.message = message;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  107:    notif.details = details;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  108:    notif.severity = severity;
+        -:  109:
+    #####:  110:    return send(notif);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  111:}
+call    0 never executed
+call    1 never executed
+        -:  112:
+function _ZN5folio19NotificationService23setNotificationCallbackESt8functionIFvRKNS0_12NotificationEEE called 0 returned 0% blocks executed 0%
+    #####:  113:void NotificationService::setNotificationCallback(NotificationCallback callback) {
+    #####:  114:    callback_ = callback;
+call    0 never executed
+    #####:  115:}
+        -:  116:
+function _ZN5folio19NotificationService18addWebhookEndpointERKNS0_15WebhookEndpointE called 0 returned 0% blocks executed 0%
+    #####:  117:void NotificationService::addWebhookEndpoint(const WebhookEndpoint& endpoint) {
+    #####:  118:    webhookEndpoints_.push_back(endpoint);
+call    0 never executed
+    #####:  119:}
+        -:  120:
+function _ZN5folio19NotificationService21removeWebhookEndpointERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  121:void NotificationService::removeWebhookEndpoint(const std::string& name) {
+    #####:  122:    auto it = std::remove_if(webhookEndpoints_.begin(),
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+        -:  123:                             webhookEndpoints_.end(),
+function _ZZN5folio19NotificationService21removeWebhookEndpointERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEENKUlRKNS0_15WebhookEndpointEE_clESB_ called 0 returned 0% blocks executed 0%
+    #####:  124:                             [&name](const WebhookEndpoint& e) { return e.name == name; });
+call    0 never executed
+    #####:  125:    webhookEndpoints_.erase(it, webhookEndpoints_.end());
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  126:}
+        -:  127:
+function _ZN5folio19NotificationService17setFirebaseConfigERKNS0_14FirebaseConfigE called 0 returned 0% blocks executed 0%
+    #####:  128:void NotificationService::setFirebaseConfig(const FirebaseConfig& config) {
+    #####:  129:    firebaseConfig_ = config;
+call    0 never executed
+    #####:  130:}
+        -:  131:
+function _ZN5folio19NotificationService14registerDeviceERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  132:void NotificationService::registerDevice(const std::string& deviceToken) {
+    #####:  133:    firebaseConfig_.registeredDeviceTokens.push_back(deviceToken);
+call    0 never executed
+    #####:  134:}
+        -:  135:
+function _ZN5folio19NotificationService16unregisterDeviceERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  136:void NotificationService::unregisterDevice(const std::string& deviceToken) {
+    #####:  137:    auto it = std::find(firebaseConfig_.registeredDeviceTokens.begin(),
+call    0 never executed
+call    1 never executed
+call    2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed (throw)
+        -:  138:                       firebaseConfig_.registeredDeviceTokens.end(),
+        -:  139:                       deviceToken);
+    #####:  140:    if (it != firebaseConfig_.registeredDeviceTokens.end()) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+    #####:  141:        firebaseConfig_.registeredDeviceTokens.erase(it);
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:  142:    }
+    #####:  143:}
+        -:  144:
+function _ZN5folio19NotificationService14setEmailConfigERKNS0_11EmailConfigE called 0 returned 0% blocks executed 0%
+    #####:  145:void NotificationService::setEmailConfig(const EmailConfig& config) {
+    #####:  146:    emailConfig_ = config;
+call    0 never executed
+    #####:  147:}
+        -:  148:
+function _ZN5folio19NotificationService12setSmsConfigERKNS0_9SmsConfigE called 0 returned 0% blocks executed 0%
+    #####:  149:void NotificationService::setSmsConfig(const SmsConfig& config) {
+    #####:  150:    smsConfig_ = config;
+call    0 never executed
+    #####:  151:}
+        -:  152:
+function _ZN5folio19NotificationService21getNotificationStatusERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 4 returned 100% blocks executed 85%
+        4:  153:NotificationService::Notification NotificationService::getNotificationStatus(
+        -:  154:    const std::string& notificationId) {
+       4*:  155:    for (const auto& notif : history_) {
+call    0 returned 4
+call    1 returned 4
+call    2 returned 4
+call    3 never executed
+call    4 returned 4
+branch  5 taken 4
+branch  6 taken 0 (fallthrough)
+        4:  156:        if (notif.id == notificationId) {
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0
+        4:  157:            return notif;
+call    0 returned 4
+branch  1 taken 4 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  158:        }
+        -:  159:    }
+    #####:  160:    return Notification();
+call    0 never executed
+        -:  161:}
+        -:  162:
+function _ZN5folio19NotificationService22getRecentNotificationsEi called 0 returned 0% blocks executed 0%
+    #####:  163:std::vector<NotificationService::Notification> NotificationService::getRecentNotifications(
+        -:  164:    int limit) {
+    #####:  165:    std::vector<Notification> recent;
+call    0 never executed
+    #####:  166:    int count = 0;
+        -:  167:
+    #####:  168:    for (auto it = history_.rbegin(); it != history_.rend() && count < limit; ++it, ++count) {
+call    0 never executed
+call    1 never executed
+call    2 never executed
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+branch  6 never executed (fallthrough)
+branch  7 never executed
+branch  8 never executed (fallthrough)
+branch  9 never executed
+branch 10 never executed
+branch 11 never executed (fallthrough)
+    #####:  169:        recent.push_back(*it);
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:  170:    }
+        -:  171:
+    #####:  172:    return recent;
+    =====:  173:}
+call    0 never executed
+        -:  174:
+function _ZN5folio19NotificationService12clearHistoryEv called 0 returned 0% blocks executed 0%
+    #####:  175:void NotificationService::clearHistory() {
+    #####:  176:    history_.clear();
+call    0 never executed
+    #####:  177:    symbolNotificationCount_.clear();
+call    0 never executed
+    #####:  178:}
+        -:  179:
+function _ZN5folio19NotificationService9setConfigERKNS0_18NotificationConfigE called 0 returned 0% blocks executed 0%
+    #####:  180:void NotificationService::setConfig(const NotificationConfig& config) {
+    #####:  181:    config_ = config;
+call    0 never executed
+    #####:  182:}
+        -:  183:
+function _ZNK5folio19NotificationService9getConfigEv called 0 returned 0% blocks executed 0%
+    #####:  184:NotificationService::NotificationConfig NotificationService::getConfig() const {
+    #####:  185:    return config_;
+call    0 never executed
+        -:  186:}
+        -:  187:
+function _ZN5folio19NotificationService12testDeliveryENS0_7ChannelE called 0 returned 0% blocks executed 0%
+    #####:  188:bool NotificationService::testDelivery(Channel channel) {
+    #####:  189:    Notification testNotif;
+call    0 never executed
+    #####:  190:    testNotif.title = "Test Notification";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  191:    testNotif.message = "This is a test notification from Portfolio Health";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  192:    testNotif.severity = 0.5;
+        -:  193:
+    #####:  194:    switch (channel) {
+branch  0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+branch  4 never executed
+branch  5 never executed
+    #####:  195:        case Channel::WEBSOCKET:
+    #####:  196:            return sendViaWebSocket(testNotif);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  197:        case Channel::WEBHOOK:
+    #####:  198:            if (!webhookEndpoints_.empty()) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  199:                return sendViaWebhook(testNotif, webhookEndpoints_[0]);
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+        -:  200:            }
+    #####:  201:            return false;
+    #####:  202:        case Channel::FIREBASE:
+    #####:  203:            return sendViaFirebase(testNotif);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  204:        case Channel::EMAIL:
+    #####:  205:            return sendViaEmail(testNotif);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  206:        case Channel::SMS:
+    #####:  207:            return sendViaSMS(testNotif);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  208:    }
+        -:  209:
+    #####:  210:    return false;
+    #####:  211:}
+call    0 never executed
+call    1 never executed
+        -:  212:
+function _ZN5folio19NotificationService15passesRateLimitENS0_9AlertTypeERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 48%
+        2:  213:bool NotificationService::passesRateLimit(AlertType type, const std::string& symbol) {
+        -:  214:    // Check hourly limit
+        2:  215:    int hourlyCount = 0;
+        2:  216:    time_t oneHourAgo = time(nullptr) - 3600;
+call    0 returned 2
+        -:  217:
+       2*:  218:    for (const auto& notif : history_) {
+call    0 returned 2
+call    1 returned 2
+call    2 never executed
+call    3 never executed
+call    4 returned 2
+branch  5 taken 0
+branch  6 taken 2 (fallthrough)
+    #####:  219:        if (notif.createdTime > oneHourAgo) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  220:            hourlyCount++;
+        -:  221:        }
+        -:  222:    }
+        -:  223:
+        2:  224:    if (hourlyCount >= config_.maxNotificationsPerHour) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  225:        return false;
+        -:  226:    }
+        -:  227:
+        -:  228:    // Check per-symbol daily limit
+        2:  229:    time_t oneDayAgo = time(nullptr) - 86400;
+call    0 returned 2
+        2:  230:    int symbolCount = 0;
+        -:  231:
+       2*:  232:    for (const auto& notif : history_) {
+call    0 returned 2
+call    1 returned 2
+call    2 never executed
+call    3 never executed
+call    4 returned 2
+branch  5 taken 0
+branch  6 taken 2 (fallthrough)
+    #####:  233:        if (notif.createdTime > oneDayAgo &&
+branch  0 never executed (fallthrough)
+branch  1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed
+    #####:  234:            notif.symbolsInvolved == symbol) {
+call    0 never executed
+    #####:  235:            symbolCount++;
+        -:  236:        }
+        -:  237:    }
+        -:  238:
+        2:  239:    return symbolCount < config_.maxNotificationsPerSymbolPerDay;
+        -:  240:}
+        -:  241:
+function _ZNK5folio19NotificationService14isInQuietHoursEv called 2 returned 100% blocks executed 59%
+        2:  242:bool NotificationService::isInQuietHours() const {
+        2:  243:    if (!config_.quietHoursEnabled) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  244:        return false;
+        -:  245:    }
+        -:  246:
+        2:  247:    time_t now = time(nullptr);
+call    0 returned 2
+        2:  248:    struct tm* timeinfo = localtime(&now);
+call    0 returned 2
+        2:  249:    int hour = timeinfo->tm_hour;
+        -:  250:
+        2:  251:    if (config_.quietHoursStart < config_.quietHoursEnd) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+        -:  252:        // Normal range (e.g., 10 PM to 8 AM would be 22 to 8)
+    #####:  253:        return hour >= config_.quietHoursStart || hour < config_.quietHoursEnd;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed
+        -:  254:    } else {
+        -:  255:        // Wrapped range
+       2*:  256:        return hour >= config_.quietHoursStart || hour < config_.quietHoursEnd;
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+branch  2 taken 2 (fallthrough)
+branch  3 taken 0
+        -:  257:    }
+        -:  258:}
+        -:  259:
+function _ZNK5folio19NotificationService22generateNotificationIdB5cxx11Ev called 2 returned 100% blocks executed 88%
+        2:  260:std::string NotificationService::generateNotificationId() const {
+        -:  261:#ifdef HAVE_UUID_H
+        -:  262:    uuid_t uuid;
+        -:  263:    char uuid_str[37];
+        -:  264:    uuid_generate(uuid);
+        -:  265:    uuid_unparse(uuid, uuid_str);
+        -:  266:    return std::string(uuid_str);
+        -:  267:#else
+        -:  268:    // Fallback UUID generation using timestamp + random
+        -:  269:    // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx (v4 style)
+        2:  270:    static std::random_device rd;
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+call    5 returned 2
+branch  6 taken 2 (fallthrough)
+branch  7 taken 0 (throw)
+call    8 returned 2
+call    9 returned 2
+branch 10 never executed (fallthrough)
+branch 11 never executed
+call   12 never executed
+        2:  271:    static std::mt19937 gen(rd());
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+call    5 returned 2
+branch  6 taken 2 (fallthrough)
+branch  7 taken 0 (throw)
+call    8 returned 2
+branch  9 taken 2 (fallthrough)
+branch 10 taken 0 (throw)
+call   11 returned 2
+branch 12 never executed (fallthrough)
+branch 13 never executed
+call   14 never executed
+        2:  272:    std::uniform_int_distribution<> dis(0, 15);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  273:    
+        2:  274:    std::stringstream ss;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  275:    time_t now = time(nullptr);
+call    0 returned 2
+        -:  276:    
+        -:  277:    // Use timestamp and random numbers for UUID-like string
+       18:  278:    for (int i = 0; i < 8; ++i) {
+branch  0 taken 16
+branch  1 taken 2 (fallthrough)
+       16:  279:        ss << std::hex << dis(gen);
+call    0 returned 16
+branch  1 taken 16 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 16
+branch  4 taken 16 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 16
+branch  7 taken 16 (fallthrough)
+branch  8 taken 0 (throw)
+        -:  280:    }
+        2:  281:    ss << "-";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+       10:  282:    for (int i = 0; i < 4; ++i) {
+branch  0 taken 8
+branch  1 taken 2 (fallthrough)
+        8:  283:        ss << std::hex << dis(gen);
+call    0 returned 8
+branch  1 taken 8 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 8
+branch  4 taken 8 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 8
+branch  7 taken 8 (fallthrough)
+branch  8 taken 0 (throw)
+        -:  284:    }
+        2:  285:    ss << "-4";  // Version 4
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        8:  286:    for (int i = 0; i < 3; ++i) {
+branch  0 taken 6
+branch  1 taken 2 (fallthrough)
+        6:  287:        ss << std::hex << dis(gen);
+call    0 returned 6
+branch  1 taken 6 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 6
+branch  4 taken 6 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 6
+branch  7 taken 6 (fallthrough)
+branch  8 taken 0 (throw)
+        -:  288:    }
+        2:  289:    ss << "-";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  290:    ss << std::hex << (dis(gen) & 0x3 | 0x8);  // Variant bits
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+branch  7 taken 2 (fallthrough)
+branch  8 taken 0 (throw)
+        8:  291:    for (int i = 0; i < 3; ++i) {
+branch  0 taken 6
+branch  1 taken 2 (fallthrough)
+        6:  292:        ss << std::hex << dis(gen);
+call    0 returned 6
+branch  1 taken 6 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 6
+branch  4 taken 6 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 6
+branch  7 taken 6 (fallthrough)
+branch  8 taken 0 (throw)
+        -:  293:    }
+        2:  294:    ss << "-";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+       26:  295:    for (int i = 0; i < 12; ++i) {
+branch  0 taken 24
+branch  1 taken 2 (fallthrough)
+       24:  296:        ss << std::hex << dis(gen);
+call    0 returned 24
+branch  1 taken 24 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 24
+branch  4 taken 24 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 24
+branch  7 taken 24 (fallthrough)
+branch  8 taken 0 (throw)
+        -:  297:    }
+        -:  298:    
+        4:  299:    return ss.str();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  300:#endif
+        2:  301:}
+call    0 returned 2
+call    1 never executed
+        -:  302:
+function _ZN5folio19NotificationService14renderTemplateB5cxx11ENS0_9AlertTypeERKNS0_12NotificationE called 0 returned 0% blocks executed 0%
+    #####:  303:std::string NotificationService::renderTemplate(AlertType type,
+        -:  304:                                                 const Notification& notification) {
+        -:  305:    // Basic template rendering
+    #####:  306:    std::string template_str = notification.title + "\n" + notification.message;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+call    8 never executed
+        -:  307:    
+    #####:  308:    if (!notification.details.empty()) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  309:        template_str += "\n" + notification.details;
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  310:    }
+        -:  311:
+    #####:  312:    return template_str;
+    =====:  313:}
+call    0 never executed
+        -:  314:
+function _ZN5folio19NotificationService16sendViaWebSocketERKNS0_12NotificationE called 0 returned 0% blocks executed 0%
+    #####:  315:bool NotificationService::sendViaWebSocket(const Notification& notification) {
+    #####:  316:    if (!callback_) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  317:        return false;
+        -:  318:    }
+        -:  319:
+        -:  320:    // Invoke callback which sends to connected WebSocket clients
+    #####:  321:    callback_(notification);
+call    0 never executed
+    #####:  322:    return true;
+        -:  323:}
+        -:  324:
+function _ZN5folio19NotificationService14sendViaWebhookERKNS0_12NotificationERKNS0_15WebhookEndpointE called 0 returned 0% blocks executed 0%
+    #####:  325:bool NotificationService::sendViaWebhook(const Notification& notification,
+        -:  326:                                          const WebhookEndpoint& endpoint) {
+    #####:  327:    if (!endpoint.active) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  328:        return false;
+        -:  329:    }
+        -:  330:
+        -:  331:    // TODO: Make HTTP POST request to endpoint.url with notification JSON
+        -:  332:    // Use libcurl or similar to send the webhook payload
+    #####:  333:    return true;
+        -:  334:}
+        -:  335:
+function _ZN5folio19NotificationService15sendViaFirebaseERKNS0_12NotificationE called 0 returned 0% blocks executed 0%
+    #####:  336:bool NotificationService::sendViaFirebase(const Notification& notification) {
+    #####:  337:    if (firebaseConfig_.registeredDeviceTokens.empty() ||
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed
+branch  5 never executed (fallthrough)
+branch  6 never executed
+    #####:  338:        firebaseConfig_.serverKey.empty()) {
+call    0 never executed
+    #####:  339:        return false;
+        -:  340:    }
+        -:  341:
+        -:  342:    // TODO: Call Firebase Cloud Messaging API
+        -:  343:    // POST to https://fcm.googleapis.com/fcm/send with server key and device tokens
+    #####:  344:    return true;
+        -:  345:}
+        -:  346:
+function _ZN5folio19NotificationService12sendViaEmailERKNS0_12NotificationE called 0 returned 0% blocks executed 0%
+    #####:  347:bool NotificationService::sendViaEmail(const Notification& notification) {
+    #####:  348:    if (emailConfig_.recipientEmails.empty() ||
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed
+branch  5 never executed (fallthrough)
+branch  6 never executed
+    #####:  349:        emailConfig_.senderEmail.empty()) {
+call    0 never executed
+    #####:  350:        return false;
+        -:  351:    }
+        -:  352:
+        -:  353:    // TODO: Connect to SMTP server and send email
+        -:  354:    // Use libcurl or similar for SMTP protocol
+    #####:  355:    return true;
+        -:  356:}
+        -:  357:
+function _ZN5folio19NotificationService10sendViaSMSERKNS0_12NotificationE called 0 returned 0% blocks executed 0%
+    #####:  358:bool NotificationService::sendViaSMS(const Notification& notification) {
+    #####:  359:    if (smsConfig_.recipientPhones.empty() ||
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+branch  3 never executed (fallthrough)
+branch  4 never executed
+branch  5 never executed (fallthrough)
+branch  6 never executed
+    #####:  360:        smsConfig_.provider.empty()) {
+call    0 never executed
+    #####:  361:        return false;
+        -:  362:    }
+        -:  363:
+        -:  364:    // TODO: Call SMS provider API (Twilio, AWS SNS, etc.)
+    #####:  365:    return true;
+        -:  366:}
+        -:  367:
+        -:  368:}  // namespace folio

@@ -1,0 +1,926 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/SecureUtils.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/SecureUtils.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/SecureUtils.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "SecureUtils.hpp"
+        -:    2:#include <nlohmann/json.hpp>
+        -:    3:#include <iomanip>
+        -:    4:#include <sstream>
+        -:    5:#include <fstream>
+        -:    6:#include <regex>
+        -:    7:#include <cstdlib>
+        -:    8:#include <array>
+        -:    9:#include <random>
+        -:   10:#include <sys/stat.h>
+        -:   11:
+        -:   12:#ifdef HAVE_OPENSSL
+        -:   13:#include <openssl/aes.h>
+        -:   14:#include <openssl/sha.h>
+        -:   15:#include <openssl/rand.h>
+        -:   16:#include <openssl/evp.h>
+        -:   17:#endif
+        -:   18:
+        -:   19:namespace folio {
+        -:   20:namespace security {
+        -:   21:
+        -:   22:namespace {
+        -:   23:
+        -:   24:#ifndef HAVE_OPENSSL
+        -:   25:struct Sha256Context {
+        -:   26:    std::array<uint32_t, 8> state{};
+        -:   27:    std::array<uint32_t, 64> buffer{};
+        -:   28:    std::size_t bufferLen = 0;
+        -:   29:    std::uint64_t bitLen = 0;
+        -:   30:};
+        -:   31:
+        -:   32:static constexpr std::array<uint32_t, 64> kSha256Constants = {
+        -:   33:    0x428a2f98U, 0x71374491U, 0xb5c0fbcfU, 0xe9b5dba5U, 0x3956c25bU,
+        -:   34:    0x59f111f1U, 0x923f82a4U, 0xab1c5ed5U, 0xd807aa98U, 0x12835b01U,
+        -:   35:    0x243185beU, 0x550c7dc3U, 0x72be5d74U, 0x80deb1feU, 0x9bdc06a7U,
+        -:   36:    0xc19bf174U, 0xe49b69c1U, 0xefbe4786U, 0x0fc19dc6U, 0x240ca1ccU,
+        -:   37:    0x2de92c6fU, 0x4a7484aaU, 0x5cb0a9dcU, 0x76f988daU, 0x983e5152U,
+        -:   38:    0xa831c66dU, 0xb00327c8U, 0xbf597fc7U, 0xc6e00bf3U, 0xd5a79147U,
+        -:   39:    0x06ca6351U, 0x14292967U, 0x27b70a85U, 0x2e1b2138U, 0x4d2c6dfcU,
+        -:   40:    0x53380d13U, 0x650a7354U, 0x766a0abbU, 0x81c2c92eU, 0x92722c85U,
+        -:   41:    0xa2bfe8a1U, 0xa81a664bU, 0xc24b8b70U, 0xc76c51a3U, 0xd192e819U,
+        -:   42:    0xd6990624U, 0xf40e3585U, 0x106aa070U, 0x19a4c116U, 0x1e376c08U,
+        -:   43:    0x2748774cU, 0x34b0bcb5U, 0x391c0cb3U, 0x4ed8aa4aU, 0x5b9cca4fU,
+        -:   44:    0x682e6ff3U, 0x748f82eeU, 0x78a5636fU, 0x84c87814U, 0x8cc70208U,
+        -:   45:    0x90befffaU, 0xa4506cebU, 0xbef9a3f7U, 0xc67178f2U};
+        -:   46:
+function _ZN5folio8security12_GLOBAL__N_1L4rotrEjj called 1152 returned 100% blocks executed 100%
+     1152:   47:static uint32_t rotr(uint32_t value, uint32_t bits) {
+     1152:   48:    return (value >> bits) | (value << (32U - bits));
+        -:   49:}
+        -:   50:
+function _ZN5folio8security12_GLOBAL__N_1L6chooseEjjj called 128 returned 100% blocks executed 100%
+      128:   51:static uint32_t choose(uint32_t x, uint32_t y, uint32_t z) {
+      128:   52:    return (x & y) ^ (~x & z);
+        -:   53:}
+        -:   54:
+function _ZN5folio8security12_GLOBAL__N_1L8majorityEjjj called 128 returned 100% blocks executed 100%
+      128:   55:static uint32_t majority(uint32_t x, uint32_t y, uint32_t z) {
+      128:   56:    return (x & y) ^ (x & z) ^ (y & z);
+        -:   57:}
+        -:   58:
+function _ZN5folio8security12_GLOBAL__N_1L6sigma0Ej called 128 returned 100% blocks executed 100%
+      128:   59:static uint32_t sigma0(uint32_t x) {
+      128:   60:    return rotr(x, 2U) ^ rotr(x, 13U) ^ rotr(x, 22U);
+call    0 returned 128
+call    1 returned 128
+call    2 returned 128
+        -:   61:}
+        -:   62:
+function _ZN5folio8security12_GLOBAL__N_1L6sigma1Ej called 128 returned 100% blocks executed 100%
+      128:   63:static uint32_t sigma1(uint32_t x) {
+      128:   64:    return rotr(x, 6U) ^ rotr(x, 11U) ^ rotr(x, 25U);
+call    0 returned 128
+call    1 returned 128
+call    2 returned 128
+        -:   65:}
+        -:   66:
+function _ZN5folio8security12_GLOBAL__N_1L6gamma0Ej called 96 returned 100% blocks executed 100%
+       96:   67:static uint32_t gamma0(uint32_t x) {
+       96:   68:    return rotr(x, 7U) ^ rotr(x, 18U) ^ (x >> 3U);
+call    0 returned 96
+call    1 returned 96
+        -:   69:}
+        -:   70:
+function _ZN5folio8security12_GLOBAL__N_1L6gamma1Ej called 96 returned 100% blocks executed 100%
+       96:   71:static uint32_t gamma1(uint32_t x) {
+       96:   72:    return rotr(x, 17U) ^ rotr(x, 19U) ^ (x >> 10U);
+call    0 returned 96
+call    1 returned 96
+        -:   73:}
+        -:   74:
+function _ZN5folio8security12_GLOBAL__N_1L15sha256TransformERNS1_13Sha256ContextERKSt5arrayIjLm64EE called 2 returned 100% blocks executed 100%
+        2:   75:static void sha256Transform(Sha256Context& context, const std::array<uint32_t, 64>& block) {
+        2:   76:    std::array<uint32_t, 8> working = context.state;
+        2:   77:    std::array<uint32_t, 64> message = block;
+        -:   78:
+      100:   79:    for (std::size_t i = 16; i < message.size(); ++i) {
+branch  0 taken 96
+branch  1 taken 2 (fallthrough)
+       96:   80:        message[i] = gamma1(message[i - 2]) + message[i - 7] + gamma0(message[i - 15]) + message[i - 16];
+call    0 returned 96
+call    1 returned 96
+call    2 returned 96
+call    3 returned 96
+call    4 returned 96
+call    5 returned 96
+call    6 returned 96
+        -:   81:    }
+        -:   82:
+      132:   83:    for (std::size_t i = 0; i < message.size(); ++i) {
+branch  0 taken 128
+branch  1 taken 2 (fallthrough)
+      128:   84:        const uint32_t temp1 = working[7] + sigma1(working[4]) + choose(working[4], working[5], working[6]) + kSha256Constants[i] + message[i];
+call    0 returned 128
+call    1 returned 128
+call    2 returned 128
+call    3 returned 128
+call    4 returned 128
+call    5 returned 128
+call    6 returned 128
+call    7 returned 128
+call    8 returned 128
+      128:   85:        const uint32_t temp2 = sigma0(working[0]) + majority(working[0], working[1], working[2]);
+call    0 returned 128
+call    1 returned 128
+call    2 returned 128
+call    3 returned 128
+call    4 returned 128
+call    5 returned 128
+      128:   86:        working[7] = working[6];
+call    0 returned 128
+call    1 returned 128
+      128:   87:        working[6] = working[5];
+call    0 returned 128
+call    1 returned 128
+      128:   88:        working[5] = working[4];
+call    0 returned 128
+call    1 returned 128
+      128:   89:        working[4] = working[3] + temp1;
+call    0 returned 128
+call    1 returned 128
+      128:   90:        working[3] = working[2];
+call    0 returned 128
+call    1 returned 128
+      128:   91:        working[2] = working[1];
+call    0 returned 128
+call    1 returned 128
+      128:   92:        working[1] = working[0];
+call    0 returned 128
+call    1 returned 128
+      128:   93:        working[0] = temp1 + temp2;
+call    0 returned 128
+        -:   94:    }
+        -:   95:
+       36:   96:    for (std::size_t i = 0; i < context.state.size(); ++i) {
+branch  0 taken 16
+branch  1 taken 2 (fallthrough)
+       16:   97:        context.state[i] += working[i];
+call    0 returned 16
+call    1 returned 16
+        -:   98:    }
+        2:   99:}
+        -:  100:
+function _ZN5folio8security12_GLOBAL__N_1L10sha256InitERNS1_13Sha256ContextE called 2 returned 100% blocks executed 100%
+        2:  101:static void sha256Init(Sha256Context& context) {
+        2:  102:    context.state = {
+        -:  103:        0x6a09e667U, 0xbb67ae85U, 0x3c6ef372U, 0xa54ff53aU,
+        -:  104:        0x510e527fU, 0x9b05688cU, 0x1f83d9abU, 0x5be0cd19U
+        -:  105:    };
+        2:  106:    context.bufferLen = 0;
+        2:  107:    context.bitLen = 0;
+        2:  108:}
+        -:  109:
+function _ZN5folio8security12_GLOBAL__N_1L12sha256UpdateERNS1_13Sha256ContextEPKhm called 84 returned 100% blocks executed 100%
+       84:  110:static void sha256Update(Sha256Context& context, const unsigned char* data, std::size_t length) {
+      212:  111:    for (std::size_t i = 0; i < length; ++i) {
+branch  0 taken 128
+branch  1 taken 84 (fallthrough)
+      128:  112:        context.buffer[context.bufferLen / 4U] = (context.buffer[context.bufferLen / 4U] << 8) | data[i];
+call    0 returned 128
+call    1 returned 128
+      128:  113:        context.bufferLen++;
+      128:  114:        if (context.bufferLen == 64U) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 126
+        2:  115:            std::array<uint32_t, 64> block{};
+       34:  116:            for (std::size_t j = 0; j < 16; ++j) {
+branch  0 taken 32
+branch  1 taken 2 (fallthrough)
+       64:  117:                block[j] = (static_cast<uint32_t>(context.buffer[j * 4]) << 24) |
+call    0 returned 32
+       32:  118:                           (static_cast<uint32_t>(context.buffer[j * 4 + 1]) << 16) |
+call    0 returned 32
+       64:  119:                           (static_cast<uint32_t>(context.buffer[j * 4 + 2]) << 8) |
+call    0 returned 32
+call    1 returned 32
+       32:  120:                           static_cast<uint32_t>(context.buffer[j * 4 + 3]);
+call    0 returned 32
+        -:  121:            }
+        2:  122:            sha256Transform(context, block);
+call    0 returned 2
+        2:  123:            context.bufferLen = 0;
+        2:  124:            context.bitLen += 512U;
+        -:  125:        }
+        -:  126:    }
+       84:  127:}
+        -:  128:
+function _ZN5folio8security12_GLOBAL__N_1L9sha256HexERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 92%
+        2:  129:static std::string sha256Hex(const std::string& input) {
+        2:  130:    Sha256Context context;
+        2:  131:    sha256Init(context);
+call    0 returned 2
+        2:  132:    sha256Update(context, reinterpret_cast<const unsigned char*>(input.data()), input.size());
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+        -:  133:
+        2:  134:    const std::uint64_t totalBits = (context.bitLen + static_cast<std::uint64_t>(context.bufferLen) * 8U) + 64U;
+       2*:  135:    const std::size_t padLen = (context.bufferLen < 56U) ? (56U - context.bufferLen) : (120U - context.bufferLen);
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        2:  136:    std::array<unsigned char, 64> padding{};
+        2:  137:    padding[0] = 0x80;
+call    0 returned 2
+       82:  138:    for (std::size_t i = 0; i < padLen; ++i) {
+branch  0 taken 80
+branch  1 taken 2 (fallthrough)
+       80:  139:        sha256Update(context, padding.data(), 1U);
+call    0 returned 80
+        -:  140:    }
+        -:  141:
+        2:  142:    std::array<unsigned char, 8> lengthBytes{};
+       18:  143:    for (std::size_t i = 0; i < 8; ++i) {
+branch  0 taken 16
+branch  1 taken 2 (fallthrough)
+       16:  144:        lengthBytes[7 - i] = static_cast<unsigned char>((totalBits >> (i * 8U)) & 0xFFU);
+call    0 returned 16
+        -:  145:    }
+        2:  146:    sha256Update(context, lengthBytes.data(), 8U);
+call    0 returned 2
+        -:  147:
+        2:  148:    std::array<uint32_t, 8> state = context.state;
+        2:  149:    std::ostringstream output;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  150:    output << std::hex << std::setfill('0');
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+branch  5 taken 2 (fallthrough)
+branch  6 taken 0 (throw)
+       18:  151:    for (uint32_t value : state) {
+branch  0 taken 16
+branch  1 taken 2 (fallthrough)
+       16:  152:        output << std::setw(8) << value;
+call    0 returned 16
+call    1 returned 16
+call    2 returned 16
+branch  3 taken 16 (fallthrough)
+branch  4 taken 0 (throw)
+        -:  153:    }
+        4:  154:    return output.str();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  155:}
+call    0 returned 2
+call    1 never executed
+        -:  156:
+function _ZN5folio8security12_GLOBAL__N_1L19fallbackRandomBytesEm called 2 returned 100% blocks executed 70%
+        2:  157:static std::string fallbackRandomBytes(std::size_t length) {
+        2:  158:    std::random_device random;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  159:    std::uniform_int_distribution<int> dist(0, 255);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  160:    std::string bytes(length, '\0');
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+       66:  161:    for (std::size_t i = 0; i < length; ++i) {
+branch  0 taken 64
+branch  1 taken 2 (fallthrough)
+       64:  162:        bytes[i] = static_cast<char>(dist(random));
+call    0 returned 64
+branch  1 taken 64 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 64
+branch  4 taken 64 (fallthrough)
+branch  5 taken 0 (throw)
+        -:  163:    }
+        4:  164:    return bytes;
+        2:  165:}
+call    0 returned 2
+call    1 never executed
+call    2 never executed
+        -:  166:
+        -:  167:#endif
+        -:  168:
+        -:  169:} // namespace
+        -:  170:
+function _ZN5folio8security16encryptAes256GcmERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_ called 0 returned 0% blocks executed 0%
+    #####:  171:std::string encryptAes256Gcm(const std::string& plaintext,
+        -:  172:                             const std::string& key) {
+        -:  173:#ifndef HAVE_OPENSSL
+    #####:  174:    return "";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  175:#else
+        -:  176:    if (key.size() != 32) {
+        -:  177:        return "";
+        -:  178:    }
+        -:  179:
+        -:  180:    unsigned char iv[12];
+        -:  181:    if (RAND_bytes(iv, sizeof(iv)) != 1) {
+        -:  182:        return "";
+        -:  183:    }
+        -:  184:
+        -:  185:    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        -:  186:    if (!ctx) return "";
+        -:  187:
+        -:  188:    std::vector<unsigned char> ciphertext(plaintext.size() + 16);
+        -:  189:    int len = 0;
+        -:  190:    int ciphertext_len = 0;
+        -:  191:
+        -:  192:    if (!EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr,
+        -:  193:                            reinterpret_cast<const unsigned char*>(key.data()),
+        -:  194:                            iv)) {
+        -:  195:        EVP_CIPHER_CTX_free(ctx);
+        -:  196:        return "";
+        -:  197:    }
+        -:  198:
+        -:  199:    if (!EVP_EncryptUpdate(ctx, ciphertext.data(), &len,
+        -:  200:                          reinterpret_cast<const unsigned char*>(plaintext.data()),
+        -:  201:                          static_cast<int>(plaintext.size()))) {
+        -:  202:        EVP_CIPHER_CTX_free(ctx);
+        -:  203:        return "";
+        -:  204:    }
+        -:  205:    ciphertext_len = len;
+        -:  206:
+        -:  207:    if (!EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len)) {
+        -:  208:        EVP_CIPHER_CTX_free(ctx);
+        -:  209:        return "";
+        -:  210:    }
+        -:  211:    ciphertext_len += len;
+        -:  212:
+        -:  213:    unsigned char tag[16];
+        -:  214:    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, 16, tag)) {
+        -:  215:        EVP_CIPHER_CTX_free(ctx);
+        -:  216:        return "";
+        -:  217:    }
+        -:  218:
+        -:  219:    EVP_CIPHER_CTX_free(ctx);
+        -:  220:
+        -:  221:    std::stringstream ss;
+        -:  222:    for (unsigned char c : iv) {
+        -:  223:        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+        -:  224:    }
+        -:  225:    for (int i = 0; i < ciphertext_len; ++i) {
+        -:  226:        const unsigned char c = ciphertext[i];
+        -:  227:        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+        -:  228:    }
+        -:  229:    for (unsigned char c : tag) {
+        -:  230:        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+        -:  231:    }
+        -:  232:
+        -:  233:    return ss.str();
+        -:  234:#endif
+        -:  235:}
+        -:  236:
+function _ZN5folio8security16decryptAes256GcmERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_ called 0 returned 0% blocks executed 0%
+    #####:  237:std::string decryptAes256Gcm(const std::string& ciphertextHex,
+        -:  238:                             const std::string& key) {
+        -:  239:#ifndef HAVE_OPENSSL
+    #####:  240:    return "";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  241:#else
+        -:  242:    if (key.size() != 32 || ciphertextHex.length() < 48) {
+        -:  243:        return "";
+        -:  244:    }
+        -:  245:
+        -:  246:    std::stringstream hexStream(ciphertextHex.substr(0, 24));
+        -:  247:    unsigned char iv[12];
+        -:  248:    for (int i = 0; i < 12; ++i) {
+        -:  249:        std::string byteStr;
+        -:  250:        hexStream >> std::setw(2) >> byteStr;
+        -:  251:        if (byteStr.size() != 2) return "";
+        -:  252:        iv[i] = static_cast<unsigned char>(std::stoi(byteStr, nullptr, 16));
+        -:  253:    }
+        -:  254:
+        -:  255:    std::string ciphertextTagHex = ciphertextHex.substr(24);
+        -:  256:    std::vector<unsigned char> ciphertextTag;
+        -:  257:    for (size_t i = 0; i + 1 < ciphertextTagHex.length(); i += 2) {
+        -:  258:        ciphertextTag.push_back(
+        -:  259:            static_cast<unsigned char>(std::stoi(ciphertextTagHex.substr(i, 2), nullptr, 16))
+        -:  260:        );
+        -:  261:    }
+        -:  262:
+        -:  263:    if (ciphertextTag.size() < 16) {
+        -:  264:        return "";
+        -:  265:    }
+        -:  266:
+        -:  267:    std::vector<unsigned char> ciphertext(ciphertextTag.begin(), ciphertextTag.end() - 16);
+        -:  268:    unsigned char tag[16];
+        -:  269:    std::copy(ciphertextTag.end() - 16, ciphertextTag.end(), tag);
+        -:  270:
+        -:  271:    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+        -:  272:    if (!ctx) return "";
+        -:  273:
+        -:  274:    std::vector<unsigned char> plaintext(ciphertext.size());
+        -:  275:    int len = 0;
+        -:  276:    int plaintext_len = 0;
+        -:  277:
+        -:  278:    if (!EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr,
+        -:  279:                            reinterpret_cast<const unsigned char*>(key.data()),
+        -:  280:                            iv)) {
+        -:  281:        EVP_CIPHER_CTX_free(ctx);
+        -:  282:        return "";
+        -:  283:    }
+        -:  284:
+        -:  285:    if (!EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, 16, tag)) {
+        -:  286:        EVP_CIPHER_CTX_free(ctx);
+        -:  287:        return "";
+        -:  288:    }
+        -:  289:
+        -:  290:    if (!EVP_DecryptUpdate(ctx, plaintext.data(), &len,
+        -:  291:                          ciphertext.data(), static_cast<int>(ciphertext.size()))) {
+        -:  292:        EVP_CIPHER_CTX_free(ctx);
+        -:  293:        return "";
+        -:  294:    }
+        -:  295:    plaintext_len = len;
+        -:  296:
+        -:  297:    if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
+        -:  298:        EVP_CIPHER_CTX_free(ctx);
+        -:  299:        return "";
+        -:  300:    }
+        -:  301:    plaintext_len += len;
+        -:  302:
+        -:  303:    EVP_CIPHER_CTX_free(ctx);
+        -:  304:
+        -:  305:    return std::string(plaintext.begin(), plaintext.begin() + plaintext_len);
+        -:  306:#endif
+        -:  307:}
+        -:  308:
+function _ZN5folio8security17generateRandomKeyB5cxx11Ev called 2 returned 100% blocks executed 81%
+        2:  309:std::string generateRandomKey() {
+        -:  310:#ifndef HAVE_OPENSSL
+        2:  311:    const std::string random = fallbackRandomBytes(32);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  312:    std::ostringstream output;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  313:    output << std::hex << std::setfill('0');
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+branch  5 taken 2 (fallthrough)
+branch  6 taken 0 (throw)
+       66:  314:    for (unsigned char value : random) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 64
+call    3 returned 64
+call    4 returned 66
+branch  5 taken 64
+branch  6 taken 2 (fallthrough)
+       64:  315:        output << std::setw(2) << static_cast<int>(value);
+call    0 returned 64
+call    1 returned 64
+call    2 returned 64
+branch  3 taken 64 (fallthrough)
+branch  4 taken 0 (throw)
+        -:  316:    }
+        4:  317:    return output.str();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  318:#else
+        -:  319:    unsigned char key[32];
+        -:  320:    if (RAND_bytes(key, sizeof(key)) != 1) {
+        -:  321:        return "";
+        -:  322:    }
+        -:  323:
+        -:  324:    std::stringstream ss;
+        -:  325:    for (unsigned char c : key) {
+        -:  326:        ss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+        -:  327:    }
+        -:  328:    return ss.str();
+        -:  329:#endif
+        2:  330:}
+call    0 returned 2
+call    1 returned 2
+call    2 never executed
+call    3 never executed
+        -:  331:
+function _ZN5folio8security14validateSymbolERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 10 returned 100% blocks executed 83%
+       10:  332:bool validateSymbol(const std::string& symbol) {
+        -:  333:    // NSE_EQ|ISIN format: e.g., "NSE_EQ|INE009A01021"
+       10:  334:    static const std::regex symbolPattern("^[A-Z]+_[A-Z]+\\|[A-Z0-9]{12}$");
+branch  0 taken 2 (fallthrough)
+branch  1 taken 8
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+call    5 returned 2
+branch  6 taken 2 (fallthrough)
+branch  7 taken 0 (throw)
+call    8 returned 2
+call    9 returned 2
+branch 10 never executed (fallthrough)
+branch 11 never executed
+call   12 never executed
+       10:  335:    return std::regex_match(symbol, symbolPattern);
+call    0 returned 10
+        -:  336:}
+        -:  337:
+function _ZN5folio8security16validateQuantityEl called 10 returned 100% blocks executed 100%
+       10:  338:bool validateQuantity(long quantity) {
+       10:  339:    return quantity >= 1 && quantity <= 1000000;
+branch  0 taken 8 (fallthrough)
+branch  1 taken 2
+branch  2 taken 6 (fallthrough)
+branch  3 taken 2
+        -:  340:}
+        -:  341:
+function _ZN5folio8security13validatePriceEd called 10 returned 100% blocks executed 100%
+       10:  342:bool validatePrice(double price) {
+       10:  343:    return price >= 0.01 && price <= 100000.0;
+branch  0 taken 8 (fallthrough)
+branch  1 taken 2
+branch  2 taken 6 (fallthrough)
+branch  3 taken 2
+        -:  344:}
+        -:  345:
+function _ZN5folio8security20validateNewsCategoryERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 24 returned 100% blocks executed 100%
+       24:  346:bool validateNewsCategory(const std::string& category) {
+        -:  347:    // Validate Upstox news category: lowercase alphanumeric + underscore, max 32 chars
+        -:  348:    // Prevents injection attacks and limits to known categories
+        -:  349:    // Upstox currently supports "holdings" category - used for both news and global-news endpoints
+       24:  350:    if (category.empty() || category.size() > 32) return false;
+call    0 returned 24
+branch  1 taken 22 (fallthrough)
+branch  2 taken 2
+call    3 returned 22
+branch  4 taken 2 (fallthrough)
+branch  5 taken 20
+branch  6 taken 4 (fallthrough)
+branch  7 taken 20
+      152:  351:    for (char c : category) {
+call    0 returned 20
+call    1 returned 20
+call    2 returned 142
+call    3 returned 132
+call    4 returned 152
+branch  5 taken 142
+branch  6 taken 10 (fallthrough)
+      142:  352:        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')) {
+branch  0 taken 130 (fallthrough)
+branch  1 taken 12
+branch  2 taken 0 (fallthrough)
+branch  3 taken 130
+branch  4 taken 6 (fallthrough)
+branch  5 taken 6
+branch  6 taken 6 (fallthrough)
+branch  7 taken 0
+branch  8 taken 10 (fallthrough)
+branch  9 taken 2
+       10:  353:            return false;
+        -:  354:        }
+        -:  355:    }
+       10:  356:    return true;
+        -:  357:}
+        -:  358:
+function _ZN5folio8security18isAccessTokenStaleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 20 returned 100% blocks executed 81%
+       20:  359:bool isAccessTokenStale(const std::string& errorMessage) {
+        -:  360:    // Check if error message indicates token expiration or authorization failure
+       20:  361:    if (errorMessage.find("401") != std::string::npos) return true;
+call    0 returned 20
+branch  1 taken 4 (fallthrough)
+branch  2 taken 16
+       16:  362:    if (errorMessage.find("403") != std::string::npos) return true;
+call    0 returned 16
+branch  1 taken 2 (fallthrough)
+branch  2 taken 14
+       16:  363:    if (errorMessage.find("token") != std::string::npos && 
+call    0 returned 14
+branch  1 taken 2 (fallthrough)
+branch  2 taken 12
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+branch  5 taken 2 (fallthrough)
+branch  6 taken 12
+        4:  364:        errorMessage.find("expired") != std::string::npos) return true;
+call    0 returned 2
+      12*:  365:    if (errorMessage.find("unauthorized") != std::string::npos) return true;
+call    0 returned 12
+branch  1 taken 0 (fallthrough)
+branch  2 taken 12
+      12*:  366:    if (errorMessage.find("access token") != std::string::npos &&
+call    0 returned 12
+branch  1 taken 0 (fallthrough)
+branch  2 taken 12
+branch  3 never executed (fallthrough)
+branch  4 never executed
+branch  5 taken 0 (fallthrough)
+branch  6 taken 12
+    #####:  367:        errorMessage.find("expired") != std::string::npos) return true;
+call    0 never executed
+       12:  368:    return false;
+        -:  369:}
+        -:  370:
+function _ZN5folio8security19isValidNewsResponseERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 14 returned 100% blocks executed 81%
+       14:  371:bool isValidNewsResponse(const std::string& responseJson) {
+        -:  372:    try {
+       18:  373:        const auto json = nlohmann::json::parse(responseJson);
+call    0 returned 14
+call    1 returned 14
+branch  2 taken 10 (fallthrough)
+branch  3 taken 4 (throw)
+call    4 returned 10
+call    5 returned 4
+        -:  374:        // Must have status="success" and a data field
+       10:  375:        if (json.value("status", "") != "success") return false;
+call    0 returned 10
+branch  1 taken 10 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 10
+branch  4 taken 10 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 10
+branch  7 taken 2 (fallthrough)
+branch  8 taken 8
+call    9 never executed
+        8:  376:        if (!json.contains("data")) return false;
+call    0 returned 8
+branch  1 taken 8 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 2 (fallthrough)
+branch  4 taken 6
+        6:  377:        return true;
+       14:  378:    } catch (...) {
+call    0 returned 10
+call    1 never executed
+call    2 returned 4
+        4:  379:        return false;
+        4:  380:    }
+        -:  381:}
+        -:  382:
+function _ZN5folio8security16isJsonParseErrorERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 77%
+        2:  383:bool isJsonParseError(const std::string& jsonString) {
+        -:  384:    try {
+       4*:  385:        nlohmann::json::parse(jsonString);
+call    0 returned 2
+call    1 returned 2
+branch  2 taken 0 (fallthrough)
+branch  3 taken 2 (throw)
+call    4 never executed
+call    5 never executed
+call    6 returned 2
+    #####:  386:        return false;  // Valid JSON
+        2:  387:    } catch (...) {
+call    0 returned 2
+        2:  388:        return true;   // Parse error
+        2:  389:    }
+        -:  390:}
+        -:  391:
+function _ZN5folio8security12validateSideERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 12 returned 100% blocks executed 100%
+       12:  392:bool validateSide(const std::string& side) {
+       12:  393:    return side == "BUY" || side == "SELL";
+call    0 returned 12
+branch  1 taken 6 (fallthrough)
+branch  2 taken 6
+call    3 returned 6
+branch  4 taken 2 (fallthrough)
+branch  5 taken 4
+        -:  394:}
+        -:  395:
+function _ZN5folio8security17computeFileSha256ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 50%
+        2:  396:std::string computeFileSha256(const std::string& filePath) {
+        -:  397:#ifndef HAVE_OPENSSL
+        2:  398:    std::ifstream file(filePath, std::ios::binary);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  399:    if (!file) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:  400:        return "";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  401:    }
+        -:  402:
+        2:  403:    std::ostringstream buffer;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  404:    buffer << file.rdbuf();
+call    0 returned 2
+call    1 returned 2
+branch  2 taken 2 (fallthrough)
+branch  3 taken 0 (throw)
+        2:  405:    return sha256Hex(buffer.str());
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        -:  406:#else
+        -:  407:    std::ifstream file(filePath, std::ios::binary);
+        -:  408:    if (!file) {
+        -:  409:        return "";
+        -:  410:    }
+        -:  411:
+        -:  412:    unsigned char hash[SHA256_DIGEST_LENGTH];
+        -:  413:    SHA256_CTX sha256;
+        -:  414:    SHA256_Init(&sha256);
+        -:  415:
+        -:  416:    char streamBuffer[4096];
+        -:  417:    while (file.read(streamBuffer, sizeof(streamBuffer))) {
+        -:  418:        SHA256_Update(&sha256, streamBuffer, file.gcount());
+        -:  419:    }
+        -:  420:
+        -:  421:    SHA256_Final(hash, &sha256);
+        -:  422:
+        -:  423:    std::stringstream ss;
+        -:  424:    for (unsigned char c : hash) {
+        -:  425:        ss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+        -:  426:    }
+        -:  427:
+        -:  428:    return ss.str();
+        -:  429:#endif
+        2:  430:}
+call    0 returned 2
+call    1 returned 2
+call    2 never executed
+call    3 never executed
+        -:  431:
+function _ZN5folio8security12getEnvSecureERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  432:SecureString getEnvSecure(const std::string& varName) {
+    #####:  433:    const char* value = std::getenv(varName.c_str());
+call    0 never executed
+call    1 never executed
+    #####:  434:    if (!value) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  435:        return SecureString("");
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  436:    }
+        -:  437:
+    #####:  438:    SecureString result(value);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+call    7 never executed
+        -:  439:
+        -:  440:    // Attempt to clear environment variable (platform-specific)
+        -:  441:#ifdef __linux__
+    #####:  442:    unsetenv(varName.c_str());
+call    0 never executed
+call    1 never executed
+        -:  443:#elif _WIN32
+        -:  444:    _putenv_s(varName.c_str(), "");
+        -:  445:#endif
+        -:  446:
+    #####:  447:    return result;
+call    0 never executed
+    #####:  448:}
+call    0 never executed
+        -:  449:
+function _ZN5folio8security20checkFilePermissionsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEj called 2 returned 100% blocks executed 86%
+        2:  450:bool checkFilePermissions(const std::string& filePath,
+        -:  451:                         unsigned int expectedMode) {
+        -:  452:#ifdef __linux__
+        -:  453:    struct stat fileStat;
+        2:  454:    if (stat(filePath.c_str(), &fileStat) != 0) {
+call    0 returned 2
+call    1 returned 2
+branch  2 taken 0 (fallthrough)
+branch  3 taken 2
+    #####:  455:        return false;  // File doesn't exist or can't be accessed
+        -:  456:    }
+        -:  457:
+        -:  458:    // Check if permissions match expected mode (mask with 0777)
+        2:  459:    unsigned int actualMode = fileStat.st_mode & 0777;
+        2:  460:    return actualMode == expectedMode;
+        -:  461:#else
+        -:  462:    // On Windows or other platforms, consider this check passed
+        -:  463:    // (Windows doesn't use Unix-style file permissions)
+        -:  464:    return true;
+        -:  465:#endif
+        -:  466:}
+        -:  467:
+function _ZN5folio8security20generateRandomStringB5cxx11Em called 2 returned 100% blocks executed 62%
+        2:  468:std::string generateRandomString(size_t length) {
+        -:  469:#ifndef HAVE_OPENSSL
+        2:  470:    if (length == 0) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  471:        return "";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  472:    }
+        -:  473:
+        2:  474:    std::random_device random;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  475:    std::uniform_int_distribution<int> dist(0, 255);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  476:    std::string bytes(length, '\0');
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+       18:  477:    for (std::size_t i = 0; i < length; ++i) {
+branch  0 taken 16
+branch  1 taken 2 (fallthrough)
+       16:  478:        bytes[i] = static_cast<char>(dist(random));
+call    0 returned 16
+branch  1 taken 16 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 16
+branch  4 taken 16 (fallthrough)
+branch  5 taken 0 (throw)
+        -:  479:    }
+        -:  480:
+        2:  481:    std::ostringstream ss;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  482:    ss << std::hex << std::setfill('0');
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+branch  5 taken 2 (fallthrough)
+branch  6 taken 0 (throw)
+       18:  483:    for (unsigned char c : bytes) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 16
+call    3 returned 16
+call    4 returned 18
+branch  5 taken 16
+branch  6 taken 2 (fallthrough)
+       16:  484:        ss << std::setw(2) << static_cast<int>(c);
+call    0 returned 16
+call    1 returned 16
+call    2 returned 16
+branch  3 taken 16 (fallthrough)
+branch  4 taken 0 (throw)
+        -:  485:    }
+        2:  486:    return ss.str().substr(0, length * 2);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        -:  487:#else
+        -:  488:    if (length == 0) {
+        -:  489:        return "";
+        -:  490:    }
+        -:  491:
+        -:  492:    std::vector<unsigned char> buffer(length);
+        -:  493:    if (RAND_bytes(buffer.data(), static_cast<int>(length)) != 1) {
+        -:  494:        return "";
+        -:  495:    }
+        -:  496:
+        -:  497:    std::stringstream ss;
+        -:  498:    for (unsigned char c : buffer) {
+        -:  499:        ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+        -:  500:    }
+        -:  501:    return ss.str().substr(0, length * 2);
+        -:  502:#endif
+        2:  503:}
+call    0 returned 2
+call    1 returned 2
+call    2 returned 2
+call    3 never executed
+call    4 never executed
+call    5 never executed
+        -:  504:
+        -:  505:}  // namespace security
+        -:  506:}  // namespace folio

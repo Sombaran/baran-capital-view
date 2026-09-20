@@ -1,0 +1,489 @@
+        -:    0:Source:/home/ritup2404/.conan2/p/nlohm0567ffc90cfc1/p/include/nlohmann/detail/iterators/iteration_proxy.hpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/WebServer.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/WebServer.cpp.gcda
+        -:    0:Runs:2
+        -:    1://     __ _____ _____ _____
+        -:    2://  __|  |   __|     |   | |  JSON for Modern C++
+        -:    3:// |  |  |__   |  |  | | | |  version 3.11.3
+        -:    4:// |_____|_____|_____|_|___|  https://github.com/nlohmann/json
+        -:    5://
+        -:    6:// SPDX-FileCopyrightText: 2013-2023 Niels Lohmann <https://nlohmann.me>
+        -:    7:// SPDX-License-Identifier: MIT
+        -:    8:
+        -:    9:#pragma once
+        -:   10:
+        -:   11:#include <cstddef> // size_t
+        -:   12:#include <iterator> // input_iterator_tag
+        -:   13:#include <string> // string, to_string
+        -:   14:#include <tuple> // tuple_size, get, tuple_element
+        -:   15:#include <utility> // move
+        -:   16:
+        -:   17:#if JSON_HAS_RANGES
+        -:   18:    #include <ranges> // enable_borrowed_range
+        -:   19:#endif
+        -:   20:
+        -:   21:#include <nlohmann/detail/abi_macros.hpp>
+        -:   22:#include <nlohmann/detail/meta/type_traits.hpp>
+        -:   23:#include <nlohmann/detail/value_t.hpp>
+        -:   24:
+        -:   25:NLOHMANN_JSON_NAMESPACE_BEGIN
+        -:   26:namespace detail
+        -:   27:{
+        -:   28:
+        -:   29:template<typename string_type>
+function _ZN8nlohmann16json_abi_v3_11_36detail13int_to_stringINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEEvRT_m called 0 returned 0% blocks executed 0%
+    #####:   30:void int_to_string( string_type& target, std::size_t value )
+        -:   31:{
+        -:   32:    // For ADL
+        -:   33:    using std::to_string;
+    #####:   34:    target = to_string(value);
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+call    4 never executed
+    #####:   35:}
+        -:   36:template<typename IteratorType> class iteration_proxy_value
+        -:   37:{
+        -:   38:  public:
+        -:   39:    using difference_type = std::ptrdiff_t;
+        -:   40:    using value_type = iteration_proxy_value;
+        -:   41:    using pointer = value_type *;
+        -:   42:    using reference = value_type &;
+        -:   43:    using iterator_category = std::input_iterator_tag;
+        -:   44:    using string_type = typename std::remove_cv< typename std::remove_reference<decltype( std::declval<IteratorType>().key() ) >::type >::type;
+        -:   45:
+        -:   46:  private:
+        -:   47:    /// the iterator
+        -:   48:    IteratorType anchor{};
+        -:   49:    /// an index for arrays (used to create key names)
+        -:   50:    std::size_t array_index = 0;
+        -:   51:    /// last stringified array index
+        -:   52:    mutable std::size_t array_index_last = 0;
+        -:   53:    /// a string representation of the array index
+        -:   54:    mutable string_type array_index_str = "0";
+        -:   55:    /// an empty string (to return a reference for primitive values)
+        -:   56:    string_type empty_str{};
+        -:   57:
+        -:   58:  public:
+        -:   59:    explicit iteration_proxy_value() = default;
+    #####:   60:    explicit iteration_proxy_value(IteratorType it, std::size_t array_index_ = 0)
+        -:   61:    noexcept(std::is_nothrow_move_constructible<IteratorType>::value
+        -:   62:             && std::is_nothrow_default_constructible<string_type>::value)
+    #####:   63:        : anchor(std::move(it))
+    #####:   64:        , array_index(array_index_)
+    #####:   65:    {}
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ESH_m:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ESH_m called 0 returned 0% blocks executed 0%
+    #####:   60:    explicit iteration_proxy_value(IteratorType it, std::size_t array_index_ = 0)
+        -:   61:    noexcept(std::is_nothrow_move_constructible<IteratorType>::value
+        -:   62:             && std::is_nothrow_default_constructible<string_type>::value)
+    #####:   63:        : anchor(std::move(it))
+call    0 never executed
+    #####:   64:        , array_index(array_index_)
+call    0 never executed
+call    1 never executed
+    #####:   65:    {}
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ESI_m:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ESI_m called 0 returned 0% blocks executed 0%
+    #####:   60:    explicit iteration_proxy_value(IteratorType it, std::size_t array_index_ = 0)
+        -:   61:    noexcept(std::is_nothrow_move_constructible<IteratorType>::value
+        -:   62:             && std::is_nothrow_default_constructible<string_type>::value)
+    #####:   63:        : anchor(std::move(it))
+call    0 never executed
+    #####:   64:        , array_index(array_index_)
+call    0 never executed
+call    1 never executed
+    #####:   65:    {}
+------------------
+        -:   66:
+        -:   67:    iteration_proxy_value(iteration_proxy_value const&) = default;
+        -:   68:    iteration_proxy_value& operator=(iteration_proxy_value const&) = default;
+        -:   69:    // older GCCs are a bit fussy and require explicit noexcept specifiers on defaulted functions
+        -:   70:    iteration_proxy_value(iteration_proxy_value&&)
+        -:   71:    noexcept(std::is_nothrow_move_constructible<IteratorType>::value
+        -:   72:             && std::is_nothrow_move_constructible<string_type>::value) = default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)
+        -:   73:    iteration_proxy_value& operator=(iteration_proxy_value&&)
+        -:   74:    noexcept(std::is_nothrow_move_assignable<IteratorType>::value
+        -:   75:             && std::is_nothrow_move_assignable<string_type>::value) = default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)
+    #####:   76:    ~iteration_proxy_value() = default;
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEED2Ev:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEED2Ev called 0 returned 0% blocks executed 0%
+    #####:   76:    ~iteration_proxy_value() = default;
+call    0 never executed
+call    1 never executed
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEED2Ev:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEED2Ev called 0 returned 0% blocks executed 0%
+    #####:   76:    ~iteration_proxy_value() = default;
+call    0 never executed
+call    1 never executed
+------------------
+        -:   77:
+        -:   78:    /// dereference operator (needed for range-based for)
+    #####:   79:    const iteration_proxy_value& operator*() const
+        -:   80:    {
+    #####:   81:        return *this;
+        -:   82:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEdeEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEdeEv called 0 returned 0% blocks executed 0%
+    #####:   79:    const iteration_proxy_value& operator*() const
+        -:   80:    {
+    #####:   81:        return *this;
+        -:   82:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEdeEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEdeEv called 0 returned 0% blocks executed 0%
+    #####:   79:    const iteration_proxy_value& operator*() const
+        -:   80:    {
+    #####:   81:        return *this;
+        -:   82:    }
+------------------
+        -:   83:
+        -:   84:    /// increment operator (needed for range-based for)
+    #####:   85:    iteration_proxy_value& operator++()
+        -:   86:    {
+    #####:   87:        ++anchor;
+    #####:   88:        ++array_index;
+        -:   89:
+    #####:   90:        return *this;
+        -:   91:    }
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEppEv:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEppEv called 0 returned 0% blocks executed 0%
+    #####:   85:    iteration_proxy_value& operator++()
+        -:   86:    {
+    #####:   87:        ++anchor;
+call    0 never executed
+    #####:   88:        ++array_index;
+        -:   89:
+    #####:   90:        return *this;
+        -:   91:    }
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEppEv:
+function _ZN8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEppEv called 0 returned 0% blocks executed 0%
+    #####:   85:    iteration_proxy_value& operator++()
+        -:   86:    {
+    #####:   87:        ++anchor;
+call    0 never executed
+    #####:   88:        ++array_index;
+        -:   89:
+    #####:   90:        return *this;
+        -:   91:    }
+------------------
+        -:   92:
+        -:   93:    iteration_proxy_value operator++(int)& // NOLINT(cert-dcl21-cpp)
+        -:   94:    {
+        -:   95:        auto tmp = iteration_proxy_value(anchor, array_index);
+        -:   96:        ++anchor;
+        -:   97:        ++array_index;
+        -:   98:        return tmp;
+        -:   99:    }
+        -:  100:
+        -:  101:    /// equality operator (needed for InputIterator)
+        -:  102:    bool operator==(const iteration_proxy_value& o) const
+        -:  103:    {
+        -:  104:        return anchor == o.anchor;
+        -:  105:    }
+        -:  106:
+        -:  107:    /// inequality operator (needed for range-based for)
+    #####:  108:    bool operator!=(const iteration_proxy_value& o) const
+        -:  109:    {
+    #####:  110:        return anchor != o.anchor;
+        -:  111:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEneERKSI_:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEneERKSI_ called 0 returned 0% blocks executed 0%
+    #####:  108:    bool operator!=(const iteration_proxy_value& o) const
+        -:  109:    {
+    #####:  110:        return anchor != o.anchor;
+call    0 never executed
+        -:  111:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEneERKSJ_:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEneERKSJ_ called 0 returned 0% blocks executed 0%
+    #####:  108:    bool operator!=(const iteration_proxy_value& o) const
+        -:  109:    {
+    #####:  110:        return anchor != o.anchor;
+call    0 never executed
+        -:  111:    }
+------------------
+        -:  112:
+        -:  113:    /// return key of the iterator
+    #####:  114:    const string_type& key() const
+        -:  115:    {
+    #####:  116:        JSON_ASSERT(anchor.m_object != nullptr);
+        -:  117:
+    #####:  118:        switch (anchor.m_object->type())
+        -:  119:        {
+        -:  120:            // use integer array index as key
+    #####:  121:            case value_t::array:
+        -:  122:            {
+    #####:  123:                if (array_index != array_index_last)
+        -:  124:                {
+    #####:  125:                    int_to_string( array_index_str, array_index );
+    #####:  126:                    array_index_last = array_index;
+        -:  127:                }
+    #####:  128:                return array_index_str;
+        -:  129:            }
+        -:  130:
+        -:  131:            // use key from the object
+    #####:  132:            case value_t::object:
+    #####:  133:                return anchor.key();
+        -:  134:
+        -:  135:            // use an empty key for all primitive types
+    #####:  136:            case value_t::null:
+        -:  137:            case value_t::string:
+        -:  138:            case value_t::boolean:
+        -:  139:            case value_t::number_integer:
+        -:  140:            case value_t::number_unsigned:
+        -:  141:            case value_t::number_float:
+        -:  142:            case value_t::binary:
+        -:  143:            case value_t::discarded:
+        -:  144:            default:
+    #####:  145:                return empty_str;
+        -:  146:        }
+        -:  147:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE3keyEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE3keyEv called 0 returned 0% blocks executed 0%
+    #####:  114:    const string_type& key() const
+        -:  115:    {
+    #####:  116:        JSON_ASSERT(anchor.m_object != nullptr);
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+        -:  117:
+    #####:  118:        switch (anchor.m_object->type())
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  119:        {
+        -:  120:            // use integer array index as key
+    #####:  121:            case value_t::array:
+        -:  122:            {
+    #####:  123:                if (array_index != array_index_last)
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:  124:                {
+    #####:  125:                    int_to_string( array_index_str, array_index );
+call    0 never executed
+    #####:  126:                    array_index_last = array_index;
+        -:  127:                }
+    #####:  128:                return array_index_str;
+        -:  129:            }
+        -:  130:
+        -:  131:            // use key from the object
+    #####:  132:            case value_t::object:
+    #####:  133:                return anchor.key();
+call    0 never executed
+        -:  134:
+        -:  135:            // use an empty key for all primitive types
+    #####:  136:            case value_t::null:
+        -:  137:            case value_t::string:
+        -:  138:            case value_t::boolean:
+        -:  139:            case value_t::number_integer:
+        -:  140:            case value_t::number_unsigned:
+        -:  141:            case value_t::number_float:
+        -:  142:            case value_t::binary:
+        -:  143:            case value_t::discarded:
+        -:  144:            default:
+    #####:  145:                return empty_str;
+        -:  146:        }
+        -:  147:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE3keyEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE3keyEv called 0 returned 0% blocks executed 0%
+    #####:  114:    const string_type& key() const
+        -:  115:    {
+    #####:  116:        JSON_ASSERT(anchor.m_object != nullptr);
+branch  0 never executed (fallthrough)
+branch  1 never executed
+call    2 never executed
+        -:  117:
+    #####:  118:        switch (anchor.m_object->type())
+call    0 never executed
+branch  1 never executed
+branch  2 never executed
+branch  3 never executed
+        -:  119:        {
+        -:  120:            // use integer array index as key
+    #####:  121:            case value_t::array:
+        -:  122:            {
+    #####:  123:                if (array_index != array_index_last)
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:  124:                {
+    #####:  125:                    int_to_string( array_index_str, array_index );
+call    0 never executed
+    #####:  126:                    array_index_last = array_index;
+        -:  127:                }
+    #####:  128:                return array_index_str;
+        -:  129:            }
+        -:  130:
+        -:  131:            // use key from the object
+    #####:  132:            case value_t::object:
+    #####:  133:                return anchor.key();
+call    0 never executed
+        -:  134:
+        -:  135:            // use an empty key for all primitive types
+    #####:  136:            case value_t::null:
+        -:  137:            case value_t::string:
+        -:  138:            case value_t::boolean:
+        -:  139:            case value_t::number_integer:
+        -:  140:            case value_t::number_unsigned:
+        -:  141:            case value_t::number_float:
+        -:  142:            case value_t::binary:
+        -:  143:            case value_t::discarded:
+        -:  144:            default:
+    #####:  145:                return empty_str;
+        -:  146:        }
+        -:  147:    }
+------------------
+        -:  148:
+        -:  149:    /// return value of the iterator
+    #####:  150:    typename IteratorType::reference value() const
+        -:  151:    {
+    #####:  152:        return anchor.value();
+        -:  153:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5valueEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5valueEv called 0 returned 0% blocks executed 0%
+    #####:  150:    typename IteratorType::reference value() const
+        -:  151:    {
+    #####:  152:        return anchor.value();
+call    0 never executed
+        -:  153:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5valueEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail21iteration_proxy_valueINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5valueEv called 0 returned 0% blocks executed 0%
+    #####:  150:    typename IteratorType::reference value() const
+        -:  151:    {
+    #####:  152:        return anchor.value();
+call    0 never executed
+        -:  153:    }
+------------------
+        -:  154:};
+        -:  155:
+        -:  156:/// proxy class for the items() function
+        -:  157:template<typename IteratorType> class iteration_proxy
+        -:  158:{
+        -:  159:  private:
+        -:  160:    /// the container to iterate
+        -:  161:    typename IteratorType::pointer container = nullptr;
+        -:  162:
+        -:  163:  public:
+        -:  164:    explicit iteration_proxy() = default;
+        -:  165:
+        -:  166:    /// construct iteration proxy from a container
+    #####:  167:    explicit iteration_proxy(typename IteratorType::reference cont) noexcept
+    #####:  168:        : container(&cont) {}
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ERSG_:
+function _ZN8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ERSG_ called 0 returned 0% blocks executed 0%
+    #####:  167:    explicit iteration_proxy(typename IteratorType::reference cont) noexcept
+    #####:  168:        : container(&cont) {}
+------------------
+_ZN8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ERSH_:
+function _ZN8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEEC2ERSH_ called 0 returned 0% blocks executed 0%
+    #####:  167:    explicit iteration_proxy(typename IteratorType::reference cont) noexcept
+    #####:  168:        : container(&cont) {}
+------------------
+        -:  169:
+        -:  170:    iteration_proxy(iteration_proxy const&) = default;
+        -:  171:    iteration_proxy& operator=(iteration_proxy const&) = default;
+        -:  172:    iteration_proxy(iteration_proxy&&) noexcept = default;
+        -:  173:    iteration_proxy& operator=(iteration_proxy&&) noexcept = default;
+        -:  174:    ~iteration_proxy() = default;
+        -:  175:
+        -:  176:    /// return iterator begin (needed for range-based for)
+    #####:  177:    iteration_proxy_value<IteratorType> begin() const noexcept
+        -:  178:    {
+    #####:  179:        return iteration_proxy_value<IteratorType>(container->begin());
+        -:  180:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5beginEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implINS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5beginEv called 0 returned 0% blocks executed 0%
+    #####:  177:    iteration_proxy_value<IteratorType> begin() const noexcept
+        -:  178:    {
+    #####:  179:        return iteration_proxy_value<IteratorType>(container->begin());
+call    0 never executed
+call    1 never executed
+        -:  180:    }
+------------------
+_ZNK8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5beginEv:
+function _ZNK8nlohmann16json_abi_v3_11_36detail15iteration_proxyINS1_9iter_implIKNS0_10basic_jsonISt3mapSt6vectorNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEblmdSaNS0_14adl_serializerES6_IhSaIhEEvEEEEE5beginEv called 0 returned 0% blocks executed 0%
+    #####:  177:    iteration_proxy_value<IteratorType> begin() const noexcept
+        -:  178:    {
+    #####:  179:        return iteration_proxy_value<IteratorType>(container->begin());
+call    0 never executed
+call    1 never executed
+        -:  180:    }
+------------------
+        -:  181:
+        -:  182:    /// return iterator end (needed for range-based for)
+    #####:  183:    iteration_proxy_value<IteratorType> end() const noexcept
+        -:  184:    {
+    #####:  185:        return iteration_proxy_value<IteratorType>(container->end());
+        -:  186:    }
+        -:  187:};
+        -:  188:
+        -:  189:// Structured Bindings Support
+        -:  190:// For further reference see https://blog.tartanllama.xyz/structured-bindings/
+        -:  191:// And see https://github.com/nlohmann/json/pull/1391
+        -:  192:template<std::size_t N, typename IteratorType, enable_if_t<N == 0, int> = 0>
+        -:  193:auto get(const nlohmann::detail::iteration_proxy_value<IteratorType>& i) -> decltype(i.key())
+        -:  194:{
+        -:  195:    return i.key();
+        -:  196:}
+        -:  197:// Structured Bindings Support
+        -:  198:// For further reference see https://blog.tartanllama.xyz/structured-bindings/
+        -:  199:// And see https://github.com/nlohmann/json/pull/1391
+        -:  200:template<std::size_t N, typename IteratorType, enable_if_t<N == 1, int> = 0>
+        -:  201:auto get(const nlohmann::detail::iteration_proxy_value<IteratorType>& i) -> decltype(i.value())
+        -:  202:{
+        -:  203:    return i.value();
+        -:  204:}
+        -:  205:
+        -:  206:}  // namespace detail
+        -:  207:NLOHMANN_JSON_NAMESPACE_END
+        -:  208:
+        -:  209:// The Addition to the STD Namespace is required to add
+        -:  210:// Structured Bindings Support to the iteration_proxy_value class
+        -:  211:// For further reference see https://blog.tartanllama.xyz/structured-bindings/
+        -:  212:// And see https://github.com/nlohmann/json/pull/1391
+        -:  213:namespace std
+        -:  214:{
+        -:  215:
+        -:  216:#if defined(__clang__)
+        -:  217:    // Fix: https://github.com/nlohmann/json/issues/1401
+        -:  218:    #pragma clang diagnostic push
+        -:  219:    #pragma clang diagnostic ignored "-Wmismatched-tags"
+        -:  220:#endif
+        -:  221:template<typename IteratorType>
+        -:  222:class tuple_size<::nlohmann::detail::iteration_proxy_value<IteratorType>> // NOLINT(cert-dcl58-cpp)
+        -:  223:            : public std::integral_constant<std::size_t, 2> {};
+        -:  224:
+        -:  225:template<std::size_t N, typename IteratorType>
+        -:  226:class tuple_element<N, ::nlohmann::detail::iteration_proxy_value<IteratorType >> // NOLINT(cert-dcl58-cpp)
+        -:  227:{
+        -:  228:  public:
+        -:  229:    using type = decltype(
+        -:  230:                     get<N>(std::declval <
+        -:  231:                            ::nlohmann::detail::iteration_proxy_value<IteratorType >> ()));
+        -:  232:};
+        -:  233:#if defined(__clang__)
+        -:  234:    #pragma clang diagnostic pop
+        -:  235:#endif
+        -:  236:
+        -:  237:}  // namespace std
+        -:  238:
+        -:  239:#if JSON_HAS_RANGES
+        -:  240:    template <typename IteratorType>
+        -:  241:    inline constexpr bool ::std::ranges::enable_borrowed_range<::nlohmann::detail::iteration_proxy<IteratorType>> = true;
+        -:  242:#endif

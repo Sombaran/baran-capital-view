@@ -1,0 +1,938 @@
+Function '_ZNSt10_Head_baseILm1EPN5folio13TaskSchedulerELb0EE7_M_headERS3_'
+Lines executed:100.00% of 1
+
+Function '_ZNSt10_Head_baseILm0EMN5folio13TaskSchedulerEFvvELb0EE7_M_headERS4_'
+Lines executed:100.00% of 1
+
+Function '_ZNSt11_Tuple_implILm1EJPN5folio13TaskSchedulerEEE7_M_headERS3_'
+Lines executed:100.00% of 1
+
+Function '_ZNSt11_Tuple_implILm0EJMN5folio13TaskSchedulerEFvvEPS1_EE7_M_headERS5_'
+Lines executed:100.00% of 1
+
+Function '_ZSt13__invoke_implIvMN5folio13TaskSchedulerEFvvEPS1_JEET_St21__invoke_memfun_derefOT0_OT1_DpOT2_'
+Lines executed:100.00% of 2
+
+Function '_ZSt12__get_helperILm1EPN5folio13TaskSchedulerEJEERT0_RSt11_Tuple_implIXT_EJS3_DpT1_EE'
+Lines executed:100.00% of 2
+
+Function '_ZSt12__get_helperILm0EMN5folio13TaskSchedulerEFvvEJPS1_EERT0_RSt11_Tuple_implIXT_EJS5_DpT1_EE'
+Lines executed:100.00% of 2
+
+Function '_ZSt8__invokeIMN5folio13TaskSchedulerEFvvEJPS1_EENSt15__invoke_resultIT_JDpT0_EE4typeEOS6_DpOS7_'
+Lines executed:100.00% of 3
+
+Function '_ZSt3getILm1EJMN5folio13TaskSchedulerEFvvEPS1_EEONSt13tuple_elementIXT_ESt5tupleIJDpT0_EEE4typeEOS9_'
+Lines executed:100.00% of 2
+
+Function '_ZSt3getILm0EJMN5folio13TaskSchedulerEFvvEPS1_EEONSt13tuple_elementIXT_ESt5tupleIJDpT0_EEE4typeEOS9_'
+Lines executed:100.00% of 2
+
+Function '_ZSt4moveIRSt5tupleIJMN5folio13TaskSchedulerEFvvEPS2_EEEONSt16remove_referenceIT_E4typeEOS9_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6thread8_InvokerISt5tupleIJMN5folio13TaskSchedulerEFvvEPS3_EEE9_M_invokeIJLm0ELm1EEEEvSt12_Index_tupleIJXspT_EEE'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6thread8_InvokerISt5tupleIJMN5folio13TaskSchedulerEFvvEPS3_EEEclEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6thread11_State_implINS_8_InvokerISt5tupleIJMN5folio13TaskSchedulerEFvvEPS4_EEEEE6_M_runEv'
+Lines executed:100.00% of 1
+
+Function '_ZNSt11__copy_moveILb0ELb0ESt26random_access_iterator_tagE12__assign_oneIPN5folio13TaskScheduler4TaskES6_EEvPT_PT0_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt20__copy_move_backwardILb0ELb1ESt26random_access_iterator_tagE13__copy_move_bIPN5folio13TaskScheduler4TaskES6_EEPT0_PT_SA_S8_'
+Lines executed:0.00% of 7
+
+Function '_ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIPN5folio13TaskScheduler4TaskES6_EEPT0_PT_SA_S8_'
+Lines executed:0.00% of 7
+
+Function '_ZNSt10_Head_baseILm1ESt14default_deleteINSt6thread6_StateEELb1EE7_M_headERS4_'
+Lines executed:0.00% of 1
+
+Function '_ZSt23__copy_move_backward_a2ILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 3
+
+Function '_ZSt14__copy_move_a2ILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11_Tuple_implILm1EJSt14default_deleteINSt6thread6_StateEEEE7_M_headERS4_'
+Lines executed:0.00% of 1
+
+Function '_ZNSt10_Head_baseILm0EPNSt6thread6_StateELb0EE7_M_headERS3_'
+Lines executed:0.00% of 1
+
+Function '_ZNSt10_Head_baseILm1ESt14default_deleteINSt6thread6_StateEELb1EEC2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt10_Head_baseILm1EPN5folio13TaskSchedulerELb0EEC2IS2_EEOT_'
+Lines executed:100.00% of 2
+
+Function '_ZSt23__copy_move_backward_a1ILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__niter_wrapIPPN5folio13TaskScheduler4TaskEET_RKS5_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt14__copy_move_a1ILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__niter_baseIPPN5folio13TaskScheduler4TaskEET_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__get_helperILm1ESt14default_deleteINSt6thread6_StateEEJEERT0_RSt11_Tuple_implIXT_EJS4_DpT1_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11_Tuple_implILm0EJPNSt6thread6_StateESt14default_deleteIS1_EEE7_M_headERS5_'
+Lines executed:0.00% of 1
+
+Function '_ZNSt10_Head_baseILm0EPNSt6thread6_StateELb0EEC2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11_Tuple_implILm1EJSt14default_deleteINSt6thread6_StateEEEEC2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt10_Head_baseILm0EMN5folio13TaskSchedulerEFvvELb0EEC2IS3_EEOT_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11_Tuple_implILm1EJPN5folio13TaskSchedulerEEEC2IS2_EEOT_'
+Lines executed:100.00% of 3
+
+Function '_ZSt22__copy_move_backward_aILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 3
+
+Function '_ZSt13__copy_move_aILb0EPPN5folio13TaskScheduler4TaskES4_ET1_T0_S6_S5_'
+Lines executed:0.00% of 3
+
+Function '_ZSt12__miter_baseIPPN5folio13TaskScheduler4TaskEET_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt3getILm1EJPNSt6thread6_StateESt14default_deleteIS1_EEERNSt13tuple_elementIXT_ESt5tupleIJDpT0_EEE4typeERS9_'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__get_helperILm0EPNSt6thread6_StateEJSt14default_deleteIS1_EEERT0_RSt11_Tuple_implIXT_EJS5_DpT1_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11_Tuple_implILm0EJPNSt6thread6_StateESt14default_deleteIS1_EEEC2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11_Tuple_implILm0EJMN5folio13TaskSchedulerEFvvEPS1_EEC2IS3_JS4_EvEEOT_DpOT0_'
+Lines executed:100.00% of 3
+
+Function '_ZSt13copy_backwardIPPN5folio13TaskScheduler4TaskES4_ET0_T_S6_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZSt4copyIPPN5folio13TaskScheduler4TaskES4_ET0_T_S6_S5_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__uniq_ptr_implINSt6thread6_StateESt14default_deleteIS1_EE10_M_deleterEv'
+Lines executed:0.00% of 1
+
+Function '_ZSt3getILm0EJPNSt6thread6_StateESt14default_deleteIS1_EEERNSt13tuple_elementIXT_ESt5tupleIJDpT0_EEE4typeERS9_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt5tupleIJPNSt6thread6_StateESt14default_deleteIS1_EEEC2ILb1ELb1EEEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt5tupleIJMN5folio13TaskSchedulerEFvvEPS1_EEC2IS3_S4_Lb1EEEOT_OT0_'
+Lines executed:100.00% of 2
+
+Function '_ZSt7forwardISt6threadEOT_RNSt16remove_referenceIS1_E4typeE'
+Lines executed:0.00% of 2
+
+Function '_ZSt8_DestroyIN5folio13TaskScheduler4TaskEEvPT_'
+Lines executed:0.00% of 3
+
+Function '_ZSt11__addressofIN5folio13TaskScheduler4TaskEEPT_RS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__new_allocatorIN5folio13TaskScheduler4TaskEE8allocateEmPKv'
+Lines executed:57.14% of 7
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE17_M_reallocate_mapEmb'
+Lines executed:0.00% of 27
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE11_S_max_sizeERKS3_'
+Lines executed:0.00% of 6
+
+Function '_ZNKSt14default_deleteINSt6thread6_StateEEclEPS1_'
+Lines executed:0.00% of 3
+
+Function '_ZSt4moveIRPNSt6thread6_StateEEONSt16remove_referenceIT_E4typeEOS5_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt10unique_ptrINSt6thread6_StateESt14default_deleteIS1_EE11get_deleterEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__uniq_ptr_implINSt6thread6_StateESt14default_deleteIS1_EE6_M_ptrEv'
+Lines executed:0.00% of 1
+
+Function '_ZNSt15__uniq_ptr_implINSt6thread6_StateESt14default_deleteIS1_EEC2EPS1_'
+Lines executed:0.00% of 1
+
+Function '_ZNSt6thread8_InvokerISt5tupleIJMN5folio13TaskSchedulerEFvvEPS3_EEEC2IJS5_S6_EEEDpOT_'
+Lines executed:100.00% of 3
+
+Function '_ZSt4moveIRSt6threadEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt12_Destroy_auxILb0EE9__destroyIPN5folio13TaskScheduler4TaskEEEvT_S6_'
+Lines executed:75.00% of 4
+
+Function '_ZNSt15__new_allocatorIN5folio13TaskScheduler4TaskEE10deallocateEPS2_m'
+Lines executed:100.00% of 2
+
+Function '_ZNSt15__new_allocatorIPN5folio13TaskScheduler4TaskEE8allocateEmPKv'
+Lines executed:50.00% of 6
+
+Function '_ZNSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_EmmEv'
+Lines executed:66.67% of 6
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE22_M_reserve_map_at_backEm'
+Lines executed:0.00% of 5
+
+Function '_ZNKSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE8max_sizeEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt10unique_ptrINSt6thread6_StateESt14default_deleteIS1_EED2Ev'
+Lines executed:0.00% of 6
+
+Function '_ZNSt10unique_ptrINSt6thread6_StateESt14default_deleteIS1_EEC2IS3_vEEPS1_'
+Lines executed:0.00% of 3
+
+Function '_ZNSt6thread11_State_implINS_8_InvokerISt5tupleIJMN5folio13TaskSchedulerEFvvEPS4_EEEEEC2IJS6_S7_EEEDpOT_'
+Lines executed:100.00% of 3
+
+Function '_ZSt19__relocate_object_aISt6threadS0_SaIS0_EEvPT_PT0_RT1_'
+Lines executed:0.00% of 9
+
+Function '_ZSt8_DestroyISt6threadEvPT_'
+Lines executed:100.00% of 3
+
+Function '_ZSt11__addressofISt6threadEPT_RS1_'
+Lines executed:100.00% of 2
+
+Function '_ZSt8_DestroyIPN5folio13TaskScheduler4TaskEEvT_S4_'
+Lines executed:100.00% of 3
+
+Function '_ZNSt15__new_allocatorIPN5folio13TaskScheduler4TaskEE10deallocateEPS3_m'
+Lines executed:100.00% of 2
+
+Function '_ZNSt15__new_allocatorIPN5folio13TaskScheduler4TaskEED2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZNKSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE19_M_get_Tp_allocatorEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE16_M_allocate_nodeEv'
+Lines executed:100.00% of 3
+
+Function '_ZNSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_EC2Ev'
+Lines executed:100.00% of 2
+
+Function '_ZSt4moveIRPFvRKSt9_Any_dataEEONSt16remove_referenceIT_E4typeEOS7_'
+Lines executed:100.00% of 2
+
+Function '_ZSt4moveIRPFbRSt9_Any_dataRKS0_St18_Manager_operationEEONSt16remove_referenceIT_E4typeEOS9_'
+Lines executed:0.00% of 2
+
+Function '_ZSt4moveIRSt9_Any_dataEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE4backEv'
+Lines executed:100.00% of 4
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE16_M_push_back_auxIJS2_EEEvDpOT_'
+Lines executed:0.00% of 9
+
+Function '_ZSt7forwardIN5folio13TaskScheduler4TaskEEOT_RNSt16remove_referenceIS3_E4typeE'
+Lines executed:100.00% of 2
+
+Function '_ZNSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_E14_S_buffer_sizeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6threadC2IMN5folio13TaskSchedulerEFvvEJPS2_EvEEOT_DpOT0_'
+Lines executed:100.00% of 4
+
+Function '_ZSt14__relocate_a_1IPSt6threadS1_SaIS0_EET0_T_S4_S3_RT1_'
+Lines executed:80.00% of 5
+
+Function '_ZSt12__niter_baseIPSt6threadET_S2_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt15__new_allocatorISt6threadE8allocateEmPKv'
+Lines executed:50.00% of 6
+
+Function '_ZNSt12_Destroy_auxILb0EE9__destroyIPSt6threadEEvT_S4_'
+Lines executed:100.00% of 4
+
+Function '_ZNSt15__new_allocatorISt6threadE10deallocateEPS0_m'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE14_S_buffer_sizeEv'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE20_M_get_map_allocatorEv'
+Lines executed:100.00% of 4
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE18_M_deallocate_nodeEPS2_'
+Lines executed:100.00% of 4
+
+Function '_ZNSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_E11_M_set_nodeEPS4_'
+Lines executed:100.00% of 5
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE15_M_create_nodesEPPS2_S6_'
+Lines executed:57.14% of 7
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE15_M_allocate_mapEm'
+Lines executed:100.00% of 4
+
+Function '_ZNSt15__new_allocatorIN5folio13TaskScheduler4TaskEED2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE16_Deque_impl_dataC2Ev'
+Lines executed:100.00% of 3
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE16_M_pop_front_auxEv'
+Lines executed:0.00% of 6
+
+Function '_ZSt4swapIPFvRKSt9_Any_dataEENSt9enable_ifIXsrSt6__and_IJSt6__not_ISt15__is_tuple_likeIT_EESt21is_move_constructibleIS9_ESt18is_move_assignableIS9_EEE5valueEvE4typeERS9_SJ_'
+Lines executed:100.00% of 5
+
+Function '_ZSt4swapIPFbRSt9_Any_dataRKS0_St18_Manager_operationEENSt9enable_ifIXsrSt6__and_IJSt6__not_ISt15__is_tuple_likeIT_EESt21is_move_constructibleISB_ESt18is_move_assignableISB_EEE5valueEvE4typeERSB_SL_'
+Lines executed:0.00% of 5
+
+Function '_ZSt4swapISt9_Any_dataENSt9enable_ifIXsrSt6__and_IJSt6__not_ISt15__is_tuple_likeIT_EESt21is_move_constructibleIS5_ESt18is_move_assignableIS5_EEE5valueEvE4typeERS5_SF_'
+Lines executed:0.00% of 5
+
+Function '_ZNKSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_EdeEv'
+Lines executed:100.00% of 2
+
+Function '_ZSteqRKSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_ES7_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE12emplace_backIJS2_EEERS2_DpOT_'
+Lines executed:128.57% of 7
+
+Function '_ZStmiRKSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_ES7_'
+Lines executed:100.00% of 5
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPSt6threadSt6vectorIS1_SaIS1_EEEmiEl'
+Lines executed:100.00% of 2
+
+Function '_ZN9__gnu_cxxmiIPSt6threadSt6vectorIS1_SaIS1_EEEENS_17__normal_iteratorIT_T0_E15difference_typeERKS9_SC_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6vectorISt6threadSaIS0_EE12_M_check_lenEmPKc'
+Lines executed:0.00% of 5
+
+Function '_ZSt12__relocate_aIPSt6threadS1_SaIS0_EET0_T_S4_S3_RT1_'
+Lines executed:100.00% of 3
+
+Function '_ZNKSt12_Vector_baseISt6threadSaIS0_EE19_M_get_Tp_allocatorEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE11_S_max_sizeERKS1_'
+Lines executed:150.00% of 4
+
+Function '_ZSt8_DestroyIPSt6threadEvT_S2_'
+Lines executed:100.00% of 3
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE19_M_destroy_data_auxESt15_Deque_iteratorIS2_RS2_PS2_ES8_'
+Lines executed:60.00% of 15
+
+Function '_ZNSt15_Deque_iteratorIN5folio13TaskScheduler4TaskERS2_PS2_EC2ERKS5_'
+Lines executed:100.00% of 3
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE17_M_deallocate_mapEPPS2_m'
+Lines executed:100.00% of 3
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE16_M_destroy_nodesEPPS2_S6_'
+Lines executed:100.00% of 4
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE17_M_initialize_mapEm'
+Lines executed:76.19% of 21
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE11_Deque_implC2Ev'
+Lines executed:100.00% of 4
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE9pop_frontEv'
+Lines executed:114.29% of 7
+
+Function '_ZNSt8functionIFvvEE4swapERS1_'
+Lines executed:100.00% of 5
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE5frontEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE5emptyEv'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPSt6threadSt6vectorIS1_SaIS1_EEE4baseEv'
+Lines executed:100.00% of 2
+
+Function '_ZN9__gnu_cxx17__normal_iteratorIPSt6threadSt6vectorIS1_SaIS1_EEEC2ERKS2_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE9push_backEOS2_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag'
+Lines executed:0.00% of 15
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardD2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardC2EPS4_'
+Lines executed:0.00% of 1
+
+Function '_ZSt4moveIRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEONSt16remove_referenceIT_E4typeEOS8_'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__str_concatINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEET_PKNS6_10value_typeENS6_9size_typeES9_SA_RKNS6_14allocator_typeE'
+Lines executed:0.00% of 11
+
+Function '_ZNKSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE4sizeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11unique_lockISt5mutexE6unlockEv'
+Lines executed:85.71% of 7
+
+Function '_ZNSt11unique_lockISt5mutexE4lockEv'
+Lines executed:75.00% of 8
+
+Function '_ZSt11__addressofISt5mutexEPT_RS1_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE4backEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJMN5folio13TaskSchedulerEFvvEPS5_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_'
+Lines executed:0.00% of 28
+
+Function '_ZSt7forwardIPN5folio13TaskSchedulerEEOT_RNSt16remove_referenceIS3_E4typeE'
+Lines executed:100.00% of 2
+
+Function '_ZSt7forwardIMN5folio13TaskSchedulerEFvvEEOT_RNSt16remove_referenceIS4_E4typeE'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE11_S_relocateEPS0_S3_S3_RS1_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EE11_M_allocateEm'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt6vectorISt6threadSaIS0_EE4sizeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt6vectorISt6threadSaIS0_EE8capacityEv'
+Lines executed:100.00% of 3
+
+Function '_ZNKSt6vectorISt6threadSaIS0_EE8max_sizeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EE19_M_get_Tp_allocatorEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EE13_M_deallocateEPS0_m'
+Lines executed:100.00% of 4
+
+Function '_ZNSt15__new_allocatorISt6threadED2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EE17_Vector_impl_dataC2Ev'
+Lines executed:100.00% of 3
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE15_M_destroy_dataESt15_Deque_iteratorIS2_RS2_PS2_ES8_RKS3_'
+Lines executed:100.00% of 3
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EE19_M_get_Tp_allocatorEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE3endEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EE5beginEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EED2Ev'
+Lines executed:100.00% of 6
+
+Function '_ZNSt11_Deque_baseIN5folio13TaskScheduler4TaskESaIS2_EEC2Ev'
+Lines executed:100.00% of 3
+
+Function '_ZSt4moveIRNSt6thread2idEEONSt16remove_referenceIT_E4typeEOS4_'
+Lines executed:0.00% of 2
+
+Function '_ZSt4moveIRSaIcEEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__new_allocatorIcED2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZN9__gnu_cxx11char_traitsIcE2eqERKcS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt8functionIFvvEEclEv'
+Lines executed:75.00% of 4
+
+Function '_ZNKSt8functionIFvvEEcvbEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEE3popEv'
+Lines executed:100.00% of 3
+
+Function '_ZNSt8functionIFvvEEaSEOS1_'
+Lines executed:100.00% of 3
+
+Function '_ZNSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEE5frontEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt18condition_variable4waitIZN5folio13TaskScheduler10workerLoopEvEUlvE_EEvRSt11unique_lockISt5mutexET_'
+Lines executed:100.00% of 4
+
+Function '_ZNKSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEE5emptyEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6chrono10time_pointINS_3_V212steady_clockENS_8durationIlSt5ratioILl1ELl1000000000EEEEEC2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt8functionIFvvEEC2Ev'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPSt6threadSt6vectorIS1_SaIS1_EEEdeEv'
+Lines executed:100.00% of 2
+
+Function '_ZN9__gnu_cxx17__normal_iteratorIPSt6threadSt6vectorIS1_SaIS1_EEEppEv'
+Lines executed:100.00% of 3
+
+Function '_ZN9__gnu_cxxneIPSt6threadSt6vectorIS1_SaIS1_EEEEbRKNS_17__normal_iteratorIT_T0_EESB_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE3endEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE5beginEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEE4pushEOS2_'
+Lines executed:100.00% of 2
+
+Function '_ZSt4moveIRN5folio13TaskScheduler4TaskEEONSt16remove_referenceIT_E4typeEOS5_'
+Lines executed:100.00% of 2
+
+Function '_ZNSt8functionIFvvEEC2EOS1_'
+Lines executed:100.00% of 8
+
+Function '_ZNSt14_Function_baseC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZSt4moveIRSt8functionIFvvEEEONSt16remove_referenceIT_E4typeEOS5_'
+Lines executed:100.00% of 2
+
+Function '_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EEOS8_S9_'
+Lines executed:0.00% of 8
+
+Function '_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EERKS8_PKS5_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEE4sizeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11unique_lockISt5mutexED2Ev'
+Lines executed:100.00% of 4
+
+Function '_ZNSt11unique_lockISt5mutexEC2ERS0_'
+Lines executed:100.00% of 5
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJMN5folio13TaskSchedulerEFvvEPS5_EEERS0_DpOT_'
+Lines executed:83.33% of 6
+
+Function '_ZNSt6vectorISt6threadSaIS0_EE7reserveEm'
+Lines executed:93.33% of 15
+
+Function '_ZNSt6vectorISt6threadSaIS0_EED2Ev'
+Lines executed:100.00% of 4
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EED2Ev'
+Lines executed:100.00% of 4
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EE12_Vector_implC2Ev'
+Lines executed:100.00% of 3
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EED2Ev'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5queueIN5folio13TaskScheduler4TaskESt5dequeIS2_SaIS2_EEEC2IS5_vEEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt5dequeIN5folio13TaskScheduler4TaskESaIS2_EEC2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZSt4swapINSt6thread2idEENSt9enable_ifIXsrSt6__and_IJSt6__not_ISt15__is_tuple_likeIT_EESt21is_move_constructibleIS6_ESt18is_move_assignableIS6_EEE5valueEvE4typeERS6_SG_'
+Lines executed:0.00% of 5
+
+Function '_ZNSt8__detail18__to_chars_10_implImEEvPcjT_'
+Lines executed:0.00% of 15
+
+Function '_ZNSt8__detail14__to_chars_lenImEEjT_i'
+Lines executed:0.00% of 11
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEmcRKS3_'
+Lines executed:0.00% of 3
+
+Function '_ZN9__gnu_cxx11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 5
+
+Function '_ZSt3maxImERKT_S2_S2_'
+Lines executed:0.00% of 4
+
+Function '_ZNSt10lock_guardISt5mutexED2Ev'
+Lines executed:0.00% of 2
+
+Function '_ZNSt10lock_guardISt5mutexEC2ERS0_'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio13TaskScheduler10workerLoopEv'
+Lines executed:85.71% of 14
+
+Function '_ZZN5folio13TaskScheduler10workerLoopEvENKUlvE_clEv'
+Lines executed:100.00% of 1
+
+Function '_ZNK5folio13TaskScheduler7runningEv'
+Lines executed:0.00% of 4
+
+Function '_ZN5folio13TaskScheduler8shutdownEv'
+Lines executed:100.00% of 8
+
+Function '_ZN5folio13TaskScheduler8scheduleERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt8functionIFvvEEi'
+Lines executed:83.33% of 12
+
+Function '_ZN5folio13TaskSchedulerD2Ev'
+Lines executed:100.00% of 3
+
+Function '_ZN5folio13TaskSchedulerC2Emm'
+Lines executed:100.00% of 6
+
+Function '_ZNSt6vectorISt6threadSaIS0_EEC2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZNSt12_Vector_baseISt6threadSaIS0_EEC2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZNSt5mutexC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZNSt12__mutex_baseC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZSteqNSt6thread2idES0_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6thread8joinableEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6thread4swapERS_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6threadC2EOS_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6threadD2Ev'
+Lines executed:0.00% of 4
+
+Function '_ZNSt6thread24_M_thread_deps_never_runEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6thread2idC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZNSt7__cxx119to_stringEm'
+Lines executed:0.00% of 5
+
+Function '_ZNSt11char_traitsIcE4copyEPcPKcm'
+Lines executed:0.00% of 4
+
+Function '_ZNSt11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 4
+
+Function '_ZSt16__deque_buf_sizem'
+Lines executed:0.00% of 2
+
+Function '_ZSt3minImERKT_S2_S2_'
+Lines executed:0.00% of 4
+
+Function '_ZNKSt14_Function_base8_M_emptyEv'
+Lines executed:0.00% of 1
+
+Function '_ZNSt14_Function_baseD2Ev'
+Lines executed:0.00% of 4
+
+Function '_ZdlPvS_'
+Lines executed:0.00% of 1
+
+Function '_ZnwmPv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt5mutex6unlockEv'
+Lines executed:0.00% of 3
+
+Function '_ZNSt5mutex4lockEv'
+Lines executed:0.00% of 5
+
+Function '_ZL22__gthread_mutex_unlockP15pthread_mutex_t'
+Lines executed:0.00% of 4
+
+Function '_ZL20__gthread_mutex_lockP15pthread_mutex_t'
+Lines executed:0.00% of 4
+
+Function '_ZL18__gthread_active_pv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono15duration_valuesIlE4zeroEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000000000EEEC1IlvEERKT_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000000000EEE4zeroEv'
+Lines executed:0.00% of 2
+
+Function '_ZSt23__is_constant_evaluatedv'
+Lines executed:0.00% of 2
+
+File '/usr/include/c++/13/tuple'
+Lines executed:57.89% of 57
+No branches
+Calls executed:65.52% of 29
+Creating 'tuple.gcov'
+
+File '/usr/include/c++/13/bits/invoke.h'
+Lines executed:100.00% of 5
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+Calls executed:100.00% of 5
+Creating 'invoke.h.gcov'
+
+File '/usr/include/c++/13/bits/move.h'
+Lines executed:50.75% of 67
+No branches
+Calls executed:25.00% of 12
+Creating 'move.h.gcov'
+
+File '/usr/include/c++/13/bits/std_thread.h'
+Lines executed:51.72% of 29
+Branches executed:66.67% of 12
+Taken at least once:33.33% of 12
+Calls executed:70.97% of 31
+Creating 'std_thread.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_algobase.h'
+Lines executed:7.84% of 51
+Branches executed:0.00% of 12
+Taken at least once:0.00% of 12
+Calls executed:0.00% of 22
+Creating 'stl_algobase.h.gcov'
+
+File '/usr/include/c++/13/bits/cpp_type_traits.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'cpp_type_traits.h.gcov'
+
+File '/usr/include/c++/13/bits/unique_ptr.h'
+Lines executed:0.00% of 17
+Branches executed:0.00% of 4
+Taken at least once:0.00% of 4
+Calls executed:0.00% of 11
+Creating 'unique_ptr.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_construct.h'
+Lines executed:86.67% of 30
+Branches executed:100.00% of 4
+Taken at least once:75.00% of 4
+Calls executed:62.50% of 8
+Creating 'stl_construct.h.gcov'
+
+File '/usr/include/c++/13/bits/new_allocator.h'
+Lines executed:67.44% of 43
+Branches executed:40.00% of 20
+Taken at least once:20.00% of 20
+Calls executed:40.00% of 35
+Creating 'new_allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/deque.tcc'
+Lines executed:20.97% of 62
+Branches executed:37.50% of 16
+Taken at least once:18.75% of 16
+Calls executed:15.15% of 33
+Creating 'deque.tcc.gcov'
+
+File '/usr/include/c++/13/bits/stl_deque.h'
+Lines executed:80.74% of 135
+Branches executed:81.82% of 22
+Taken at least once:50.00% of 22
+Calls executed:75.00% of 64
+Creating 'stl_deque.h.gcov'
+
+File '/usr/include/c++/13/bits/alloc_traits.h'
+Lines executed:88.89% of 9
+Branches executed:50.00% of 4
+Taken at least once:25.00% of 4
+Calls executed:57.89% of 19
+Creating 'alloc_traits.h.gcov'
+
+File '/home/ritup2404/baran-capital-view/include/TaskScheduler.hpp'
+No executable lines
+No branches
+No calls
+Removing 'TaskScheduler.hpp.gcov'
+
+File '/usr/include/c++/13/bits/stl_uninitialized.h'
+Lines executed:58.33% of 12
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+Calls executed:44.44% of 9
+Creating 'stl_uninitialized.h.gcov'
+
+File '/usr/include/c++/13/bits/allocator.h'
+Lines executed:75.00% of 4
+No branches
+Calls executed:25.00% of 8
+Creating 'allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator.h'
+Lines executed:86.67% of 15
+No branches
+Calls executed:60.00% of 5
+Creating 'stl_iterator.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_vector.h'
+Lines executed:90.00% of 50
+Branches executed:40.00% of 10
+Taken at least once:30.00% of 10
+Calls executed:67.86% of 28
+Creating 'stl_vector.h.gcov'
+
+File '/usr/include/c++/13/bits/std_function.h'
+Lines executed:76.67% of 30
+Branches executed:66.67% of 6
+Taken at least once:33.33% of 6
+Calls executed:86.67% of 15
+Creating 'std_function.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.tcc'
+Lines executed:0.00% of 12
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 9
+Creating 'basic_string.tcc.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_types.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'stl_iterator_base_types.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_funcs.h'
+Lines executed:0.00% of 3
+No branches
+No calls
+Creating 'stl_iterator_base_funcs.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.h'
+Lines executed:0.00% of 26
+Branches executed:0.00% of 24
+Taken at least once:0.00% of 24
+Calls executed:0.00% of 31
+Creating 'basic_string.h.gcov'
+
+File '/usr/include/c++/13/ext/alloc_traits.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'alloc_traits.h.gcov'
+
+File '/usr/include/c++/13/bits/unique_lock.h'
+Lines executed:87.50% of 24
+Branches executed:100.00% of 10
+Taken at least once:50.00% of 10
+Calls executed:62.50% of 8
+Creating 'unique_lock.h.gcov'
+
+File '/usr/include/c++/13/bits/vector.tcc'
+Lines executed:38.78% of 49
+Branches executed:60.00% of 10
+Taken at least once:30.00% of 10
+Calls executed:30.56% of 36
+Creating 'vector.tcc.gcov'
+
+File '/usr/include/c++/13/bits/char_traits.h'
+Lines executed:0.00% of 15
+Branches executed:0.00% of 6
+Taken at least once:0.00% of 6
+Calls executed:0.00% of 3
+Creating 'char_traits.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_queue.h'
+Lines executed:100.00% of 13
+No branches
+Calls executed:100.00% of 7
+Creating 'stl_queue.h.gcov'
+
+File '/usr/include/c++/13/condition_variable'
+Lines executed:100.00% of 4
+Branches executed:100.00% of 2
+Taken at least once:100.00% of 2
+Calls executed:100.00% of 2
+Creating 'condition_variable.gcov'
+
+File '/usr/include/c++/13/bits/chrono.h'
+Lines executed:0.00% of 8
+No branches
+Calls executed:0.00% of 3
+Creating 'chrono.h.gcov'
+
+File '/usr/include/c++/13/bits/charconv.h'
+Lines executed:0.00% of 26
+Branches executed:0.00% of 12
+Taken at least once:0.00% of 12
+No calls
+Creating 'charconv.h.gcov'
+
+File '/usr/include/c++/13/bits/std_mutex.h'
+Lines executed:0.00% of 14
+Branches executed:0.00% of 2
+Taken at least once:0.00% of 2
+Calls executed:0.00% of 6
+Creating 'std_mutex.h.gcov'
+
+File '/home/ritup2404/baran-capital-view/src/TaskScheduler.cpp'
+Lines executed:83.33% of 48
+Branches executed:86.11% of 72
+Taken at least once:56.94% of 72
+Calls executed:68.49% of 73
+Creating 'TaskScheduler.cpp.gcov'
+
+File '/usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 1
+Creating 'c++config.h.gcov'
+
+File '/usr/include/c++/13/new'
+Lines executed:0.00% of 3
+No branches
+No calls
+Creating 'new.gcov'
+
+File '/usr/include/x86_64-linux-gnu/c++/13/bits/gthr-default.h'
+Lines executed:0.00% of 10
+Branches executed:0.00% of 4
+Taken at least once:0.00% of 4
+Calls executed:0.00% of 4
+Creating 'gthr-default.h.gcov'
+
+Lines executed:52.85% of 878

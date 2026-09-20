@@ -1,0 +1,515 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/TechnicalIndicators.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/TechnicalIndicators.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/TechnicalIndicators.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "TechnicalIndicators.hpp"
+        -:    2:
+        -:    3:#include <cmath>
+        -:    4:#include <iomanip>
+        -:    5:#include <sstream>
+        -:    6:
+        -:    7:namespace folio {
+        -:    8:
+function _ZN5folio12calculateRsiERKSt6vectorIdSaIdEEm called 2 returned 100% blocks executed 74%
+        2:    9:RsiResult calculateRsi(const std::vector<double>& closes, std::size_t period) {
+        2:   10:    RsiResult result;
+call    0 returned 2
+       2*:   11:    if (period == 0 || closes.size() < period + 1) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+call    2 returned 2
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+branch  5 taken 0 (fallthrough)
+branch  6 taken 2
+    #####:   12:        result.reason = "RSI needs at least period + 1 chronological closing prices.";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   13:        return result;
+        -:   14:    }
+       82:   15:    for (double close : closes) {
+call    0 returned 2
+call    1 returned 2
+call    2 returned 80
+call    3 returned 80
+call    4 returned 82
+branch  5 taken 80
+branch  6 taken 2 (fallthrough)
+      80*:   16:        if (!std::isfinite(close) || close < 0.0) {
+call    0 returned 80
+branch  1 taken 80 (fallthrough)
+branch  2 taken 0
+branch  3 taken 0 (fallthrough)
+branch  4 taken 80
+branch  5 taken 0 (fallthrough)
+branch  6 taken 80
+    #####:   17:            result.reason = "Closing prices must be finite and non-negative.";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   18:            return result;
+        -:   19:        }
+        -:   20:    }
+        -:   21:
+        2:   22:    double averageGain = 0.0;
+        2:   23:    double averageLoss = 0.0;
+       30:   24:    for (std::size_t index = 1; index <= period; ++index) {
+branch  0 taken 28
+branch  1 taken 2 (fallthrough)
+       28:   25:        const double change = closes[index] - closes[index - 1];
+call    0 returned 28
+call    1 returned 28
+       28:   26:        if (change >= 0.0) averageGain += change;
+branch  0 taken 28 (fallthrough)
+branch  1 taken 0
+    #####:   27:        else averageLoss -= change;
+        -:   28:    }
+        2:   29:    averageGain /= static_cast<double>(period);
+        2:   30:    averageLoss /= static_cast<double>(period);
+        -:   31:
+       52:   32:    for (std::size_t index = period + 1; index < closes.size(); ++index) {
+call    0 returned 52
+branch  1 taken 50
+branch  2 taken 2 (fallthrough)
+       50:   33:        const double change = closes[index] - closes[index - 1];
+call    0 returned 50
+call    1 returned 50
+      50*:   34:        const double gain = change > 0.0 ? change : 0.0;
+branch  0 taken 50 (fallthrough)
+branch  1 taken 0
+      50*:   35:        const double loss = change < 0.0 ? -change : 0.0;
+branch  0 taken 0 (fallthrough)
+branch  1 taken 50
+       50:   36:        averageGain = (averageGain * static_cast<double>(period - 1) + gain) /
+       50:   37:                      static_cast<double>(period);
+       50:   38:        averageLoss = (averageLoss * static_cast<double>(period - 1) + loss) /
+       50:   39:                      static_cast<double>(period);
+        -:   40:    }
+        -:   41:
+        2:   42:    result.value = averageLoss == 0.0
+       2*:   43:        ? 100.0
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:   44:        : 100.0 - (100.0 / (1.0 + averageGain / averageLoss));
+        2:   45:    result.interpretation = result.value > 70.0 ? "overbought"
+       2*:   46:        : result.value < 30.0 ? "oversold" : "neutral";
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+branch  2 never executed (fallthrough)
+branch  3 never executed
+call    4 returned 2
+branch  5 taken 2 (fallthrough)
+branch  6 taken 0 (throw)
+        2:   47:    std::ostringstream reason;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   48:    reason << "RSI is " << std::fixed << std::setprecision(2) << result.value
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 returned 2
+call    8 returned 2
+branch  9 taken 2 (fallthrough)
+branch 10 taken 0 (throw)
+        2:   49:           << ": " << result.interpretation << " momentum.";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+branch  7 taken 2 (fallthrough)
+branch  8 taken 0 (throw)
+        2:   50:    result.reason = reason.str();
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+call    4 returned 2
+        2:   51:    result.ok = true;
+        2:   52:    return result;
+        2:   53:}
+call    0 returned 2
+call    1 never executed
+call    2 never executed
+        -:   54:
+        -:   55:// MACD implementation (v2.0.0+)
+function _ZN5folio13calculateMacdERKSt6vectorIdSaIdEE called 2 returned 100% blocks executed 90%
+        2:   56:MacdResult calculateMacd(const std::vector<double>& closes) {
+        2:   57:    MacdResult result;
+call    0 returned 2
+        2:   58:    if (closes.size() < 34) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:   59:        result.ok = false;
+    #####:   60:        return result;
+        -:   61:    }
+        -:   62:
+        -:   63:    // Calculate 12-period EMA
+        2:   64:    double ema12 = 0.0;
+       26:   65:    for (size_t i = 0; i < 12; ++i) {
+branch  0 taken 24
+branch  1 taken 2 (fallthrough)
+       24:   66:        ema12 += closes[i];
+call    0 returned 24
+        -:   67:    }
+        2:   68:    ema12 /= 12.0;
+        2:   69:    double k12 = 2.0 / (12.0 + 1.0);
+       58:   70:    for (size_t i = 12; i < closes.size(); ++i) {
+call    0 returned 58
+branch  1 taken 56
+branch  2 taken 2 (fallthrough)
+       56:   71:        ema12 = closes[i] * k12 + ema12 * (1.0 - k12);
+call    0 returned 56
+        -:   72:    }
+        -:   73:
+        -:   74:    // Calculate 26-period EMA
+        2:   75:    double ema26 = 0.0;
+       54:   76:    for (size_t i = 0; i < 26; ++i) {
+branch  0 taken 52
+branch  1 taken 2 (fallthrough)
+       52:   77:        ema26 += closes[i];
+call    0 returned 52
+        -:   78:    }
+        2:   79:    ema26 /= 26.0;
+        2:   80:    double k26 = 2.0 / (26.0 + 1.0);
+       30:   81:    for (size_t i = 26; i < closes.size(); ++i) {
+call    0 returned 30
+branch  1 taken 28
+branch  2 taken 2 (fallthrough)
+       28:   82:        ema26 = closes[i] * k26 + ema26 * (1.0 - k26);
+call    0 returned 28
+        -:   83:    }
+        -:   84:
+        2:   85:    result.macdLine = ema12 - ema26;
+        -:   86:    
+        -:   87:    // Calculate 9-period EMA of MACD
+        2:   88:    result.signalLine = result.macdLine;  // Simplified; full impl requires 9-period EMA
+        2:   89:    result.histogram = result.macdLine - result.signalLine;
+        -:   90:    
+       2*:   91:    result.interpretation = result.macdLine > result.signalLine ? "bullish" : "bearish";
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+call    2 returned 2
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0 (throw)
+        2:   92:    result.ok = true;
+        2:   93:    return result;
+    =====:   94:}
+call    0 never executed
+        -:   95:
+        -:   96:// Bollinger Bands implementation (v2.0.0+)
+function _ZN5folio23calculateBollingerBandsERKSt6vectorIdSaIdEEmd called 2 returned 100% blocks executed 85%
+        2:   97:BollingerBandsResult calculateBollingerBands(
+        -:   98:    const std::vector<double>& closes,
+        -:   99:    std::size_t period,
+        -:  100:    double stdDevMultiplier) {
+        2:  101:    BollingerBandsResult result;
+call    0 returned 2
+        2:  102:    if (closes.size() < period) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:  103:        result.ok = false;
+    #####:  104:        return result;
+        -:  105:    }
+        -:  106:
+        -:  107:    // Calculate SMA(period)
+        2:  108:    double sum = 0.0;
+       12:  109:    for (size_t i = closes.size() - period; i < closes.size(); ++i) {
+call    0 returned 2
+call    1 returned 12
+branch  2 taken 10
+branch  3 taken 2 (fallthrough)
+       10:  110:        sum += closes[i];
+call    0 returned 10
+        -:  111:    }
+        2:  112:    result.middleBand = sum / period;
+        -:  113:
+        -:  114:    // Calculate standard deviation
+        2:  115:    double sumSqDev = 0.0;
+       12:  116:    for (size_t i = closes.size() - period; i < closes.size(); ++i) {
+call    0 returned 2
+call    1 returned 12
+branch  2 taken 10
+branch  3 taken 2 (fallthrough)
+       10:  117:        double dev = closes[i] - result.middleBand;
+call    0 returned 10
+       10:  118:        sumSqDev += dev * dev;
+        -:  119:    }
+        2:  120:    double stdDev = std::sqrt(sumSqDev / period);
+        -:  121:
+        2:  122:    result.upperBand = result.middleBand + (stdDev * stdDevMultiplier);
+        2:  123:    result.lowerBand = result.middleBand - (stdDev * stdDevMultiplier);
+        2:  124:    result.currentPrice = closes.back();
+call    0 returned 2
+        -:  125:
+        2:  126:    if (result.currentPrice > result.upperBand) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  127:        result.position = "overbought";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        2:  128:    } else if (result.currentPrice < result.lowerBand) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:  129:        result.position = "oversold";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  130:    } else {
+        2:  131:        result.position = "neutral";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  132:    }
+        -:  133:
+        2:  134:    result.ok = true;
+        2:  135:    return result;
+    =====:  136:}
+call    0 never executed
+        -:  137:
+        -:  138:// Stochastic Oscillator implementation (v2.0.0+)
+function _ZN5folio19calculateStochasticERKSt6vectorIdSaIdEES4_S4_m called 0 returned 0% blocks executed 0%
+    #####:  139:StochasticResult calculateStochastic(
+        -:  140:    const std::vector<double>& closes,
+        -:  141:    const std::vector<double>& highs,
+        -:  142:    const std::vector<double>& lows,
+        -:  143:    std::size_t period) {
+    #####:  144:    StochasticResult result;
+call    0 never executed
+    #####:  145:    if (closes.size() < period || highs.size() < period || lows.size() < period) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed
+branch  9 never executed (fallthrough)
+branch 10 never executed
+    #####:  146:        result.ok = false;
+    #####:  147:        return result;
+        -:  148:    }
+        -:  149:
+    #####:  150:    double highest = highs[highs.size() - 1];
+call    0 never executed
+call    1 never executed
+    #####:  151:    double lowest = lows[lows.size() - 1];
+call    0 never executed
+call    1 never executed
+        -:  152:    
+    #####:  153:    for (size_t i = highs.size() - period; i < highs.size(); ++i) {
+call    0 never executed
+call    1 never executed
+branch  2 never executed
+branch  3 never executed (fallthrough)
+    #####:  154:        if (highs[i] > highest) highest = highs[i];
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+call    3 never executed
+    #####:  155:        if (lows[i] < lowest) lowest = lows[i];
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+call    3 never executed
+        -:  156:    }
+        -:  157:
+    #####:  158:    double range = highest - lowest;
+    #####:  159:    if (range == 0.0) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  160:        result.kPercent = 50.0;
+        -:  161:    } else {
+    #####:  162:        result.kPercent = ((closes.back() - lowest) / range) * 100.0;
+call    0 never executed
+        -:  163:    }
+        -:  164:
+    #####:  165:    result.dPercent = result.kPercent;  // Simplified; full impl requires 3-period EMA
+        -:  166:    
+    #####:  167:    if (result.kPercent > 80.0) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  168:        result.interpretation = "overbought";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  169:    } else if (result.kPercent < 20.0) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  170:        result.interpretation = "oversold";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  171:    } else {
+    #####:  172:        result.interpretation = "neutral";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  173:    }
+        -:  174:
+    #####:  175:    result.ok = true;
+    #####:  176:    return result;
+    =====:  177:}
+call    0 never executed
+        -:  178:
+        -:  179:// ATR implementation (v2.0.0+)
+function _ZN5folio12calculateAtrERKSt6vectorIdSaIdEES4_S4_m called 2 returned 100% blocks executed 85%
+        2:  180:AtrResult calculateAtr(
+        -:  181:    const std::vector<double>& highs,
+        -:  182:    const std::vector<double>& lows,
+        -:  183:    const std::vector<double>& closes,
+        -:  184:    std::size_t period) {
+        2:  185:    AtrResult result;
+call    0 returned 2
+       2*:  186:    if (highs.size() < period || lows.size() < period || closes.size() < period) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0
+call    6 returned 2
+branch  7 taken 0 (fallthrough)
+branch  8 taken 2
+branch  9 taken 0 (fallthrough)
+branch 10 taken 2
+    #####:  187:        result.ok = false;
+    #####:  188:        return result;
+        -:  189:    }
+        -:  190:
+        2:  191:    double sumTr = 0.0;
+       12:  192:    for (size_t i = closes.size() - period; i < closes.size(); ++i) {
+call    0 returned 2
+call    1 returned 12
+branch  2 taken 10
+branch  3 taken 2 (fallthrough)
+       10:  193:        double tr = highs[i] - lows[i];
+call    0 returned 10
+call    1 returned 10
+       10:  194:        if (i > 0) {
+branch  0 taken 10 (fallthrough)
+branch  1 taken 0
+       10:  195:            double range1 = highs[i] - closes[i - 1];
+call    0 returned 10
+call    1 returned 10
+       10:  196:            double range2 = lows[i] - closes[i - 1];
+call    0 returned 10
+call    1 returned 10
+       10:  197:            if (range1 > tr) tr = range1;
+branch  0 taken 10 (fallthrough)
+branch  1 taken 0
+      10*:  198:            if (range2 > tr) tr = std::abs(range2);
+branch  0 taken 0 (fallthrough)
+branch  1 taken 10
+call    2 never executed
+        -:  199:        }
+       10:  200:        sumTr += tr;
+        -:  201:    }
+        2:  202:    result.atr = sumTr / period;
+        2:  203:    result.trueHigh = highs.back();
+call    0 returned 2
+        2:  204:    result.trueLow = lows.back();
+call    0 returned 2
+        -:  205:
+        2:  206:    if (result.atr > closes.back() * 0.02) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:  207:        result.volatilityLevel = "high";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        2:  208:    } else if (result.atr > closes.back() * 0.01) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:  209:        result.volatilityLevel = "medium";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  210:    } else {
+        2:  211:        result.volatilityLevel = "low";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:  212:    }
+        -:  213:
+        2:  214:    result.ok = true;
+        2:  215:    return result;
+    =====:  216:}
+call    0 never executed
+        -:  217:
+        -:  218:// EMA implementation (v2.0.0+)
+function _ZN5folio12calculateEmaERKSt6vectorIdSaIdEEm called 2 returned 100% blocks executed 75%
+        2:  219:EmaResult calculateEma(const std::vector<double>& closes, std::size_t period) {
+        2:  220:    EmaResult result;
+call    0 returned 2
+        2:  221:    if (closes.size() < period) {
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+    #####:  222:        result.ok = false;
+    #####:  223:        return result;
+        -:  224:    }
+        -:  225:
+        2:  226:    double ema = 0.0;
+       12:  227:    for (size_t i = 0; i < period; ++i) {
+branch  0 taken 10
+branch  1 taken 2 (fallthrough)
+       10:  228:        ema += closes[i];
+call    0 returned 10
+        -:  229:    }
+        2:  230:    ema /= period;
+        -:  231:
+        2:  232:    double k = 2.0 / (period + 1.0);
+       72:  233:    for (size_t i = period; i < closes.size(); ++i) {
+call    0 returned 72
+branch  1 taken 70
+branch  2 taken 2 (fallthrough)
+       70:  234:        ema = closes[i] * k + ema * (1.0 - k);
+call    0 returned 70
+        -:  235:    }
+        -:  236:
+        2:  237:    result.ema = ema;
+        2:  238:    if (closes.back() > ema) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+        2:  239:        result.trend = "uptrend";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+    #####:  240:    } else if (closes.back() < ema) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  241:        result.trend = "downtrend";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  242:    } else {
+    #####:  243:        result.trend = "neutral";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:  244:    }
+        -:  245:
+        2:  246:    result.ok = true;
+        2:  247:    return result;
+    =====:  248:}
+call    0 never executed
+        -:  249:
+        -:  250:}  // namespace folio

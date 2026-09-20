@@ -1,0 +1,529 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/src/OrdersAPI.cpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/OrdersAPI.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_core.dir/src/OrdersAPI.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#include "OrdersAPI.hpp"
+        -:    2:#include "SecureUtils.hpp"
+        -:    3:#include <fstream>
+        -:    4:#include <ctime>
+        -:    5:#include <sstream>
+        -:    6:#include <iomanip>
+        -:    7:
+        -:    8:namespace folio {
+        -:    9:
+function _ZN5folio9OrdersAPIC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_RKNS0_15ExecutionConfigE called 2 returned 100% blocks executed 62%
+        2:   10:OrdersAPI::OrdersAPI(const std::string& accessToken,
+        -:   11:                     const std::string& baseUrl,
+        2:   12:                     const ExecutionConfig& config)
+        2:   13:    : accessToken_(accessToken),
+call    0 returned 2
+        2:   14:      baseUrl_(baseUrl),
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   15:      config_(config) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:   16:}
+call    0 never executed
+call    1 never executed
+        -:   17:
+function _ZN5folio9OrdersAPI13simulateOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_NS0_9OrderTypeEddd called 2 returned 100% blocks executed 56%
+        2:   18:OrdersAPI::OrderSimulation OrdersAPI::simulateOrder(
+        -:   19:    const std::string& symbol,
+        -:   20:    long quantity,
+        -:   21:    const std::string& side,
+        -:   22:    OrderType type,
+        -:   23:    double price,
+        -:   24:    double currentPortfolioValue,
+        -:   25:    double currentHealthScore) {
+        -:   26:    
+        2:   27:    OrderSimulation sim;
+call    0 returned 2
+        -:   28:    
+        -:   29:    // ✅ FIX 3: Input validation for simulation
+        2:   30:    if (!security::validateSymbol(symbol)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   31:        sim.reason = "Invalid symbol format";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   32:        return sim;
+        -:   33:    }
+        -:   34:    
+        2:   35:    if (!security::validateQuantity(quantity)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   36:        sim.reason = "Invalid quantity";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   37:        return sim;
+        -:   38:    }
+        -:   39:    
+        2:   40:    if (!security::validatePrice(price)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   41:        sim.reason = "Invalid price";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   42:        return sim;
+        -:   43:    }
+        -:   44:    
+        2:   45:    if (!security::validateSide(side)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:   46:        sim.reason = "Invalid side (must be BUY or SELL)";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   47:        return sim;
+        -:   48:    }
+        -:   49:
+        -:   50:    // Estimate commission (typically 0.05% for NSE equity)
+        2:   51:    sim.commissionEstimate = (quantity * price) * 0.0005;
+        -:   52:
+        -:   53:    // Estimate slippage
+        2:   54:    sim.slippageEstimate = price * (config_.slippageThreshold / 100.0);
+        -:   55:
+        -:   56:    // Calculate projected portfolio value
+        2:   57:    double orderValue = (quantity * price) + sim.commissionEstimate + sim.slippageEstimate;
+        2:   58:    if (side == "BUY") {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+        2:   59:        sim.projectedPortfolioValue = currentPortfolioValue + (quantity * price);
+        -:   60:    } else {
+    #####:   61:        sim.projectedPortfolioValue = currentPortfolioValue - (quantity * price);
+        -:   62:    }
+        -:   63:
+        -:   64:    // Project health score impact (simplified)
+        2:   65:    if (side == "BUY") {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 2 (fallthrough)
+branch  4 taken 0
+        2:   66:        sim.projectedHealthScore = currentHealthScore - (orderValue / currentPortfolioValue) * 2.0;
+        -:   67:    } else {
+    #####:   68:        sim.projectedHealthScore = currentHealthScore + (orderValue / currentPortfolioValue) * 2.0;
+        -:   69:    }
+        -:   70:
+        -:   71:    // Check risk limits
+        2:   72:    double positionPercent = (quantity * price) / currentPortfolioValue * 100.0;
+        2:   73:    sim.riskChecks.positionRiskOk = positionPercent <= config_.maxPositionRisk;
+        -:   74:
+        -:   75:    // Check daily exposure
+        2:   76:    sim.riskChecks.totalRiskOk = (quantity * price) <= config_.maxDailyExposure;
+        -:   77:
+        -:   78:    // Overall validation
+        6:   79:    sim.valid = sim.riskChecks.positionRiskOk &&
+       4*:   80:                sim.riskChecks.sectorRiskOk &&
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+branch  2 taken 2 (fallthrough)
+branch  3 taken 0
+        2:   81:                sim.riskChecks.totalRiskOk;
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        -:   82:
+        2:   83:    if (!sim.valid) {
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+    #####:   84:        sim.reason = "Risk limits violated";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:   85:        if (!sim.riskChecks.positionRiskOk) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   86:            sim.riskChecks.violatedLimits += "position_risk ";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   87:        }
+    #####:   88:        if (!sim.riskChecks.sectorRiskOk) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   89:            sim.riskChecks.violatedLimits += "sector_risk ";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   90:        }
+    #####:   91:        if (!sim.riskChecks.totalRiskOk) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:   92:            sim.riskChecks.violatedLimits += "daily_exposure ";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+        -:   93:        }
+        -:   94:    } else {
+        2:   95:        sim.reason = "Order simulation valid";
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        -:   96:    }
+        -:   97:
+        2:   98:    return sim;
+    =====:   99:}
+call    0 never executed
+        -:  100:
+function _ZN5folio9OrdersAPI10placeOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_NS0_9OrderTypeEddS8_ called 2 returned 100% blocks executed 62%
+        2:  101:OrdersAPI::Order OrdersAPI::placeOrder(
+        -:  102:    const std::string& symbol,
+        -:  103:    long quantity,
+        -:  104:    const std::string& side,
+        -:  105:    OrderType type,
+        -:  106:    double price,
+        -:  107:    double triggerPrice,
+        -:  108:    const std::string& reason) {
+        -:  109:    
+        2:  110:    Order order;
+call    0 returned 2
+        -:  111:    
+        -:  112:    // ✅ FIX 3: Comprehensive input validation
+        2:  113:    if (!security::validateSymbol(symbol)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:  114:        order.status = OrderStatus::REJECTED;
+    #####:  115:        order.remarks = "Invalid symbol format. Expected NSE_EQ|ISIN";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  116:        return order;
+        -:  117:    }
+        -:  118:    
+        2:  119:    if (!security::validateQuantity(quantity)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:  120:        order.status = OrderStatus::REJECTED;
+    #####:  121:        order.remarks = "Invalid quantity. Must be between 1 and 1,000,000";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  122:        return order;
+        -:  123:    }
+        -:  124:    
+        2:  125:    if (!security::validatePrice(price)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:  126:        order.status = OrderStatus::REJECTED;
+    #####:  127:        order.remarks = "Invalid price. Must be between ₹0.01 and ₹100,000";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  128:        return order;
+        -:  129:    }
+        -:  130:    
+        2:  131:    if (!security::validateSide(side)) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+    #####:  132:        order.status = OrderStatus::REJECTED;
+    #####:  133:        order.remarks = "Invalid side. Must be BUY or SELL";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  134:        return order;
+        -:  135:    }
+        -:  136:    
+        2:  137:    order.symbol = symbol;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+       2*:  138:    order.quantity = (side == "SELL") ? -quantity : quantity;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+branch  3 taken 0 (fallthrough)
+branch  4 taken 2
+        2:  139:    order.side = side;
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  140:    order.type = type;
+        2:  141:    order.price = price;
+        2:  142:    order.triggerPrice = triggerPrice;
+        2:  143:    order.status = OrderStatus::PENDING;
+        2:  144:    order.createdTime = time(nullptr);
+call    0 returned 2
+        -:  145:
+        2:  146:    if (config_.logAllOrders) {
+branch  0 taken 2 (fallthrough)
+branch  1 taken 0
+        4:  147:        logOrder(order, "PLACED");
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+call    3 returned 2
+branch  4 taken 2 (fallthrough)
+branch  5 taken 0 (throw)
+call    6 returned 2
+call    7 never executed
+        -:  148:    }
+        -:  149:
+        -:  150:    // TODO: Call Upstox Orders API to place actual order
+        -:  151:    // order.orderId = ...
+        -:  152:    // order.exchangeOrderId = ...
+        -:  153:
+        2:  154:    return order;
+    =====:  155:}
+call    0 never executed
+        -:  156:
+function _ZN5folio9OrdersAPI16placeMarketOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_S8_ called 0 returned 0% blocks executed 0%
+    #####:  157:OrdersAPI::Order OrdersAPI::placeMarketOrder(
+        -:  158:    const std::string& symbol,
+        -:  159:    long quantity,
+        -:  160:    const std::string& side,
+        -:  161:    const std::string& reason) {
+        -:  162:    
+        -:  163:    // Market orders use current LTP (typically 0 or filled on execute)
+    #####:  164:    return placeOrder(symbol, quantity, side, OrderType::MARKET, 0.0, 0.0, reason);
+call    0 never executed
+        -:  165:}
+        -:  166:
+function _ZN5folio9OrdersAPI11cancelOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  167:bool OrdersAPI::cancelOrder(const std::string& orderId) {
+        -:  168:    // TODO: Call Upstox Orders API to cancel
+    #####:  169:    if (config_.logAllOrders) {
+        -:  170:        // logOrder(order, "CANCELLED");
+        -:  171:    }
+    #####:  172:    return true;
+        -:  173:}
+        -:  174:
+function _ZN5folio9OrdersAPI14getOrderStatusERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  175:OrdersAPI::OrderStatus OrdersAPI::getOrderStatus(const std::string& orderId) {
+        -:  176:    // TODO: Call Upstox Orders API to get status
+    #####:  177:    return OrderStatus::PENDING;
+        -:  178:}
+        -:  179:
+function _ZN5folio9OrdersAPI15getOrderDetailsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  180:OrdersAPI::Order OrdersAPI::getOrderDetails(const std::string& orderId) {
+    #####:  181:    Order order;
+call    0 never executed
+        -:  182:    // TODO: Call Upstox Orders API to get details
+    #####:  183:    return order;
+        -:  184:}
+        -:  185:
+function _ZN5folio9OrdersAPI14getTodayOrdersEv called 0 returned 0% blocks executed 0%
+    #####:  186:std::vector<OrdersAPI::Order> OrdersAPI::getTodayOrders() {
+    #####:  187:    std::vector<Order> orders;
+call    0 never executed
+        -:  188:    // TODO: Call Upstox Orders API to get today's orders
+    #####:  189:    return orders;
+        -:  190:}
+        -:  191:
+function _ZN5folio9OrdersAPI13getOpenOrdersEv called 0 returned 0% blocks executed 0%
+    #####:  192:std::vector<OrdersAPI::Order> OrdersAPI::getOpenOrders() {
+    #####:  193:    std::vector<Order> orders;
+call    0 never executed
+        -:  194:    // TODO: Call Upstox Orders API to get open orders
+    #####:  195:    return orders;
+        -:  196:}
+        -:  197:
+function _ZN5folio9OrdersAPI12authorize2FAERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 0 returned 0% blocks executed 0%
+    #####:  198:bool OrdersAPI::authorize2FA(const std::string& token) {
+        -:  199:    // Validate 2FA token (typically 6-digit code)
+    #####:  200:    if (token.length() < 4) {
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed
+    #####:  201:        return false;
+        -:  202:    }
+        -:  203:
+    #####:  204:    authorized2FA_ = true;
+    #####:  205:    auth2FAExpiryTime_ = time(nullptr) + 3600;  // Valid for 1 hour
+call    0 never executed
+    #####:  206:    return true;
+        -:  207:}
+        -:  208:
+function _ZN5folio9OrdersAPI9revoke2FAEv called 0 returned 0% blocks executed 0%
+    #####:  209:void OrdersAPI::revoke2FA() {
+    #####:  210:    authorized2FA_ = false;
+    #####:  211:    auth2FAExpiryTime_ = 0;
+    #####:  212:}
+        -:  213:
+function _ZNK5folio9OrdersAPI12isAuthorizedEv called 0 returned 0% blocks executed 0%
+    #####:  214:bool OrdersAPI::isAuthorized() const {
+    #####:  215:    if (!authorized2FA_) {
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  216:        return false;
+        -:  217:    }
+        -:  218:
+    #####:  219:    return time(nullptr) < auth2FAExpiryTime_;
+call    0 never executed
+        -:  220:}
+        -:  221:
+function _ZN5folio9OrdersAPI18setExecutionConfigERKNS0_15ExecutionConfigE called 0 returned 0% blocks executed 0%
+    #####:  222:void OrdersAPI::setExecutionConfig(const ExecutionConfig& config) {
+    #####:  223:    config_ = config;
+call    0 never executed
+    #####:  224:}
+        -:  225:
+function _ZNK5folio9OrdersAPI18getExecutionConfigEv called 0 returned 0% blocks executed 0%
+    #####:  226:OrdersAPI::ExecutionConfig OrdersAPI::getExecutionConfig() const {
+    #####:  227:    return config_;
+call    0 never executed
+        -:  228:}
+        -:  229:
+function _ZN5folio9OrdersAPI23setAutoExecutionEnabledEb called 0 returned 0% blocks executed 0%
+    #####:  230:void OrdersAPI::setAutoExecutionEnabled(bool enabled) {
+    #####:  231:    autoExecutionEnabled_ = enabled;
+    #####:  232:}
+        -:  233:
+function _ZNK5folio9OrdersAPI22isAutoExecutionEnabledEv called 0 returned 0% blocks executed 0%
+    #####:  234:bool OrdersAPI::isAutoExecutionEnabled() const {
+    #####:  235:    return autoExecutionEnabled_;
+        -:  236:}
+        -:  237:
+function _ZNK5folio9OrdersAPI18validateOrderRisksERKNS0_5OrderEd called 0 returned 0% blocks executed 0%
+    #####:  238:bool OrdersAPI::validateOrderRisks(const Order& order,
+        -:  239:                                    double portfolioValue) const {
+    #####:  240:    double orderValue = std::abs(order.quantity) * order.price;
+call    0 never executed
+    #####:  241:    double riskPercent = (orderValue / portfolioValue) * 100.0;
+        -:  242:
+    #####:  243:    return riskPercent <= config_.maxPositionRisk &&
+branch  0 never executed (fallthrough)
+branch  1 never executed
+    #####:  244:           orderValue <= config_.maxOrderSize;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:  245:}
+        -:  246:
+function _ZN5folio9OrdersAPI8logOrderERKNS0_5OrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE called 2 returned 100% blocks executed 28%
+        2:  247:void OrdersAPI::logOrder(const Order& order, const std::string& action) {
+        2:  248:    std::ofstream logFile(config_.auditLogPath, std::ios::app);
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0 (throw)
+        2:  249:    if (!logFile.is_open()) {
+call    0 returned 2
+branch  1 taken 2 (fallthrough)
+branch  2 taken 0
+        2:  250:        return;
+        -:  251:    }
+        -:  252:
+    #####:  253:    auto now = time(nullptr);
+call    0 never executed
+    #####:  254:    auto tm = *std::localtime(&now);
+call    0 never executed
+        -:  255:
+        -:  256:    logFile << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << " | "
+        -:  257:            << action << " | "
+    #####:  258:            << order.symbol << " | "
+    #####:  259:            << order.side << " | "
+call    0 never executed
+call    1 never executed
+branch  2 never executed (fallthrough)
+branch  3 never executed (throw)
+call    4 never executed
+branch  5 never executed (fallthrough)
+branch  6 never executed (throw)
+call    7 never executed
+branch  8 never executed (fallthrough)
+branch  9 never executed (throw)
+call   10 never executed
+branch 11 never executed (fallthrough)
+branch 12 never executed (throw)
+call   13 never executed
+branch 14 never executed (fallthrough)
+branch 15 never executed (throw)
+call   16 never executed
+branch 17 never executed (fallthrough)
+branch 18 never executed (throw)
+call   19 never executed
+branch 20 never executed (fallthrough)
+branch 21 never executed (throw)
+call   22 never executed
+branch 23 never executed (fallthrough)
+branch 24 never executed (throw)
+    #####:  260:            << order.quantity << " | "
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+    #####:  261:            << order.price << " | "
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+    #####:  262:            << order.orderId << "\n";
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+call    3 never executed
+branch  4 never executed (fallthrough)
+branch  5 never executed (throw)
+call    6 never executed
+branch  7 never executed (fallthrough)
+branch  8 never executed (throw)
+        -:  263:
+    #####:  264:    logFile.close();
+call    0 never executed
+branch  1 never executed (fallthrough)
+branch  2 never executed (throw)
+       2*:  265:}
+call    0 returned 2
+branch  1 taken 0 (fallthrough)
+branch  2 taken 2
+call    3 never executed
+        -:  266:
+function _ZNK5folio9OrdersAPI18estimateCommissionERKNS0_5OrderE called 0 returned 0% blocks executed 0%
+    #####:  267:double OrdersAPI::estimateCommission(const Order& order) const {
+        -:  268:    // Typically 0.05% for NSE equity
+    #####:  269:    return (std::abs(order.quantity) * order.price) * 0.0005;
+call    0 never executed
+        -:  270:}
+        -:  271:
+function _ZNK5folio9OrdersAPI16estimateSlippageERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_ called 0 returned 0% blocks executed 0%
+    #####:  272:double OrdersAPI::estimateSlippage(const std::string& symbol,
+        -:  273:                                    long quantity,
+        -:  274:                                    const std::string& side) const {
+        -:  275:    // Slippage estimate based on order size and symbol liquidity
+        -:  276:    // Typically 0.01-0.05% for liquid stocks
+    #####:  277:    return quantity > 10000 ? 0.0005 : 0.0001;
+branch  0 never executed (fallthrough)
+branch  1 never executed
+        -:  278:}
+        -:  279:
+function _ZNK5folio9OrdersAPI22checkConcentrationRiskERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEl called 0 returned 0% blocks executed 0%
+    #####:  280:bool OrdersAPI::checkConcentrationRisk(const std::string& symbol,
+        -:  281:                                        long quantity) const {
+        -:  282:    // Check if this order would violate sector concentration limits
+        -:  283:    // TODO: Implement actual concentration checking
+    #####:  284:    return true;
+        -:  285:}
+        -:  286:
+        -:  287:}  // namespace folio

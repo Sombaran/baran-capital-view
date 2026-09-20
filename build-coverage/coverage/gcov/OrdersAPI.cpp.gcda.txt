@@ -1,0 +1,255 @@
+Function '_ZNKSt19ostreambuf_iteratorIcSt11char_traitsIcEE6failedEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt19ostreambuf_iteratorIcSt11char_traitsIcEEC2EPSt15basic_streambufIcS1_E'
+Lines executed:0.00% of 2
+
+Function '_ZNSt12_Vector_baseIN5folio9OrdersAPI5OrderESaIS2_EE17_Vector_impl_dataC2Ev'
+Lines executed:0.00% of 3
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag'
+Lines executed:0.00% of 15
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardD2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardC2EPS4_'
+Lines executed:0.00% of 1
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag'
+Lines executed:0.00% of 10
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardD2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardC2EPS4_'
+Lines executed:0.00% of 1
+
+Function '_ZSt4moveIRSaIcEEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__new_allocatorIcED2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZN9__gnu_cxx11char_traitsIcE2eqERKcS3_'
+Lines executed:0.00% of 2
+
+Function '_ZStlsIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_St9_Put_timeIS3_E'
+Lines executed:0.00% of 19
+
+Function '_ZSt8put_timeIcESt9_Put_timeIT_EPK2tmPKS1_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt12_Vector_baseIN5folio9OrdersAPI5OrderESaIS2_EE12_Vector_implC2Ev'
+Lines executed:0.00% of 5
+
+Function '_ZSteqIcSt11char_traitsIcESaIcEEbRKNSt7__cxx1112basic_stringIT_T0_T1_EEPKS5_'
+Lines executed:0.00% of 3
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_'
+Lines executed:0.00% of 7
+
+Function '_ZN9__gnu_cxx11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 5
+
+Function '_ZNK5folio9OrdersAPI22checkConcentrationRiskERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEl'
+Lines executed:0.00% of 2
+
+Function '_ZNK5folio9OrdersAPI16estimateSlippageERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_'
+Lines executed:0.00% of 2
+
+Function '_ZNK5folio9OrdersAPI18estimateCommissionERKNS0_5OrderE'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio9OrdersAPI8logOrderERKNS0_5OrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:38.46% of 13
+
+Function '_ZNK5folio9OrdersAPI18validateOrderRisksERKNS0_5OrderEd'
+Lines executed:0.00% of 5
+
+Function '_ZNK5folio9OrdersAPI22isAutoExecutionEnabledEv'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio9OrdersAPI23setAutoExecutionEnabledEb'
+Lines executed:0.00% of 3
+
+Function '_ZNK5folio9OrdersAPI18getExecutionConfigEv'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio9OrdersAPI18setExecutionConfigERKNS0_15ExecutionConfigE'
+Lines executed:0.00% of 3
+
+Function '_ZNK5folio9OrdersAPI12isAuthorizedEv'
+Lines executed:0.00% of 4
+
+Function '_ZN5folio9OrdersAPI9revoke2FAEv'
+Lines executed:0.00% of 4
+
+Function '_ZN5folio9OrdersAPI12authorize2FAERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:0.00% of 6
+
+Function '_ZN5folio9OrdersAPI13getOpenOrdersEv'
+Lines executed:0.00% of 3
+
+Function '_ZN5folio9OrdersAPI14getTodayOrdersEv'
+Lines executed:0.00% of 3
+
+Function '_ZNSt6vectorIN5folio9OrdersAPI5OrderESaIS2_EEC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZNSt12_Vector_baseIN5folio9OrdersAPI5OrderESaIS2_EEC2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZN5folio9OrdersAPI15getOrderDetailsERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:0.00% of 3
+
+Function '_ZN5folio9OrdersAPI14getOrderStatusERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio9OrdersAPI11cancelOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:0.00% of 3
+
+Function '_ZN5folio9OrdersAPI16placeMarketOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_S8_'
+Lines executed:0.00% of 2
+
+Function '_ZN5folio9OrdersAPI10placeOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_NS0_9OrderTypeEddS8_'
+Lines executed:64.52% of 31
+
+Function '_ZN5folio9OrdersAPI13simulateOrderERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEElS8_NS0_9OrderTypeEddd'
+Lines executed:55.00% of 40
+
+Function '_ZN5folio9OrdersAPIC2ERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES8_RKNS0_15ExecutionConfigE'
+Lines executed:100.00% of 6
+
+Function '_ZNKSt8ios_base6getlocEv'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt8ios_base5flagsEv'
+Lines executed:0.00% of 2
+
+Function '_ZStoRRSt12_Ios_IostateS_'
+Lines executed:0.00% of 2
+
+Function '_ZStorSt12_Ios_IostateS_'
+Lines executed:0.00% of 2
+
+Function '_ZStanSt13_Ios_FmtflagsS_'
+Lines executed:0.00% of 2
+
+Function '_ZSt3absl'
+Lines executed:0.00% of 1
+
+Function '_ZNSt11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 4
+
+Function '_ZNSt11char_traitsIcE7compareEPKcS2_m'
+Lines executed:0.00% of 11
+
+Function '_ZNSt11char_traitsIcE2ltERKcS2_'
+Lines executed:0.00% of 3
+
+Function '_ZSt23__is_constant_evaluatedv'
+Lines executed:0.00% of 2
+
+File '/usr/include/c++/13/bits/streambuf_iterator.h'
+Lines executed:0.00% of 4
+No branches
+No calls
+Creating 'streambuf_iterator.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_vector.h'
+Lines executed:0.00% of 8
+No branches
+Calls executed:0.00% of 3
+Creating 'stl_vector.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.tcc'
+Lines executed:0.00% of 36
+Branches executed:0.00% of 12
+Taken at least once:0.00% of 12
+Calls executed:0.00% of 18
+Creating 'basic_string.tcc.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_types.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'stl_iterator_base_types.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_funcs.h'
+Lines executed:0.00% of 3
+No branches
+No calls
+Creating 'stl_iterator_base_funcs.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.h'
+Lines executed:0.00% of 11
+Branches executed:0.00% of 10
+Taken at least once:0.00% of 10
+Calls executed:0.00% of 11
+Creating 'basic_string.h.gcov'
+
+File '/usr/include/c++/13/bits/move.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'move.h.gcov'
+
+File '/usr/include/c++/13/bits/new_allocator.h'
+Lines executed:50.00% of 2
+No branches
+No calls
+Creating 'new_allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/char_traits.h'
+Lines executed:0.00% of 25
+Branches executed:0.00% of 14
+Taken at least once:0.00% of 14
+Calls executed:0.00% of 6
+Creating 'char_traits.h.gcov'
+
+File '/usr/include/c++/13/iomanip'
+Lines executed:0.00% of 21
+Branches executed:0.00% of 26
+Taken at least once:0.00% of 26
+Calls executed:0.00% of 24
+Creating 'iomanip.gcov'
+
+File '/usr/include/c++/13/bits/allocator.h'
+Lines executed:100.00% of 2
+No branches
+Calls executed:50.00% of 2
+Creating 'allocator.h.gcov'
+
+File '/home/ritup2404/baran-capital-view/src/OrdersAPI.cpp'
+Lines executed:35.71% of 140
+Branches executed:51.39% of 144
+Taken at least once:25.69% of 144
+Calls executed:35.62% of 73
+Creating 'OrdersAPI.cpp.gcov'
+
+File '/home/ritup2404/baran-capital-view/include/OrdersAPI.hpp'
+No executable lines
+No branches
+No calls
+Removing 'OrdersAPI.hpp.gcov'
+
+File '/usr/include/c++/13/bits/ios_base.h'
+Lines executed:0.00% of 10
+No branches
+Calls executed:0.00% of 2
+Creating 'ios_base.h.gcov'
+
+File '/usr/include/c++/13/bits/std_abs.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'std_abs.h.gcov'
+
+File '/usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'c++config.h.gcov'
+
+Lines executed:19.78% of 268

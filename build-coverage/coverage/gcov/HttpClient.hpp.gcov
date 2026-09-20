@@ -1,0 +1,48 @@
+        -:    0:Source:/home/ritup2404/baran-capital-view/include/HttpClient.hpp
+        -:    0:Graph:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_tests.dir/tests/cpp/test_security.cpp.gcno
+        -:    0:Data:/home/ritup2404/baran-capital-view/build-coverage/CMakeFiles/portfolio_health_tests.dir/tests/cpp/test_security.cpp.gcda
+        -:    0:Runs:2
+        -:    1:#pragma once
+        -:    2:
+        -:    3:#include <map>
+        -:    4:#include <string>
+        -:    5:
+        -:    6:namespace folio {
+        -:    7:
+        -:    8:struct HttpResponse {
+        -:    9:    long statusCode = 0;
+        -:   10:    std::string body;
+        -:   11:    std::string error; // non-empty on transport-level failure
+        -:   12:
+function _ZNK5folio12HttpResponse2okEv called 8 returned 100% blocks executed 88%
+        8:   13:    bool ok() const {
+       8*:   14:        return error.empty() && statusCode >= 200 && statusCode < 300;
+call    0 returned 8
+branch  1 taken 4 (fallthrough)
+branch  2 taken 4
+branch  3 taken 4 (fallthrough)
+branch  4 taken 0
+branch  5 taken 0 (fallthrough)
+branch  6 taken 4
+        -:   15:    }
+        -:   16:};
+        -:   17:
+        -:   18:// Thin libcurl wrapper. Each request uses its own easy handle so instances
+        -:   19:// are safe to share across threads.
+        -:   20:class HttpClient {
+        -:   21:public:
+        -:   22:    HttpClient();
+        -:   23:    ~HttpClient();
+        -:   24:
+        -:   25:    HttpResponse get(const std::string& url,
+        -:   26:                     const std::map<std::string, std::string>& headers,
+        -:   27:                     long timeoutSeconds = 30) const;
+        -:   28:};
+        -:   29:
+        -:   30:// Ensures curl_global_init runs once per process.
+        -:   31:class CurlGlobal {
+        -:   32:public:
+        -:   33:    static void ensureInit();
+        -:   34:};
+        -:   35:
+        -:   36:} // namespace folio

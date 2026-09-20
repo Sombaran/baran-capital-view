@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.27
+Version: 2.0.30
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -19,11 +19,21 @@ baran-capital-view is a C++17 portfolio analysis and monitoring application for 
 
 The project follows semantic versioning in x.x.x format:
 
-- MAJOR: breaking architecture or incompatible changes
-- MINOR: new features or major enhancements
-- PATCH: fixes, hardening, and stability improvements
+- **MAJOR**: breaking architecture or incompatible changes
+- **MINOR**: new features or major enhancements  
+- **PATCH**: fixes, hardening, and stability improvements
 
-Current release: 2.0.27
+Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
+
+Current release: 2.0.30
+
+Last updated: September 20, 2026
+
+The Deeper analysis page is organized as a review queue: positive, risk, and
+hold signals are summarized first, signal categories reveal their stocks, and
+the evidence table keeps saved news, fresh NLP analysis, action, and rationale
+together. The same responsive rendering and status behavior is used across all
+dashboard pages.
 
 Dashboard navigation is compact and adaptive: desktop keeps tabs in one
 horizontal row with overflow support, while mobile uses a balanced two-column
@@ -140,6 +150,41 @@ trees, so the command does not collect third-party or symlinked build files.
 The current suite contains 1 C++ test target and 7 Python tests.
 
 The C++ tests cover the secure symbol, quantity, and price validation helpers used by the stock order pipeline, while the Python tests cover the sentiment fallback and path resolution logic in the Deeper analysis workflow.
+
+### Coverage reports
+
+Coverage is opt-in so normal Release builds remain unchanged. Install the
+reporting tools first:
+
+```bash
+# Debian / Ubuntu
+sudo apt install -y lcov
+
+# Fedora / RHEL
+sudo dnf install -y lcov
+```
+
+Configure an instrumented CMake build and generate both report formats:
+
+```bash
+cmake -S . -B build-coverage -DCMAKE_BUILD_TYPE=Debug \
+	-DPORTFOLIO_HEALTH_ENABLE_COVERAGE=ON
+cmake --build build-coverage --target coverage
+cmake --build build-coverage --target coverage-gcov
+```
+
+The same workflows are available through `buildCode.sh`:
+
+```bash
+./buildCode.sh 1 --coverage
+./buildCode.sh 1 --coverage-gcov
+./buildCode.sh 1 --coverage --coverage-build-dir /tmp/baran-coverage
+```
+
+The lcov percentage summary is printed by the `coverage` target, with the
+HTML report at `build-coverage/coverage/html/index.html`. Raw gcov files are
+written to `build-coverage/coverage/gcov`. The coverage targets run the C++
+CTest suite; run `pytest --cov` separately when Python coverage is needed.
 
 ## Run web UI
 

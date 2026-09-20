@@ -1,0 +1,1 @@
+genhtml /home/ritup2404/baran-capital-view/build-coverage/coverage.info --output-directory /home/ritup2404/baran-capital-view/build-coverage/coverage/html --title 'baran-capital-view coverage'

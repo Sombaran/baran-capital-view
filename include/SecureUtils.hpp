@@ -106,6 +106,14 @@ std::string generateRandomKey();
 bool validateSymbol(const std::string& symbol);
 
 /**
+ * @brief Validate news category for Upstox API.
+ * Prevents category injection by allowing only lowercase alphanumeric + underscore, max 32 chars.
+ * @param category Category to validate (e.g., "global", "holdings", "portfolio_news")
+ * @return true if valid, false otherwise
+ */
+bool validateNewsCategory(const std::string& category);
+
+/**
  * @brief Validate quantity bounds.
  * @param quantity Units to validate
  * @return true if valid (1-1,000,000), false otherwise
@@ -118,6 +126,28 @@ bool validateQuantity(long quantity);
  * @return true if valid (0.01-100,000), false otherwise
  */
 bool validatePrice(double price);
+
+/**
+ * @brief Check if an error message indicates a stale access token.
+ * @param errorMessage Error message to check
+ * @return true if token is stale/expired, false otherwise
+ */
+bool isAccessTokenStale(const std::string& errorMessage);
+
+/**
+ * @brief Validate Upstox news API response structure.
+ * Ensures response is valid JSON with status="success" and contains a data field.
+ * @param responseJson JSON response from Upstox news API
+ * @return true if response is valid, false otherwise
+ */
+bool isValidNewsResponse(const std::string& responseJson);
+
+/**
+ * @brief Check if JSON string is malformed and caused parse error.
+ * @param jsonString String to check
+ * @return true if JSON is malformed, false if valid or other error
+ */
+bool isJsonParseError(const std::string& jsonString);
 
 /**
  * @brief Validate order side.

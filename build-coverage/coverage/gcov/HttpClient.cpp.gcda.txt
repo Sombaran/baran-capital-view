@@ -1,0 +1,415 @@
+Function '_ZNSt6chrono20__duration_cast_implINS_8durationIlSt5ratioILl1ELl1000EEEES2_ILl1000ELl1EElLb0ELb1EE6__castIlS2_ILl1ELl1EEEES4_RKNS1_IT_T0_EE'
+Lines executed:0.00% of 3
+
+Function '_ZNSt6chrono13duration_castINS_8durationIlSt5ratioILl1ELl1000EEEElS2_ILl1ELl1EEEENSt9enable_ifIXsrNS_13__is_durationIT_EE5valueES8_E4typeERKNS1_IT0_T1_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNK9__gnu_cxx16__aligned_membufISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_EE7_M_addrEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt6chrono20__duration_cast_implINS_8durationIlSt5ratioILl1ELl1000000000EEEES2_ILl1000000ELl1EElLb0ELb1EE6__castIlS2_ILl1ELl1000EEEES4_RKNS1_IT_T0_EE'
+Lines executed:0.00% of 3
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000EEEC2IlS1_ILl1ELl1EEvEERKNS0_IT_T0_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6chrono8durationIlSt5ratioILl1ELl1000EEE5countEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono20__duration_cast_implINS_8durationIlSt5ratioILl1ELl1EEEES2_ILl1ELl1000EElLb1ELb0EE6__castIlS5_EES4_RKNS1_IT_T0_EE'
+Lines executed:0.00% of 3
+
+Function '_ZNSt6chronoltIlSt5ratioILl1ELl1000EElS2_EEbRKNS_8durationIT_T0_EERKNS3_IT1_T2_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000EEEC2IlvEERKT_'
+Lines executed:0.00% of 2
+
+Function '_ZNK9__gnu_cxx16__aligned_membufISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES7_EE6_M_ptrEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt23_Rb_tree_const_iteratorISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_EEC2EPKSt18_Rb_tree_node_base'
+Lines executed:100.00% of 2
+
+Function '_ZSt11__addressofIZSt9call_onceIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEEvRSt9once_flagOT_DpOT0_EUlvE_EPS6_RS6_'
+Lines executed:100.00% of 2
+
+Function '_ZSt13__invoke_implIvZN5folio10CurlGlobal10ensureInitEvEUlvE_JEET_St14__invoke_otherOT0_DpOT1_'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEE4baseEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono13duration_castINS_8durationIlSt5ratioILl1ELl1000000000EEEElS2_ILl1ELl1000EEEENSt9enable_ifIXsrNS_13__is_durationIT_EE5valueES8_E4typeERKNS1_IT0_T1_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chronomiIlSt5ratioILl1ELl1000EElS1_ILl1ELl1EEEENSt11common_typeIJNS_8durationIT_T0_EENS5_IT1_T2_EEEE4typeERKS8_RKSB_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono13duration_castINS_8durationIlSt5ratioILl1ELl1EEEElS2_ILl1ELl1000EEEENSt9enable_ifIXsrNS_13__is_durationIT_EE5valueES8_E4typeERKNS1_IT0_T1_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chronoleIlSt5ratioILl1ELl1000EElS2_EEbRKNS_8durationIT_T0_EERKNS3_IT1_T2_EE'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000EEE4zeroEv'
+Lines executed:0.00% of 2
+
+Function '_ZSt12__str_concatINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEET_PKNS6_10value_typeENS6_9size_typeES9_SA_RKNS6_14allocator_typeE'
+Lines executed:0.00% of 12
+
+Function '_ZNKSt13_Rb_tree_nodeISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_EE9_M_valptrEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_S5_ESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE3endEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt8_Rb_treeINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESt4pairIKS5_S5_ESt10_Select1stIS8_ESt4lessIS5_ESaIS8_EE5beginEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt9once_flag18_Prepare_executionC2IZSt9call_onceIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEEvRS_OT_DpOT0_EUlvE_EERS7_'
+Lines executed:100.00% of 4
+
+Function '_ZZNSt9once_flag18_Prepare_executionC4IZSt9call_onceIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEEvRS_OT_DpOT0_EUlvE_EERS7_ENKUlvE_clEv'
+No executable lines
+
+Function '_ZSt8__invokeIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEENSt15__invoke_resultIT_JDpT0_EE4typeEOS4_DpOS5_'
+Lines executed:100.00% of 3
+
+Function '_ZSt7forwardIZN5folio10CurlGlobal10ensureInitEvEUlvE_EOT_RNSt16remove_referenceIS3_E4typeE'
+Lines executed:100.00% of 2
+
+Function '_ZNK9__gnu_cxx17__normal_iteratorIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEdeEv'
+Lines executed:0.00% of 2
+
+Function '_ZN9__gnu_cxx17__normal_iteratorIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEppEv'
+Lines executed:100.00% of 3
+
+Function '_ZN9__gnu_cxxneIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEEbRKNS_17__normal_iteratorIT_T0_EESD_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag'
+Lines executed:0.00% of 15
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardD2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tagEN6_GuardC2EPS4_'
+Lines executed:0.00% of 1
+
+Function '_ZNKSt16initializer_listIPKcE4sizeEv'
+Lines executed:0.00% of 1
+
+Function '_ZSt4moveIRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEONSt16remove_referenceIT_E4typeEOS8_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag'
+Lines executed:0.00% of 10
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardD2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tagEN6_GuardC2EPS4_'
+Lines executed:0.00% of 1
+
+Function '_ZSt4moveIRSaIcEEONSt16remove_referenceIT_E4typeEOS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt15__new_allocatorIcED2Ev'
+Lines executed:0.00% of 1
+
+Function '_ZN9__gnu_cxx11char_traitsIcE2eqERKcS3_'
+Lines executed:0.00% of 2
+
+Function '_ZNSt11this_thread9sleep_forIlSt5ratioILl1ELl1000EEEEvRKNSt6chrono8durationIT_T0_EE'
+Lines executed:0.00% of 9
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000EEEC2IivEERKT_'
+Lines executed:0.00% of 2
+
+Function '_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EEOS8_RKS8_'
+Lines executed:0.00% of 2
+
+Function '_ZStplIcSt11char_traitsIcESaIcEENSt7__cxx1112basic_stringIT_T0_T1_EERKS8_PKS5_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt23_Rb_tree_const_iteratorISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_EEdeEv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt23_Rb_tree_const_iteratorISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_EEppEv'
+Lines executed:100.00% of 3
+
+Function '_ZStneRKSt23_Rb_tree_const_iteratorISt4pairIKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES6_EESB_'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_St4lessIS5_ESaISt4pairIKS5_S5_EEE3endEv'
+Lines executed:100.00% of 2
+
+Function '_ZNKSt3mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES5_St4lessIS5_ESaISt4pairIKS5_S5_EEE5beginEv'
+Lines executed:100.00% of 2
+
+Function '_ZSt9transformIN9__gnu_cxx17__normal_iteratorIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEES9_ZZNK5folio10HttpClient3getERKS8_RKSt3mapIS8_S8_St4lessIS8_ESaISt4pairISC_S8_EEElENKUlvE_clEvEUlhE_ET0_T_SQ_SP_T1_'
+Lines executed:100.00% of 4
+
+Function '_ZSt9call_onceIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEEvRSt9once_flagOT_DpOT0_'
+Lines executed:83.33% of 6
+
+Function '_ZZSt9call_onceIZN5folio10CurlGlobal10ensureInitEvEUlvE_JEEvRSt9once_flagOT_DpOT0_ENKUlvE_clEv'
+Lines executed:100.00% of 1
+
+Function '_ZSteqIcSt11char_traitsIcESaIcEEbRKNSt7__cxx1112basic_stringIT_T0_T1_EEPKS5_'
+Lines executed:0.00% of 3
+
+Function '_ZSt9transformIN9__gnu_cxx17__normal_iteratorIPcNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEEES9_ZZN5folio12_GLOBAL__N_111hostFromUrlERKS8_ENKUlvE_clEvEUlhE_ET0_T_SH_SG_T1_'
+Lines executed:100.00% of 4
+
+Function '_ZNKSt16initializer_listIPKcE3endEv'
+Lines executed:0.00% of 1
+
+Function '_ZNKSt16initializer_listIPKcE5beginEv'
+Lines executed:0.00% of 1
+
+Function '_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEC2IS3_EEPKcRKS3_'
+Lines executed:0.00% of 7
+
+Function '_ZNKSt6chrono8durationIlSt5ratioILl1ELl1EEE5countEv'
+Lines executed:0.00% of 2
+
+Function '_ZN9__gnu_cxx11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 5
+
+Function '_ZNK5folio10HttpClient3getERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt3mapIS6_S6_St4lessIS6_ESaISt4pairIS7_S6_EEEl'
+Lines executed:74.68% of 79
+
+Function '_ZZNK5folio10HttpClient3getERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt3mapIS6_S6_St4lessIS6_ESaISt4pairIS7_S6_EEElENKUlvE_clEv'
+Lines executed:100.00% of 3
+
+Function '_ZZZNK5folio10HttpClient3getERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEERKSt3mapIS6_S6_St4lessIS6_ESaISt4pairIS7_S6_EEElENKUlvE_clEvENKUlhE_clEh'
+Lines executed:100.00% of 1
+
+Function '_ZN5folio10HttpClientD2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZN5folio10HttpClientC2Ev'
+Lines executed:100.00% of 1
+
+Function '_ZN5folio10CurlGlobal10ensureInitEv'
+Lines executed:100.00% of 3
+
+Function '_ZZN5folio10CurlGlobal10ensureInitEvENKUlvE_clEv'
+Lines executed:100.00% of 3
+
+Function '_ZZZN5folio10CurlGlobal10ensureInitEvENKUlvE_clEvENKUlvE_clEv'
+No executable lines
+
+Function '_ZN5folio12_GLOBAL__N_119isAllowedUpstoxHostERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:83.33% of 6
+
+Function '_ZN5folio12_GLOBAL__N_111hostFromUrlERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE'
+Lines executed:86.67% of 15
+
+Function '_ZZN5folio12_GLOBAL__N_111hostFromUrlERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEENKUlvE_clEv'
+Lines executed:100.00% of 3
+
+Function '_ZZZN5folio12_GLOBAL__N_111hostFromUrlERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEENKUlvE_clEvENKUlhE_clEh'
+Lines executed:100.00% of 1
+
+Function '_ZN5folio12_GLOBAL__N_18firstEnvESt16initializer_listIPKcE'
+Lines executed:100.00% of 6
+
+Function '_ZN5folio12_GLOBAL__N_13envEPKc'
+Lines executed:60.00% of 5
+
+Function '_ZN5folio12_GLOBAL__N_113writeCallbackEPcmmPv'
+Lines executed:100.00% of 5
+
+Function '_ZNSt9once_flag18_Prepare_executionD2Ev'
+Lines executed:100.00% of 4
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1EEEC1IlvEERKT_'
+Lines executed:0.00% of 2
+
+Function '_ZNKSt6chrono8durationIlSt5ratioILl1ELl1000000000EEE5countEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono15duration_valuesIlE4zeroEv'
+Lines executed:0.00% of 2
+
+Function '_ZNSt6chrono8durationIlSt5ratioILl1ELl1000000000EEEC1IlvEERKT_'
+Lines executed:0.00% of 2
+
+Function '_ZL14__gthread_oncePiPFvvE'
+Lines executed:75.00% of 4
+
+Function '_ZL18__gthread_active_pv'
+Lines executed:100.00% of 2
+
+Function '_ZNSt11char_traitsIcE4copyEPcPKcm'
+Lines executed:0.00% of 4
+
+Function '_ZNSt11char_traitsIcE6lengthEPKc'
+Lines executed:0.00% of 4
+
+Function '_ZNSt11char_traitsIcE7compareEPKcS2_m'
+Lines executed:0.00% of 11
+
+Function '_ZNSt11char_traitsIcE2ltERKcS2_'
+Lines executed:0.00% of 3
+
+Function '_ZSt23__is_constant_evaluatedv'
+Lines executed:0.00% of 2
+
+File '/usr/include/c++/13/bits/chrono.h'
+Lines executed:0.00% of 50
+Branches executed:0.00% of 4
+Taken at least once:0.00% of 4
+Calls executed:0.00% of 20
+Creating 'chrono.h.gcov'
+
+File '/usr/include/c++/13/ext/aligned_buffer.h'
+Lines executed:100.00% of 4
+No branches
+Calls executed:100.00% of 1
+Creating 'aligned_buffer.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_tree.h'
+Lines executed:100.00% of 15
+No branches
+Calls executed:100.00% of 4
+Creating 'stl_tree.h.gcov'
+
+File '/usr/include/c++/13/bits/move.h'
+Lines executed:40.00% of 10
+No branches
+No calls
+Creating 'move.h.gcov'
+
+File '/usr/include/c++/13/bits/invoke.h'
+Lines executed:100.00% of 5
+No branches
+Calls executed:100.00% of 4
+Creating 'invoke.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator.h'
+Lines executed:33.33% of 9
+No branches
+Calls executed:0.00% of 2
+Creating 'stl_iterator.h.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.h'
+Lines executed:0.00% of 22
+Branches executed:0.00% of 20
+Taken at least once:0.00% of 20
+Calls executed:0.00% of 24
+Creating 'basic_string.h.gcov'
+
+File '/usr/include/c++/13/bits/new_allocator.h'
+Lines executed:0.00% of 3
+No branches
+No calls
+Creating 'new_allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/allocator.h'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 5
+Creating 'allocator.h.gcov'
+
+File '/usr/include/c++/13/bits/alloc_traits.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'alloc_traits.h.gcov'
+
+File '/usr/include/c++/13/ext/alloc_traits.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'alloc_traits.h.gcov'
+
+File '/usr/include/c++/13/mutex'
+Lines executed:93.33% of 15
+Branches executed:100.00% of 4
+Taken at least once:50.00% of 4
+Calls executed:80.00% of 10
+Creating 'mutex.gcov'
+
+File '/usr/include/c++/13/bits/basic_string.tcc'
+Lines executed:0.00% of 36
+Branches executed:0.00% of 12
+Taken at least once:0.00% of 12
+Calls executed:0.00% of 18
+Creating 'basic_string.tcc.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_types.h'
+Lines executed:0.00% of 1
+No branches
+No calls
+Creating 'stl_iterator_base_types.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_iterator_base_funcs.h'
+Lines executed:0.00% of 3
+No branches
+No calls
+Creating 'stl_iterator_base_funcs.h.gcov'
+
+File '/usr/include/c++/13/initializer_list'
+Lines executed:0.00% of 3
+No branches
+Calls executed:0.00% of 2
+Creating 'initializer_list.gcov'
+
+File '/usr/include/c++/13/bits/char_traits.h'
+Lines executed:0.00% of 29
+Branches executed:0.00% of 16
+Taken at least once:0.00% of 16
+Calls executed:0.00% of 6
+Creating 'char_traits.h.gcov'
+
+File '/usr/include/c++/13/bits/this_thread_sleep.h'
+Lines executed:0.00% of 9
+Branches executed:0.00% of 18
+Taken at least once:0.00% of 18
+Calls executed:0.00% of 8
+Creating 'this_thread_sleep.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_map.h'
+Lines executed:100.00% of 4
+No branches
+Calls executed:100.00% of 2
+Creating 'stl_map.h.gcov'
+
+File '/usr/include/c++/13/bits/stl_algo.h'
+Lines executed:100.00% of 12
+Branches executed:100.00% of 4
+Taken at least once:100.00% of 4
+Calls executed:100.00% of 12
+Creating 'stl_algo.h.gcov'
+
+File '/home/ritup2404/baran-capital-view/src/HttpClient.cpp'
+Lines executed:80.77% of 130
+Branches executed:70.37% of 216
+Taken at least once:38.43% of 216
+Calls executed:72.41% of 145
+Creating 'HttpClient.cpp.gcov'
+
+File '/home/ritup2404/baran-capital-view/include/HttpClient.hpp'
+No executable lines
+No branches
+No calls
+Removing 'HttpClient.hpp.gcov'
+
+File '/usr/include/x86_64-linux-gnu/c++/13/bits/gthr-default.h'
+Lines executed:83.33% of 6
+Branches executed:100.00% of 2
+Taken at least once:50.00% of 2
+Calls executed:100.00% of 2
+Creating 'gthr-default.h.gcov'
+
+File '/usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h'
+Lines executed:0.00% of 2
+No branches
+No calls
+Creating 'c++config.h.gcov'
+
+Lines executed:45.84% of 373
