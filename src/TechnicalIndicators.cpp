@@ -8,7 +8,8 @@ namespace folio {
 
 RsiResult calculateRsi(const std::vector<double>& closes, std::size_t period) {
     RsiResult result;
-    if (period == 0 || closes.size() < period + 1) {
+    constexpr std::size_t maximumPeriod = 10000;
+    if (period == 0 || period > maximumPeriod || period >= closes.size()) {
         result.reason = "RSI needs at least period + 1 chronological closing prices.";
         return result;
     }

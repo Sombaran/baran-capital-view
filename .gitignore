@@ -29,14 +29,11 @@ bazel-*
 
 # Build artifacts
 build/
+builds/
+build-coverage
 dist/
 *.egg-info/
 
 # OS / editor noise
 .DS_Store
 Thumbs.db
-
-# build folder
-build/
-builds/
-build-coverage

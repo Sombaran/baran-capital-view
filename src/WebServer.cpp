@@ -1,9 +1,11 @@
 #include "WebServer.hpp"
+#include "SecureUtils.hpp"
 #include "TechnicalIndicators.hpp"
 
 #include <nlohmann/json.hpp>
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -170,6 +172,14 @@ std::string releaseNoticeV2030() {
            R"JS(</div><strong style="display:block;margin-top:8px;font:500 21px Georgia,serif">A clearer Deeper analysis workflow</strong><p style="margin:8px 0 0;color:#6b777b">This patch makes every dashboard page easier to scan and turns Deeper analysis into a focused review queue instead of a long explanatory panel.</p><h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">What changed</h3><ul style="margin:6px 0 0 18px;padding:0;color:#47575d;line-height:1.6;font-size:13px"><li>Deeper analysis now leads with positive, risk, hold, and total review counts</li><li>Signal categories make the associated stocks easy to find</li><li>Saved news, fresh NLP analysis, review action, and explanation are shown together as evidence</li><li>Shared responsive and accessibility improvements apply across all dashboard pages</li><li>Coverage reports remain available through the build script's coverage options</li></ul><h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Version 2.0.30</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">This release is backward compatible with existing portfolio files, saved news, configuration, and sessions.</p>';box.querySelector('button').onclick=()=>{localStorage.setItem('baran-capital-view-release-seen',version);box.remove()};document.body.appendChild(box)})()</script>)JS";
 }
 
+const char* releaseNoticeV2031Addendum() {
+    return R"JS(<script>const releaseBox2031=document.querySelector('[role="dialog"]');if(releaseBox2031){releaseBox2031.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Visual correction · v2.0.31</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed the Deeper analysis layout so its review cards, signal filters, evidence table, and RSI tool follow a clear responsive hierarchy. Shared dashboard styling now keeps cards readable on desktop and mobile instead of collapsing labels and values.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2032Addendum() {
+    return R"JS(<script>const releaseBox2032=document.querySelector('[role="dialog"]');if(releaseBox2032){releaseBox2032.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Security hardening · v2.0.32</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Hardened RSI input bounds, broker instrument-key validation, temporary analysis files, analysis cache limits, and dynamic article links. Existing API credentials remain server-side and malformed requests are rejected before broker calls.</p>')}</script>)JS";
+}
+
 const char* dashboardUiOptimization() {
     return R"JS(<script>(function(){const view=document.querySelector('#view'),status=document.querySelector('#status');if(!view)return;status?.setAttribute('aria-live','polite');const optimize=()=>{view.setAttribute('aria-busy','false');view.querySelectorAll('img:not([loading])').forEach(image=>{image.loading='lazy';image.decoding='async'});view.querySelectorAll('table.table').forEach(table=>table.parentElement?.classList.add('table-wrap'))};new MutationObserver(()=>requestAnimationFrame(optimize)).observe(view,{childList:true,subtree:true});const originalDeeperAnalysis=window.deeperAnalysis;window.deeperAnalysis=async function(){const payload=await safeJsonFetch('/api/deeper-analysis',{status:'error',error:'Deeper analysis is unavailable right now.'});if(activeTab!=='deeper-analysis')return;if(payload.status==='running'){status.textContent='Analysis in progress';view.innerHTML='<section class="panel analysis-status"><div class="label">Portfolio intelligence</div><h2>Comparing news signals</h2><p>The saved portfolio feed and fresh NLP analysis are being compared. This page will update automatically.</p></section>';return}if(payload.status==='error')throw Error(payload.error);const stocks=Array.isArray(payload.stocks)?payload.stocks:[],counts=payload.category_counts||{},order=payload.category_order||['Neutral news','No recent news','going good','invest more','sell it off'],buy=stocks.filter(item=>item.action==='Consider adding'||item.action==='Buy / review').length,risk=stocks.filter(item=>item.action==='Sell / review'||item.action==='Do not add').length,hold=stocks.length-buy-risk;status.textContent=stocks.length+' stocks compared · '+new Date().toLocaleTimeString();view.innerHTML='<section class="deeper-shell"><header class="deeper-header"><div><div class="label">Portfolio intelligence</div><h2>What needs your attention?</h2><p>Fresh NLP news is compared with the saved portfolio feed. Use the categories to find names, then read the evidence below.</p></div><div class="deeper-source">'+esc(payload.source||'Analysis source unavailable')+'</div></header><div class="deeper-summary"><div class="deeper-stat"><span class="label">Review now</span><b>'+buy+'</b><small>positive signals</small></div><div class="deeper-stat deeper-stat-risk"><span class="label">Risk review</span><b>'+risk+'</b><small>negative signals</small></div><div class="deeper-stat"><span class="label">Hold / wait</span><b>'+hold+'</b><small>mixed or neutral</small></div><div class="deeper-stat"><span class="label">Compared</span><b>'+stocks.length+'</b><small>portfolio stocks</small></div></div><section class="deeper-categories"><div class="label">Find by signal</div><div class="deeper-category-list">'+order.map(label=>'<button type="button" class="deeper-category"><b>'+Number(counts[label]||0)+'</b><span>'+esc(label)+'</span></button>').join('')+'</div><p class="category-stocks">Select a signal to see its stocks.</p></section><section class="panel deeper-evidence"><div class="label">Evidence</div><h3>Saved news vs fresh analysis</h3><div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>Stock</th><th>Saved signal</th><th>Fresh analysis</th><th>Review</th><th>Why</th></tr></thead><tbody>'+stocks.map((item,index)=>'<tr><td>'+String(index+1)+'</td><td><b>'+esc(item.symbol)+'</b></td><td>'+esc(item.saved_signal||'Neutral')+'</td><td>'+esc(item.python_recommendation||'No recent news')+'</td><td class="decision">'+esc(item.action||'Hold / wait')+'</td><td>'+esc(item.analysis||'No explanation available')+'</td></tr>').join('')+'</tbody></table></div></section></section>';const categoryPanel=view.querySelector('.deeper-categories');categoryPanel.querySelectorAll('.deeper-category').forEach((button,index)=>button.onclick=()=>{const label=order[index],names=(payload.category_stocks?.[label]||[]);categoryPanel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});optimize()};if(originalDeeperAnalysis&&typeof originalDeeperAnalysis!=='function')return;optimize()})()</script>)JS";
 }
@@ -177,6 +187,18 @@ const char* dashboardUiOptimization() {
 std::string dashboardVersion() {
     return std::string("<script>document.querySelector('.kicker').insertAdjacentHTML('beforeend',' <span style=\"font-size:10px;letter-spacing:1px;color:var(--muted)\">v") +
            PORTFOLIO_HEALTH_VERSION + "</span>');</script>";
+}
+
+const char* deeperAnalysisStyles() {
+    return R"JS(<script>(function(){const style=document.createElement('style');style.textContent='.deeper-shell{display:grid;gap:16px}.deeper-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,320px);gap:24px;align-items:end;padding:4px 0 8px}.deeper-header h2{font-size:clamp(28px,4vw,42px);margin:6px 0 10px}.deeper-header p{max-width:720px;margin:0;color:var(--muted)}.deeper-source{padding:12px 14px;background:#eef4f1;border-left:3px solid var(--teal);font:12px/1.45 Arial,sans-serif;color:var(--muted);overflow-wrap:anywhere}.deeper-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.deeper-stat{display:grid;gap:5px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--teal);box-shadow:var(--shadow)}.deeper-stat-risk{border-top-color:var(--red)}.deeper-stat b{font:500 32px/1 Georgia,serif}.deeper-stat small{color:var(--muted);font:12px Arial,sans-serif}.deeper-categories{padding:18px 20px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow)}.deeper-category-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.deeper-category{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid var(--line);background:#f7faf7;color:var(--ink);cursor:pointer;font:13px Arial,sans-serif}.deeper-category:hover,.deeper-category:focus-visible{border-color:var(--teal);background:#e9f4ef;outline:2px solid #d96b3b;outline-offset:2px}.deeper-category b{font-size:16px}.category-stocks{min-height:22px;margin:14px 0 0;color:var(--muted)}.deeper-evidence{overflow:hidden}.deeper-evidence h3{margin:6px 0 14px;font:500 24px Georgia,serif}.deeper-evidence .table{min-width:760px}.deeper-evidence .table td:last-child{white-space:normal;min-width:260px}.rsi-tool{margin-top:16px}.rsi-tool h2{margin-top:6px}.analysis-status{padding:28px}.analysis-status h2{margin:6px 0}.analysis-status p{color:var(--muted)}@media(max-width:760px){.deeper-header{grid-template-columns:1fr;gap:12px}.deeper-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.deeper-stat{padding:14px}.deeper-stat b{font-size:28px}.deeper-categories{padding:16px}.deeper-category{flex:1 1 140px;justify-content:center}}@media(max-width:440px){.deeper-summary{grid-template-columns:1fr 1fr}.deeper-stat b{font-size:24px}.deeper-category{flex-basis:100%}}';document.head.appendChild(style)})()</script>)JS";
+}
+
+const char* deeperAnalysisPlacement() {
+    return R"JS(<script>(function(){const view=document.querySelector('#view');if(!view)return;const place=()=>{const tool=view.querySelector('.rsi-tool');if(tool&&tool.parentElement===view)view.appendChild(tool)};new MutationObserver(place).observe(view,{childList:true});place()})()</script>)JS";
+}
+
+const char* dashboardSecurityHardening() {
+    return R"JS(<script>(function(){const view=document.querySelector('#view');if(!view)return;const sanitize=()=>{view.querySelectorAll('a[href]').forEach(link=>{try{const url=new URL(link.getAttribute('href'),window.location.origin);if(!['http:','https:'].includes(url.protocol))link.removeAttribute('href');else{link.target='_blank';link.rel='noopener noreferrer'}}catch(error){link.removeAttribute('href')}})};new MutationObserver(sanitize).observe(view,{childList:true,subtree:true});sanitize()})()</script>)JS";
 }
 
 const char* categoryEnhancements() {
@@ -737,6 +759,28 @@ std::vector<std::string> instrumentKeys(const std::string& encodedKeys) {
     return keys;
 }
 
+bool validInstrumentKeyBatch(const std::vector<std::string>& keys) {
+    if (keys.empty() || keys.size() > 500) return false;
+    return std::all_of(keys.begin(), keys.end(), [](const std::string& key) {
+        return key.size() <= 64 && security::validateSymbol(key);
+    });
+}
+
+bool validAnalysisSymbol(const std::string& symbol) {
+    return !symbol.empty() && symbol.size() <= 32 &&
+           symbol.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&.-") == std::string::npos;
+}
+
+std::string secureTemporaryPath(const std::string& prefix) {
+    std::string templatePath = "/tmp/" + prefix + "XXXXXX";
+    std::vector<char> writable(templatePath.begin(), templatePath.end());
+    writable.push_back('\0');
+    const int descriptor = mkstemp(writable.data());
+    if (descriptor < 0) throw std::runtime_error("cannot create secure temporary file");
+    close(descriptor);
+    return writable.data();
+}
+
 std::vector<double> closePrices(const std::string& encodedCloses) {
     std::vector<double> closes;
     std::stringstream input(encodedCloses);
@@ -841,10 +885,8 @@ std::string WebServer::stockAnalysis(const std::string& symbol) const {
     const auto fundamentals = client_.getFundamentals(isin);
 
     const auto root = projectRoot();
-    const std::string inputPath = "/tmp/baran_capital_view_stock_" +
-                                  std::to_string(static_cast<long long>(getpid())) + ".csv";
-    const std::string outputPath = "/tmp/baran_capital_view_stock_" +
-                                   std::to_string(static_cast<long long>(getpid())) + ".json";
+    const std::string inputPath = secureTemporaryPath("baran_capital_view_stock_");
+    const std::string outputPath = secureTemporaryPath("baran_capital_view_stock_");
     const auto holdingsFile = (root / "config" / "holding.csv").string();
     {
         std::ofstream input(inputPath);
@@ -953,9 +995,8 @@ std::string WebServer::runDeeperAnalysis() const {
     const auto holdings = client_.getHoldings();
     if (!holdings.ok) throw std::runtime_error(holdings.error);
 
-    const std::string processId = std::to_string(static_cast<long long>(getpid()));
-    const std::string inputPath = "/tmp/baran_capital_view_live_holdings_" + processId + ".csv";
-    const std::string outputPath = "/tmp/baran_capital_view_nlp_" + processId + ".csv";
+    const std::string inputPath = secureTemporaryPath("baran_capital_view_live_");
+    const std::string outputPath = secureTemporaryPath("baran_capital_view_nlp_");
     const std::string scriptPath = projectPythonScript();
     {
         std::ofstream liveHoldings(inputPath);
@@ -1276,13 +1317,13 @@ int WebServer::run() {
             else if (path == "/") {
                 std::string html = page();
                 const std::string marker = "</body>";
-                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + dashboardUiOptimization() + marker);
+                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + marker);
                 const std::string head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nContent-Length: " + std::to_string(html.size()) + "\r\nConnection: close\r\n\r\n";
                 sendAll(connection, head + html);
                 close(connection); continue;
             } else if (path.rfind("/api/market-quotes?instrument_key=", 0) == 0) {
                 const auto keys = instrumentKeys(queryValue(path, "instrument_key"));
-                if (keys.empty() || keys.size() > 500) {
+                if (!validInstrumentKeyBatch(keys)) {
                     body = json({{"error", "instrument_key must contain 1 to 500 instruments"}}).dump();
                 } else {
                     const auto quotes = client_.fetchMarketQuotes(keys);
@@ -1309,14 +1350,24 @@ int WebServer::run() {
                     : json({{"error", rsi.reason}}).dump();
             } else if (path.rfind("/api/market-quote/ohlc?instrument_key=", 0) == 0) {
                 const auto keys = instrumentKeys(queryValue(path, "instrument_key"));
-                const auto quotes = client_.fetchOhlcQuotes(keys, queryValue(path, "interval"));
-                body = quotes.ok ? quotes.rawBody : json({{"error", quotes.error}}).dump();
+                if (!validInstrumentKeyBatch(keys)) {
+                    body = json({{"error", "instrument_key must contain 1 to 500 valid instruments"}}).dump();
+                } else {
+                    const auto quotes = client_.fetchOhlcQuotes(keys, queryValue(path, "interval"));
+                    body = quotes.ok ? quotes.rawBody : json({{"error", quotes.error}}).dump();
+                }
             } else if (path.rfind("/api/stock-analysis?symbol=", 0) == 0) {
                 std::string symbol = path.substr(std::string("/api/stock-analysis?symbol=").size());
                 std::size_t encodedAmp = symbol.find("%26");
                 if (encodedAmp != std::string::npos) symbol.replace(encodedAmp, 3, "&");
-                {
+                if (!validAnalysisSymbol(symbol)) {
+                    body = json({{"status", "error"}, {"error", "invalid stock symbol"}}).dump();
+                } else {
                     std::lock_guard<std::mutex> lock(analysisMutex_);
+                    if (stockAnalysisResults_.size() + stockAnalysisErrors_.size() >= 64) {
+                        stockAnalysisResults_.clear();
+                        stockAnalysisErrors_.clear();
+                    }
                     if (!stockAnalysisRunning_.count(symbol) &&
                         !stockAnalysisResults_.count(symbol) &&
                         !stockAnalysisErrors_.count(symbol)) {
@@ -1344,25 +1395,33 @@ int WebServer::run() {
                 }
             } else if (path.rfind("/api/fundamentals?symbol=", 0) == 0) {
                 const std::string symbol = urlDecode(path.substr(std::string("/api/fundamentals?symbol=").size()));
-                std::lock_guard<std::mutex> lock(analysisMutex_);
-                if (!fundamentalsRunning_.count(symbol) && !fundamentalsResults_.count(symbol) && !fundamentalsErrors_.count(symbol)) {
-                    fundamentalsRunning_.insert(symbol);
-                    std::thread([this, symbol]() {
-                        try {
-                            const std::string result = fundamentalsAnalysis(symbol);
-                            std::lock_guard<std::mutex> resultLock(analysisMutex_);
-                            fundamentalsResults_[symbol] = result;
-                            fundamentalsRunning_.erase(symbol);
-                        } catch (const std::exception& error) {
-                            std::lock_guard<std::mutex> resultLock(analysisMutex_);
-                            fundamentalsErrors_[symbol] = error.what();
-                            fundamentalsRunning_.erase(symbol);
-                        }
-                    }).detach();
+                if (!validAnalysisSymbol(symbol)) {
+                    body = json({{"status", "error"}, {"error", "invalid stock symbol"}}).dump();
+                } else {
+                    std::lock_guard<std::mutex> lock(analysisMutex_);
+                    if (fundamentalsResults_.size() + fundamentalsErrors_.size() >= 64) {
+                        fundamentalsResults_.clear();
+                        fundamentalsErrors_.clear();
+                    }
+                    if (!fundamentalsRunning_.count(symbol) && !fundamentalsResults_.count(symbol) && !fundamentalsErrors_.count(symbol)) {
+                        fundamentalsRunning_.insert(symbol);
+                        std::thread([this, symbol]() {
+                            try {
+                                const std::string result = fundamentalsAnalysis(symbol);
+                                std::lock_guard<std::mutex> resultLock(analysisMutex_);
+                                fundamentalsResults_[symbol] = result;
+                                fundamentalsRunning_.erase(symbol);
+                            } catch (const std::exception& error) {
+                                std::lock_guard<std::mutex> resultLock(analysisMutex_);
+                                fundamentalsErrors_[symbol] = error.what();
+                                fundamentalsRunning_.erase(symbol);
+                            }
+                        }).detach();
+                    }
+                    if (fundamentalsRunning_.count(symbol)) body = json({{"status", "running"}}).dump();
+                    else if (fundamentalsErrors_.count(symbol)) body = json({{"status", "error"}, {"error", fundamentalsErrors_[symbol]}}).dump();
+                    else body = fundamentalsResults_[symbol];
                 }
-                if (fundamentalsRunning_.count(symbol)) body = json({{"status", "running"}}).dump();
-                else if (fundamentalsErrors_.count(symbol)) body = json({{"status", "error"}, {"error", fundamentalsErrors_[symbol]}}).dump();
-                else body = fundamentalsResults_[symbol];
             } else if (path == "/api/global-news") {
                 // Use 'holdings' category since Upstox doesn't support 'global' category
                 // This provides market news relevant to the user's portfolio

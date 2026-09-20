@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <thread>
 #include <vector>
 
@@ -314,6 +315,13 @@ TEST(TechnicalIndicators, ComputeStandardIndicatorValues) {
     const auto ema = folio::calculateEma(closes, 5);
     EXPECT_TRUE(ema.ok);
     EXPECT_FALSE(ema.trend.empty());
+}
+
+TEST(TechnicalIndicators, RejectsUnsafeRsiPeriods) {
+    const std::vector<double> closes = {100.0, 101.0, 102.0};
+    EXPECT_FALSE(folio::calculateRsi(closes, 0).ok);
+    EXPECT_FALSE(folio::calculateRsi(closes, std::numeric_limits<std::size_t>::max()).ok);
+    EXPECT_FALSE(folio::calculateRsi(closes, 10001).ok);
 }
 
 TEST(OrdersAPI, SimulateAndPlaceSecurityValidatedOrders) {
