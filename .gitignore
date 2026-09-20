@@ -14,6 +14,7 @@ __pycache__/
 .folio_login_code
 .upstox.env
 *.local
+MODULE.bazel.lock
 
 # Tooling / IDE state
 *.patch
