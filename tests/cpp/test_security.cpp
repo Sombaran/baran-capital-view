@@ -42,6 +42,10 @@ TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
     EXPECT_EQ(categories[3], "invest more");
     EXPECT_EQ(categories[4], "sell it off");
 
+    EXPECT_EQ(folio::normalizeAnalysisCategory("Is ok to hold"), "Neutral news");
+    EXPECT_EQ(folio::normalizeAnalysisCategory("going good"), "going good");
+    EXPECT_EQ(folio::normalizeAnalysisCategory("unexpected model label"), "Neutral news");
+
     EXPECT_EQ(folio::normalizeDecisionAction("Consider adding - review"), "Consider adding");
     EXPECT_EQ(folio::normalizeDecisionAction("Do not add - review risk"), "Do not add");
     EXPECT_EQ(folio::normalizeDecisionAction("Hold / wait"), "Hold / wait");

@@ -126,6 +126,21 @@ std::vector<std::string> deeperAnalysisCategoryOrder() {
     return {"Neutral news", "No recent news", "going good", "invest more", "sell it off"};
 }
 
+std::string normalizeAnalysisCategory(const std::string& value) {
+    std::string normalized = value;
+    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
+                   [](unsigned char character) {
+                       return static_cast<char>(std::tolower(character));
+                   });
+    if (normalized == "invest more") return "invest more";
+    if (normalized == "going good") return "going good";
+    if (normalized == "sell it off") return "sell it off";
+    if (normalized == "no recent news") return "No recent news";
+    if (normalized == "neutral news" || normalized == "is ok to hold" ||
+        normalized == "hold / wait" || normalized == "hold") return "Neutral news";
+    return "Neutral news";
+}
+
 std::string normalizeDecisionAction(const std::string& value) {
     const std::string trimmed = value;
     if (trimmed.rfind("Consider", 0) == 0) return "Consider adding";
@@ -180,6 +195,14 @@ const char* releaseNoticeV2032Addendum() {
     return R"JS(<script>const releaseBox2032=document.querySelector('[role="dialog"]');if(releaseBox2032){releaseBox2032.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Security hardening · v2.0.32</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Hardened RSI input bounds, broker instrument-key validation, temporary analysis files, analysis cache limits, and dynamic article links. Existing API credentials remain server-side and malformed requests are rejected before broker calls.</p>')}</script>)JS";
 }
 
+const char* releaseNoticeV2033Addendum() {
+    return R"JS(<script>const releaseBox2033=document.querySelector('[role="dialog"]');if(releaseBox2033){releaseBox2033.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Navigation stability · v2.0.33</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed a dashboard observer mutation loop that could freeze tab navigation. The RSI tool is now repositioned only when necessary, while existing refresh, filtering, sorting, and security behavior remains unchanged.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2034Addendum() {
+    return R"JS(<script>const releaseBox2034=document.querySelector('[role="dialog"]');if(releaseBox2034){releaseBox2034.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Analysis data consistency · v2.0.34</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed Deeper analysis counts showing all zeros while holdings were marked hold/wait. Model outputs such as “Is ok to hold” are now normalized into the visible Neutral news category, so summary totals and signal categories agree.</p>')}</script>)JS";
+}
+
 const char* dashboardUiOptimization() {
     return R"JS(<script>(function(){const view=document.querySelector('#view'),status=document.querySelector('#status');if(!view)return;status?.setAttribute('aria-live','polite');const optimize=()=>{view.setAttribute('aria-busy','false');view.querySelectorAll('img:not([loading])').forEach(image=>{image.loading='lazy';image.decoding='async'});view.querySelectorAll('table.table').forEach(table=>table.parentElement?.classList.add('table-wrap'))};new MutationObserver(()=>requestAnimationFrame(optimize)).observe(view,{childList:true,subtree:true});const originalDeeperAnalysis=window.deeperAnalysis;window.deeperAnalysis=async function(){const payload=await safeJsonFetch('/api/deeper-analysis',{status:'error',error:'Deeper analysis is unavailable right now.'});if(activeTab!=='deeper-analysis')return;if(payload.status==='running'){status.textContent='Analysis in progress';view.innerHTML='<section class="panel analysis-status"><div class="label">Portfolio intelligence</div><h2>Comparing news signals</h2><p>The saved portfolio feed and fresh NLP analysis are being compared. This page will update automatically.</p></section>';return}if(payload.status==='error')throw Error(payload.error);const stocks=Array.isArray(payload.stocks)?payload.stocks:[],counts=payload.category_counts||{},order=payload.category_order||['Neutral news','No recent news','going good','invest more','sell it off'],buy=stocks.filter(item=>item.action==='Consider adding'||item.action==='Buy / review').length,risk=stocks.filter(item=>item.action==='Sell / review'||item.action==='Do not add').length,hold=stocks.length-buy-risk;status.textContent=stocks.length+' stocks compared · '+new Date().toLocaleTimeString();view.innerHTML='<section class="deeper-shell"><header class="deeper-header"><div><div class="label">Portfolio intelligence</div><h2>What needs your attention?</h2><p>Fresh NLP news is compared with the saved portfolio feed. Use the categories to find names, then read the evidence below.</p></div><div class="deeper-source">'+esc(payload.source||'Analysis source unavailable')+'</div></header><div class="deeper-summary"><div class="deeper-stat"><span class="label">Review now</span><b>'+buy+'</b><small>positive signals</small></div><div class="deeper-stat deeper-stat-risk"><span class="label">Risk review</span><b>'+risk+'</b><small>negative signals</small></div><div class="deeper-stat"><span class="label">Hold / wait</span><b>'+hold+'</b><small>mixed or neutral</small></div><div class="deeper-stat"><span class="label">Compared</span><b>'+stocks.length+'</b><small>portfolio stocks</small></div></div><section class="deeper-categories"><div class="label">Find by signal</div><div class="deeper-category-list">'+order.map(label=>'<button type="button" class="deeper-category"><b>'+Number(counts[label]||0)+'</b><span>'+esc(label)+'</span></button>').join('')+'</div><p class="category-stocks">Select a signal to see its stocks.</p></section><section class="panel deeper-evidence"><div class="label">Evidence</div><h3>Saved news vs fresh analysis</h3><div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>Stock</th><th>Saved signal</th><th>Fresh analysis</th><th>Review</th><th>Why</th></tr></thead><tbody>'+stocks.map((item,index)=>'<tr><td>'+String(index+1)+'</td><td><b>'+esc(item.symbol)+'</b></td><td>'+esc(item.saved_signal||'Neutral')+'</td><td>'+esc(item.python_recommendation||'No recent news')+'</td><td class="decision">'+esc(item.action||'Hold / wait')+'</td><td>'+esc(item.analysis||'No explanation available')+'</td></tr>').join('')+'</tbody></table></div></section></section>';const categoryPanel=view.querySelector('.deeper-categories');categoryPanel.querySelectorAll('.deeper-category').forEach((button,index)=>button.onclick=()=>{const label=order[index],names=(payload.category_stocks?.[label]||[]);categoryPanel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});optimize()};if(originalDeeperAnalysis&&typeof originalDeeperAnalysis!=='function')return;optimize()})()</script>)JS";
 }
@@ -194,7 +217,7 @@ const char* deeperAnalysisStyles() {
 }
 
 const char* deeperAnalysisPlacement() {
-    return R"JS(<script>(function(){const view=document.querySelector('#view');if(!view)return;const place=()=>{const tool=view.querySelector('.rsi-tool');if(tool&&tool.parentElement===view)view.appendChild(tool)};new MutationObserver(place).observe(view,{childList:true});place()})()</script>)JS";
+    return R"JS(<script>(function(){const view=document.querySelector('#view');if(!view)return;const place=()=>{const tool=view.querySelector('.rsi-tool');if(tool&&tool.parentElement===view&&view.lastElementChild!==tool)view.appendChild(tool)};new MutationObserver(place).observe(view,{childList:true});place()})()</script>)JS";
 }
 
 const char* dashboardSecurityHardening() {
@@ -1082,14 +1105,16 @@ std::string WebServer::runDeeperAnalysis() const {
         const std::string normalizedSymbol = normalizeSymbol(symbol);
         const bool hasFreshRecommendation = recommendations.count(normalizedSymbol) != 0 &&
                                             recommendations[normalizedSymbol] != "No recent news";
+        const std::string normalizedRecommendation = hasFreshRecommendation
+            ? normalizeAnalysisCategory(recommendations[normalizedSymbol]) : "No recent news";
         const std::string python = hasFreshRecommendation
-            ? recommendations[normalizedSymbol]
+            ? normalizedRecommendation
             : hasSavedNews ? (savedPositive ? "Saved news: positive" : savedNegative ? "Saved news: negative" : "Saved news: neutral")
                            : "No recent news";
         const bool pythonPositive = hasFreshRecommendation &&
-                                    (python == "invest more" || python == "going good");
-        const bool pythonNegative = hasFreshRecommendation && python == "sell it off";
-        const std::string category = hasFreshRecommendation ? python
+                                    (normalizedRecommendation == "invest more" || normalizedRecommendation == "going good");
+        const bool pythonNegative = hasFreshRecommendation && normalizedRecommendation == "sell it off";
+        const std::string category = hasFreshRecommendation ? normalizedRecommendation
             : hasSavedNews ? "Neutral news" : "No recent news";
         if (categoryStocks.contains(category)) categoryStocks[category].push_back(symbol);
         std::string action = "Hold / wait";
@@ -1317,7 +1342,7 @@ int WebServer::run() {
             else if (path == "/") {
                 std::string html = page();
                 const std::string marker = "</body>";
-                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + marker);
+                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + releaseNoticeV2033Addendum() + releaseNoticeV2034Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + marker);
                 const std::string head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nContent-Length: " + std::to_string(html.size()) + "\r\nConnection: close\r\n\r\n";
                 sendAll(connection, head + html);
                 close(connection); continue;

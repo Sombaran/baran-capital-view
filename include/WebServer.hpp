@@ -14,6 +14,7 @@ namespace folio {
 
 std::string normalizeSymbol(std::string symbol);
 std::vector<std::string> deeperAnalysisCategoryOrder();
+std::string normalizeAnalysisCategory(const std::string& value);
 std::string normalizeDecisionAction(const std::string& value);
 std::string normalizeLoginCode(const std::string& value);
 bool validateLoginCode(const std::string& submittedValue, const std::string& configuredValue);

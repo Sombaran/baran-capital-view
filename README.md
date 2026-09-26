@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.32
+Version: 2.0.34
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -25,7 +25,7 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.32
+Current release: 2.0.34
 
 Last updated: September 20, 2026
 
@@ -34,6 +34,10 @@ hold signals are summarized first, signal categories reveal their stocks, and
 the evidence table keeps saved news, fresh NLP analysis, action, and rationale
 together. The same responsive rendering and status behavior is used across all
 dashboard pages.
+
+Deeper analysis keeps navigation responsive while loading: the RSI panel is
+repositioned only when necessary, preventing repeated DOM mutations from
+freezing tab changes.
 
 Dashboard navigation is compact and adaptive: desktop keeps tabs in one
 horizontal row with overflow support, while mobile uses a balanced two-column
