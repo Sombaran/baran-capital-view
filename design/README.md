@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.34`
+**Version:** `2.0.35`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -63,9 +63,10 @@ put it in browser JavaScript.
 
 ## Documentation Index
 
+- **[Release Notes v2.0.35](RELEASE_NOTES_V2.0.35.md)** — current: live Day P&L correction and responsive dashboard optimization
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
-- **[Release Notes v2.0.34](RELEASE_NOTES_V2.0.34.md)** — current: Deeper analysis category consistency and dashboard data clarity
+- **[Release Notes v2.0.34](RELEASE_NOTES_V2.0.34.md)** — Deeper analysis category consistency and dashboard data clarity
 - **[Release Notes v2.0.33](RELEASE_NOTES_V2.0.33.md)** — Dashboard navigation freeze fix and observer stability
 - **[Release Notes v2.0.32](RELEASE_NOTES_V2.0.32.md)** — Stock API input hardening and browser output safety
 - **[Release Notes v2.0.31](RELEASE_NOTES_V2.0.31.md)** — Deeper analysis visual correction and responsive dashboard polish
@@ -107,6 +108,8 @@ The local-first design provides:
 - a clear upgrade path to a distributed worker model only when scaling and isolation become real requirements
 
 ### Release notes
+
+* `2.0.35` — Fixed the Overview Day P&L for live holdings without an explicit day change, normalized local CSV totals to avoid quantity being applied twice, improved shared responsive sizing across dashboard pages, added a focused day-P&L regression assertion, and refreshed the right-side post-login popup.
 
 * `2.0.8` — Added Bazel build compatibility alongside the existing CMake path, tightened repository hygiene by ignoring generated Python and secret files, refreshed the right-side fix summary to cover the build and repo-cleanup patch, and updated the build helper to select the appropriate backend without changing the live stock API security or the browser contract.
 * `2.0.7` — Fixed the broken Alerts tab and duplicate browser-rendering logic, corrected the Deeper analysis category labels and action normalization so the counts and buttons match the same canonical values, refreshed the right-side fix summary to document the shipped patch, preserved the stock API hardening and local-first design, and kept the build metadata aligned with the x.x.x semver format.

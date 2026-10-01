@@ -65,14 +65,11 @@ PortfolioHealth analyze(const std::vector<Position>& positions) {
         ++h.openPositions;
         const double mv        = p.marketValue();          // signed
         const double invested  = absVal(p.averagePrice * p.quantity * p.multiplier);
-        const double dayLegPnl = (p.lastPrice - p.closePrice) *
-                                 p.quantity * p.multiplier;
-
         h.grossExposure   += absVal(mv);
         h.netExposure     += mv;
         h.investedCapital += invested;
         h.totalUnrealised += p.unrealised;
-        h.dayPnl          += dayLegPnl;
+        h.dayPnl          += p.dayPnl();
 
         if (mv >= 0) { ++h.longCount;  h.longExposure  += mv;  }
         else         { ++h.shortCount; h.shortExposure += -mv; }

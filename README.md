@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.34
+Version: 2.0.35
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -25,9 +25,15 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.34
+Current release: 2.0.35
 
-Last updated: September 20, 2026
+Last updated: October 1, 2026
+
+Version 2.0.35 fixes the Overview Day P&L when live holdings omit `day_change`
+and prevents the local CSV fallback from multiplying an already-total P&L by
+quantity. Shared responsive sizing improves metric grids, news lists, and wide
+tables across all dashboard pages. The post-login release popup summarizes
+these changes.
 
 The Deeper analysis page is organized as a review queue: positive, risk, and
 hold signals are summarized first, signal categories reveal their stocks, and
@@ -151,9 +157,9 @@ pytest -q
 
 `pytest.ini` limits discovery to `tests/python` and excludes generated Bazel
 trees, so the command does not collect third-party or symlinked build files.
-The current suite contains 1 C++ test target and 7 Python tests.
+The current suite contains 1 C++ test target and 8 Python tests.
 
-The C++ tests cover the secure symbol, quantity, and price validation helpers used by the stock order pipeline, while the Python tests cover the sentiment fallback and path resolution logic in the Deeper analysis workflow.
+The C++ tests cover secure order validation, portfolio calculations, and live Day P&L aggregation. The Python tests cover sentiment fallback and path resolution in the Deeper analysis workflow.
 
 ### Coverage reports
 

@@ -260,6 +260,7 @@ TEST(PortfolioHealth, AnalyzeAggregatesExposureAndHealth) {
 
     const auto health = folio::analyze(positions);
     EXPECT_EQ(health.openPositions, 2u);
+    EXPECT_DOUBLE_EQ(health.dayPnl, 1100.0);
     EXPECT_GT(health.grossExposure, 0.0);
     EXPECT_GT(health.totalUnrealised, 0.0);
     EXPECT_GE(health.healthScore, 0);

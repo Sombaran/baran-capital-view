@@ -42,6 +42,8 @@ struct Position {
         if (std::abs(value) > 0.0) return value;
         return lastPrice * quantity * multiplier;
     }
+    double dayChange() const { return lastPrice - closePrice; }
+    double dayPnl() const { return dayChange() * quantity * multiplier; }
     double exposure()    const { return marketValue() >= 0 ? marketValue() : -marketValue(); }
     double totalPnl()    const { return unrealised + realised; }
 };
