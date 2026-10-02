@@ -174,7 +174,110 @@ const char* requestedDashboardRouting() {
 }
 
 const char* operationsWorkspace() {
-    return R"JS(<script>(function(){const nav=document.querySelector('.tabs'),view=document.querySelector('#view');if(!nav||!view)return;const operationsButton=nav.querySelector('[data-tab="positions"]'),healthButton=nav.querySelector('[data-tab="health"]'),configButton=nav.querySelector('[data-tab="config"]');if(!operationsButton)return;operationsButton.dataset.tab='operations';operationsButton.textContent='Operations';healthButton?.remove();configButton?.remove();let section='positions';const renderSection=async next=>{section=next;const markup='<nav class="operations-tabs" role="tablist" aria-label="Operations views"><button type="button" class="operations-tab" role="tab" data-operation="positions">Positions</button><button type="button" class="operations-tab" role="tab" data-operation="health">Data health</button><button type="button" class="operations-tab" role="tab" data-operation="config">Configuration</button></nav>';try{if(next==='positions')await raw('positions','/api/positions','Open positions');else if(next==='health')await health();else await config()}catch(error){fail(error)}const content=view.innerHTML;view.innerHTML=markup+'<div id="operations-content">'+content+'</div>';view.querySelectorAll('.operations-tab').forEach(button=>{const selected=button.dataset.operation===section;button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected));button.onclick=()=>renderSection(button.dataset.operation);button.onkeydown=event=>{if(!['ArrowRight','ArrowLeft'].includes(event.key))return;event.preventDefault();const buttons=[...view.querySelectorAll('.operations-tab')],index=buttons.indexOf(button),nextButton=buttons[(index+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length];nextButton.focus();nextButton.click()}});enhanceSortableTables()};document.head.insertAdjacentHTML('beforeend','<style>.operations-tabs{display:flex;gap:6px;margin:0 0 14px;padding:6px;background:#e8efeb;border-bottom:1px solid var(--line)}.operations-tab{border:0;border-bottom:2px solid transparent;padding:9px 14px;background:transparent;color:var(--ink);font:700 12px Arial,sans-serif;cursor:pointer}.operations-tab:hover,.operations-tab.active{color:var(--teal)}.operations-tab.active{border-bottom-color:var(--teal)}.operations-tab:focus-visible{outline:2px solid var(--orange);outline-offset:2px}@media(max-width:560px){.operations-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.operations-tab{padding:9px 6px}}');const previousOpenTab=openTab;openTab=async function(tab,showLoading=true){if(tab!=='operations')return previousOpenTab(tab,showLoading);activeTab='operations';nav.querySelectorAll('.tab').forEach(button=>{const selected=button.dataset.tab==='operations';button.classList.toggle('active',selected);button.setAttribute('aria-selected',String(selected))});document.querySelector('#view-filter').value='';if(showLoading)view.innerHTML='<div class="panel loading">Loading operations...</div>';await renderSection(section)}})()</script>)JS";
+    return R"JS(<script>
+(function(){
+    const nav=document.querySelector('.tabs'),view=document.querySelector('#view');
+    if(!nav||!view)return;
+    const operationsButton=nav.querySelector('[data-tab="positions"]');
+    const healthButton=nav.querySelector('[data-tab="health"]');
+    const configButton=nav.querySelector('[data-tab="config"]');
+    if(!operationsButton)return;
+    operationsButton.dataset.tab='operations';
+    operationsButton.textContent='Operations';
+    healthButton?.remove();
+    configButton?.remove();
+    let section='positions';
+    window.activeOperationsSection=section;
+    const subnav='<nav class="operations-tabs" role="tablist" aria-label="Operations views">'+
+        '<button type="button" class="operations-tab" role="tab" data-operation="positions">Positions</button>'+ 
+        '<button type="button" class="operations-tab" role="tab" data-operation="health">Data health</button>'+ 
+        '<button type="button" class="operations-tab" role="tab" data-operation="config">Configuration</button>'+ 
+        '<button type="button" class="operations-tab" role="tab" data-operation="download">Download</button></nav>';
+    const renderSection=async next=>{
+        section=next;
+        window.activeOperationsSection=section;
+        try{
+            if(next==='positions')await raw('positions','/api/positions','Open positions');
+            else if(next==='health')await health();
+            else if(next==='download')view.innerHTML='<section class="panel"><div class="label">Som Baran Portfolio</div><h2>Download stock list</h2><p>Export the holdings available to this authenticated dashboard as a CSV file.</p><button type="button" class="command-button" data-download-portfolio>Download CSV</button><p class="download-status" role="status" aria-live="polite">Uses the current live portfolio or local fallback.</p></section>';
+            else await config();
+        }catch(error){fail(error)}
+        const content=view.innerHTML;
+        view.innerHTML=subnav+'<div id="operations-content">'+content+'</div>';
+        view.querySelectorAll('.operations-tab').forEach(button=>{
+            const selected=button.dataset.operation===section;
+            button.classList.toggle('active',selected);
+            button.setAttribute('aria-selected',String(selected));
+            button.onclick=()=>renderSection(button.dataset.operation);
+            button.onkeydown=event=>{
+                if(!['ArrowRight','ArrowLeft'].includes(event.key))return;
+                event.preventDefault();
+                const buttons=[...view.querySelectorAll('.operations-tab')];
+                const index=buttons.indexOf(button);
+                const nextButton=buttons[(index+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length];
+                nextButton.focus();
+                nextButton.click();
+            };
+        });
+        view.querySelector('[data-download-portfolio]')?.addEventListener('click',window.downloadPortfolioCsv);
+        enhanceSortableTables();
+    };
+    document.head.insertAdjacentHTML('beforeend','<style>.operations-tabs{display:flex;gap:6px;margin:0 0 14px;padding:6px;background:#e8efeb;border-bottom:1px solid var(--line)}.operations-tab{border:0;border-bottom:2px solid transparent;padding:9px 14px;background:transparent;color:var(--ink);font:700 12px Arial,sans-serif;cursor:pointer}.operations-tab:hover,.operations-tab.active{color:var(--teal)}.operations-tab.active{border-bottom-color:var(--teal)}.operations-tab:focus-visible{outline:2px solid var(--orange);outline-offset:2px}@media(max-width:560px){.operations-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.operations-tab{padding:9px 6px;font-size:11px}}</style>');
+    const previousOpenTab=openTab;
+    openTab=async function(tab,showLoading=true){
+        if(tab!=='operations')return previousOpenTab(tab,showLoading);
+        activeTab='operations';
+        nav.querySelectorAll('.tab').forEach(button=>{
+            const selected=button.dataset.tab==='operations';
+            button.classList.toggle('active',selected);
+            button.setAttribute('aria-selected',String(selected));
+        });
+        document.querySelector('#view-filter').value='';
+        if(showLoading)view.innerHTML='<div class="panel loading">Loading operations...</div>';
+        await renderSection(section);
+    };
+})()
+</script>)JS";
+}
+
+const char* operationsDownload() {
+    return R"JS(<script>
+function downloadCsvCell(value){
+    let text=String(value??'');
+    const trimmed=text.trim();
+    const numeric=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(trimmed);
+    if(typeof value==='string'&&!numeric&&/^[\t\r\n ]*[=+\-@]/.test(text))text="'"+text;
+    return '"'+text.replace(/"/g,'""')+'"';
+}
+window.downloadPortfolioCsv=async function(){
+    const message=document.querySelector('.download-status');
+    try{
+        const payload=await get('holdings','/api/holdings');
+        const holdings=Array.isArray(payload.data)?payload.data:[];
+        const columns=[
+            ['Symbol',item=>item.trading_symbol||item.tradingsymbol||item.instrument_token||''],
+            ['Company',item=>item.company_name||item.name||''],
+            ['Exchange',item=>item.exchange||''],
+            ['Quantity',item=>item.quantity??''],
+            ['Average Price',item=>item.average_price??''],
+            ['Last Price',item=>item.last_price??''],
+            ['Market Value',item=>item.current_value??item.market_value??item.value??'']
+        ];
+        const rows=[columns.map(([label])=>label),...holdings.map(item=>columns.map(([,read])=>read(item)))];
+        const csv='\ufeff'+rows.map(row=>row.map(downloadCsvCell).join(',')).join('\r\n');
+        const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');
+        anchor.href=url;
+        anchor.download='som-baran-portfolio-'+new Date().toISOString().slice(0,10)+'.csv';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),0);
+        if(message)message.textContent='Downloaded '+holdings.length+' stocks from '+(payload.source==='upstox-live'?'the live Upstox portfolio.':'the local fallback portfolio.');
+    }catch(error){
+        if(message)message.textContent=error.message||'Portfolio download failed. Use Refresh to retry.';
+    }
+};
+</script>)JS";
 }
 
 
@@ -239,6 +342,10 @@ const char* releaseNoticeV2039Addendum() {
 
 const char* releaseNoticeV2040Addendum() {
     return R"JS(<script>const releaseBox2040=document.querySelector('[role="dialog"]');if(releaseBox2040){releaseBox2040.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Operations workspace · v2.0.40</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Positions, Data health, and Configuration are now grouped under one Operations tab. Their existing data and controls remain available as in-page views.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2041Addendum() {
+    return R"JS(<script>const releaseBox2041=document.querySelector('[role="dialog"]');if(releaseBox2041){releaseBox2041.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Portfolio download · v2.0.41</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Added a Download subview under Operations for exporting the current Som Baran Portfolio holdings to CSV. Export uses the existing authenticated data and protects spreadsheet users from formula-leading text.</p>')}</script>)JS";
 }
 
 std::string dashboardVersion() {
@@ -356,7 +463,7 @@ function recoverAfterWake(){const now=Date.now();if(now-lastVisibleAt<5000)retur
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')recoverAfterWake()});
 window.addEventListener('pageshow',recoverAfterWake);
 setInterval(()=>{if(document.visibilityState==='visible'&&activeTab==='deeper-analysis'&&!updatesPaused){cache={};openTab(activeTab,false)}},30000);
-setInterval(loadMarketHolidays,12*60*60*1000);refreshTimer=setInterval(()=>{updateMarketStatus();if(document.visibilityState==='visible'&&!updatesPaused&&!refreshInFlight&&activeTab!=='config'&&activeTab!=='deeper-analysis'&&!(activeTab==='operations'&&window.activeOperationsSection==='config')){cache={};refreshInFlight=true;openTab(activeTab,false).finally(()=>refreshInFlight=false)}},15000);
+setInterval(loadMarketHolidays,12*60*60*1000);refreshTimer=setInterval(()=>{updateMarketStatus();if(document.visibilityState==='visible'&&!updatesPaused&&!refreshInFlight&&activeTab!=='config'&&activeTab!=='deeper-analysis'&&!(activeTab==='operations'&&['config','download'].includes(window.activeOperationsSection))){cache={};refreshInFlight=true;openTab(activeTab,false).finally(()=>refreshInFlight=false)}},15000);
 </script></body></html>)HTML";
 }
 
@@ -1403,7 +1510,7 @@ int WebServer::run() {
             else if (path == "/") {
                 std::string html = page();
                 const std::string marker = "</body>";
-                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + releaseNoticeV2033Addendum() + releaseNoticeV2034Addendum() + releaseNoticeV2035Addendum() + releaseNoticeV2036Addendum() + releaseNoticeV2037Addendum() + releaseNoticeV2038Addendum() + releaseNoticeV2039Addendum() + releaseNoticeV2040Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + operationsWorkspace() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + dashboardResponsiveLayout() + marker);
+                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + releaseNoticeV2033Addendum() + releaseNoticeV2034Addendum() + releaseNoticeV2035Addendum() + releaseNoticeV2036Addendum() + releaseNoticeV2037Addendum() + releaseNoticeV2038Addendum() + releaseNoticeV2039Addendum() + releaseNoticeV2040Addendum() + releaseNoticeV2041Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + operationsWorkspace() + operationsDownload() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + dashboardResponsiveLayout() + marker);
                 const std::string head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nContent-Length: " + std::to_string(html.size()) + "\r\nConnection: close\r\n\r\n";
                 sendAll(connection, head + html);
                 close(connection); continue;

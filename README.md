@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.40
+Version: 2.0.41
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -11,6 +11,7 @@ baran-capital-view is a C++17 portfolio analysis and monitoring application for 
 - Upstox market-holiday and special-session awareness in the IST market status
 - Python-backed Deeper analysis for recent company/news context and recommendations
 - Browser UI for overview, news, alerts, analysis, fundamentals, and an Operations workspace
+- CSV download of the authenticated Som Baran Portfolio holdings from Operations
 - Release-notes popup summarizing the current code-change version and fixes
 - Security-first handling around API tokens and external HTTP endpoints
 - Local monolith architecture with internal async task scheduling for background work
@@ -26,9 +27,14 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.40
+Current release: 2.0.41
 
 Last updated: October 2, 2026
+
+Version 2.0.41 adds an Operations > Download subview that exports the current
+Som Baran Portfolio holdings to CSV from the existing authenticated holdings
+payload. Export values are CSV-escaped and formula-leading text is neutralized
+for spreadsheet safety; no new Stock API route or credential exposure is added.
 
 Version 2.0.40 groups Positions, Data health, and Configuration under one
 Operations tab with in-page subviews. Existing endpoints and view behavior are
@@ -184,7 +190,7 @@ pytest -q
 
 `pytest.ini` limits discovery to `tests/python` and excludes generated Bazel
 trees, so the command does not collect third-party or symlinked build files.
-The current suite contains 1 C++ test target and 11 Python tests.
+The current suite contains 1 C++ test target and 12 Python tests.
 
 The C++ tests cover secure order validation, portfolio calculations, and live Day P&L aggregation. The Python tests cover sentiment fallback and path resolution in the Deeper analysis workflow.
 

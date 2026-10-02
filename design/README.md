@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.40`
+**Version:** `2.0.41`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -63,7 +63,8 @@ put it in browser JavaScript.
 
 ## Documentation Index
 
-- **[Release Notes v2.0.40](RELEASE_NOTES_V2.0.40.md)** — current: Operations workspace consolidation
+- **[Release Notes v2.0.41](RELEASE_NOTES_V2.0.41.md)** — current: Som Baran Portfolio CSV download
+- **[Release Notes v2.0.40](RELEASE_NOTES_V2.0.40.md)** — Operations workspace consolidation
 - **[Release Notes v2.0.39](RELEASE_NOTES_V2.0.39.md)** — web log capture and background refresh optimization
 - **[Release Notes v2.0.38](RELEASE_NOTES_V2.0.38.md)** — live API error handling and retry stability
 - **[Release Notes v2.0.37](RELEASE_NOTES_V2.0.37.md)** — Upstox market holidays and special sessions
@@ -114,6 +115,7 @@ The local-first design provides:
 
 ### Release notes
 
+- `2.0.41` — Added an Operations > Download subview that exports holdings from the existing authenticated payload; CSV quoting and spreadsheet-formula neutralization are applied client-side with no new API route or credentials exposed.
 - `2.0.40` — Grouped Positions, Data health, and Configuration under an Operations tab with keyboard-accessible in-page views; preserved their current renderers and APIs and suppressed automatic live-data refresh while Configuration is selected.
 - `2.0.39` — Capture C++ stdout/stderr for web launches to a private per-user log with a configurable path; leave non-web commands unchanged; pause active-page API polling while hidden and recover on visibility; add launcher tests for both behaviors.
 - `2.0.38` — Standardized snapshot failures as error payloads, prevented failed requests from rendering as zero holdings, added explicit token-renewal and retry states, and throttled automatic retries for auth/transient failures. Error details remain server-side; manual refresh clears retry backoff.

@@ -79,3 +79,37 @@ def test_operations_workspace_keeps_existing_subviews():
     assert "raw('positions','/api/positions','Open positions')" in operations
     assert "await health()" in operations
     assert "await config()" in operations
+
+
+def test_operations_download_uses_authenticated_holdings_and_safe_csv():
+    source = (Path(__file__).parents[2] / "src" / "WebServer.cpp").read_text()
+    operations = source.split("const char* operationsWorkspace()", 1)[1].split(
+        "const char* operationsDownload()", 1
+    )[0]
+    exporter = source.split("const char* operationsDownload()", 1)[1].split(
+        "const char* responsiveDashboardNavigation()", 1
+    )[0]
+
+    assert 'data-operation="download"' in operations
+    assert "data-download-portfolio" in operations
+    assert "get('holdings','/api/holdings')" in exporter
+    assert "text.replace(/\"/g,'\"\"')" in exporter
+    assert "typeof value==='string'&&!numeric" in exporter
+    assert "URL.revokeObjectURL(url)" in exporter
+
+
+def test_operations_download_uses_safe_csv_from_authenticated_holdings():
+    source = (Path(__file__).parents[2] / "src" / "WebServer.cpp").read_text()
+    operations = source.split("const char* operationsWorkspace()", 1)[1].split(
+        "const char* operationsDownload()", 1
+    )[0]
+    exporter = source.split("const char* operationsDownload()", 1)[1].split(
+        "const char* responsiveDashboardNavigation()", 1
+    )[0]
+
+    assert 'data-operation="download"' in operations
+    assert "data-download-portfolio" in operations
+    assert "get('holdings','/api/holdings')" in exporter
+    assert "text.replace(/\"/g,'\"\"')" in exporter
+    assert "formula" in exporter or "numeric" in exporter
+    assert "URL.revokeObjectURL(url)" in exporter
