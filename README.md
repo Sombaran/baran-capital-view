@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.35
+Version: 2.0.36
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -25,11 +25,13 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.35
+Current release: 2.0.36
 
 Last updated: October 1, 2026
 
-Version 2.0.35 fixes the Overview Day P&L when live holdings omit `day_change`
+Version 2.0.36 replaces serial-number `#` headers with `S.No` across dashboard
+tables while preserving refresh and sorting behavior. Version 2.0.35 fixed the
+Overview Day P&L when live holdings omit `day_change`
 and prevents the local CSV fallback from multiplying an already-total P&L by
 quantity. Shared responsive sizing improves metric grids, news lists, and wide
 tables across all dashboard pages. The post-login release popup summarizes
