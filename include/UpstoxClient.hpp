@@ -49,6 +49,13 @@ struct NewsResult {
     std::string rawBody;
 };
 
+struct MarketHolidaysResult {
+    bool ok = false;
+    long httpStatus = 0;
+    std::string error;
+    std::string rawBody;
+};
+
 struct FundamentalsResult {
     bool ok = false;
     long httpStatus = 0;
@@ -76,6 +83,9 @@ public:
     PositionsResult getHoldings() const;
 
     NewsResult getNews(const std::string& category = "holdings") const;
+
+    // Fetch the current year's market holiday calendar.
+    MarketHolidaysResult getMarketHolidays() const;
 
     // Fetch company profile and key ratios for an ISIN.
     FundamentalsResult getFundamentals(const std::string& isin) const;

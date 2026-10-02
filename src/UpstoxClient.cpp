@@ -236,6 +236,34 @@ NewsResult UpstoxClient::getNews(const std::string& category) const {
     return out;
 }
 
+MarketHolidaysResult UpstoxClient::getMarketHolidays() const {
+    MarketHolidaysResult out;
+    const std::map<std::string, std::string> headers = {
+        {"Accept", "application/json"},
+        {"Authorization", "Bearer " + accessToken_},
+    };
+    const HttpResponse response = http_.get(baseUrl_ + "/v2/market/holidays", headers);
+    out.httpStatus = response.statusCode;
+    out.rawBody = response.body;
+
+    if (!response.error.empty()) {
+        out.error = "network error: " + response.error;
+        return out;
+    }
+    if (!response.ok()) {
+        out.error = (response.statusCode == 401 || response.statusCode == 403)
+            ? "access token expired or unauthorized (HTTP " + std::to_string(response.statusCode) + ")"
+            : "HTTP " + std::to_string(response.statusCode) + " from Upstox market holidays API";
+        return out;
+    }
+    if (!security::isValidMarketHolidaysResponse(response.body)) {
+        out.error = "invalid Upstox market holidays response";
+        return out;
+    }
+    out.ok = true;
+    return out;
+}
+
 FundamentalsResult UpstoxClient::getFundamentals(const std::string& isin) const {
     FundamentalsResult out;
     if (isin.empty() || isin.size() > 32 ||

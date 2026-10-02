@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.36`
+**Version:** `2.0.40`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -63,7 +63,11 @@ put it in browser JavaScript.
 
 ## Documentation Index
 
-- **[Release Notes v2.0.36](RELEASE_NOTES_V2.0.36.md)** — current: consistent S.No table headers
+- **[Release Notes v2.0.40](RELEASE_NOTES_V2.0.40.md)** — current: Operations workspace consolidation
+- **[Release Notes v2.0.39](RELEASE_NOTES_V2.0.39.md)** — web log capture and background refresh optimization
+- **[Release Notes v2.0.38](RELEASE_NOTES_V2.0.38.md)** — live API error handling and retry stability
+- **[Release Notes v2.0.37](RELEASE_NOTES_V2.0.37.md)** — Upstox market holidays and special sessions
+- **[Release Notes v2.0.36](RELEASE_NOTES_V2.0.36.md)** — consistent S.No table headers
 - **[Release Notes v2.0.35](RELEASE_NOTES_V2.0.35.md)** — live Day P&L correction and responsive dashboard optimization
 - **[High Level Design](HighLevelDesign.md)** — overall architecture, data flow, and component interaction
 - **[Low Level Design](LowLevelDesign.md)** — API specifications, data structures, and implementation details  
@@ -97,7 +101,7 @@ put it in browser JavaScript.
 - **[Portfolio Health Model](PortfolioHealthModel.md)** — scoring algorithm and health metric calculations
 - **[Build Fixes v2.0.0](BUILD_FIXES_V2.0.0.md)** — initial 2.0 build system and dependency resolution
 
-The browser UI provides Overview, News, Alerts, Deeper analysis, Positions, JSON, and Config tabs. Holdings, positions, and news refresh automatically every 5 seconds while a tab is open. News is filtered to normalized symbols in `config/holding.csv` for the Sombaran Portfolio; the Alerts tab lists every holding, adds a serial number, links each available `Why` explanation to its News article, and provides advisory C++ keyword sentiment without placing orders.
+The browser UI provides Overview, News, Alerts, Deeper analysis, Fundamentals, Operations, JSON, Summary Dashboard, and Global market news tabs. Operations contains Positions, Data health, and Configuration subviews. Holdings and news refresh while live-data views are active; Configuration is read-only and does not trigger polling. News is filtered to normalized symbols in `config/holding.csv`; Alerts lists every holding, adds a serial number, links available `Why` explanations to News, and provides advisory sentiment without placing orders.
 
 ### Architecture guidance
 
@@ -110,6 +114,10 @@ The local-first design provides:
 
 ### Release notes
 
+- `2.0.40` — Grouped Positions, Data health, and Configuration under an Operations tab with keyboard-accessible in-page views; preserved their current renderers and APIs and suppressed automatic live-data refresh while Configuration is selected.
+- `2.0.39` — Capture C++ stdout/stderr for web launches to a private per-user log with a configurable path; leave non-web commands unchanged; pause active-page API polling while hidden and recover on visibility; add launcher tests for both behaviors.
+- `2.0.38` — Standardized snapshot failures as error payloads, prevented failed requests from rendering as zero holdings, added explicit token-renewal and retry states, and throttled automatic retries for auth/transient failures. Error details remain server-side; manual refresh clears retry backoff.
+- `2.0.37` — Added a session-protected Upstox market-holidays route with strict payload validation and a 12-hour cache. The IST market badge now reports NSE holidays, special sessions, and the next NSE trading holiday; existing weekday and normal-hours behavior remains the fallback. Added payload regression coverage and a post-login popup summary.
 - `2.0.36` — Replaced hash serial headers with `S.No` across dashboard tables, kept serial columns non-sortable, and made serial insertion idempotent after refresh or sorting.
 * `2.0.35` — Fixed the Overview Day P&L for live holdings without an explicit day change, normalized local CSV totals to avoid quantity being applied twice, improved shared responsive sizing across dashboard pages, added a focused day-P&L regression assertion, and refreshed the right-side post-login popup.
 

@@ -109,6 +109,18 @@ TEST(UpstoxClient, GlobalNewsResponseValidationRequiresDataField) {
     EXPECT_FALSE(folio::security::isValidNewsResponse("not json"));  // malformed
 }
 
+TEST(UpstoxClient, MarketHolidayResponseValidationRequiresDocumentedShape) {
+    EXPECT_TRUE(folio::security::isValidMarketHolidaysResponse(
+        R"({"status":"success","data":[{"date":"2026-10-02","description":"Market holiday","holiday_type":"TRADING_HOLIDAY","closed_exchanges":["NSE","BSE"],"open_exchanges":[]}]})"));
+    EXPECT_TRUE(folio::security::isValidMarketHolidaysResponse(
+        R"({"status":"success","data":[]})"));
+    EXPECT_FALSE(folio::security::isValidMarketHolidaysResponse(
+        R"({"status":"success"})"));
+    EXPECT_FALSE(folio::security::isValidMarketHolidaysResponse(
+        R"({"status":"success","data":[{"date":"10/02/2026","description":"Holiday","holiday_type":"TRADING_HOLIDAY","closed_exchanges":[],"open_exchanges":[]}]})"));
+    EXPECT_FALSE(folio::security::isValidMarketHolidaysResponse("not json"));
+}
+
 TEST(UpstoxClient, GlobalNewsMalformedResponseHandling) {
     // Test JSON parse error handling
     const std::string malformedJson = R"({"status":"success","data":[)";  // incomplete JSON

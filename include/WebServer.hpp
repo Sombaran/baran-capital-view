@@ -39,6 +39,7 @@ private:
     };
 
     std::shared_ptr<const Snapshot> snapshot() const;
+    std::string marketHolidays() const;
     std::string runDeeperAnalysis() const;
     std::string stockAnalysis(const std::string& symbol) const;
     std::string fundamentalsAnalysis(const std::string& symbol) const;
@@ -52,6 +53,9 @@ private:
     mutable std::mutex snapshotMutex_;
     mutable std::mutex refreshMutex_;
     mutable std::shared_ptr<const Snapshot> snapshot_;
+    mutable std::mutex marketHolidaysMutex_;
+    mutable std::string marketHolidaysCache_;
+    mutable std::chrono::steady_clock::time_point marketHolidaysExpires_{};
     mutable std::mutex sessionMutex_;
     std::unordered_set<std::string> sessions_;
     mutable std::mutex analysisMutex_;

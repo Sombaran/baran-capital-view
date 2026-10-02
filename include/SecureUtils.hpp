@@ -113,6 +113,9 @@ bool validateSymbol(const std::string& symbol);
  */
 bool validateNewsCategory(const std::string& category);
 
+/** Validate the documented Upstox market-holidays response shape. */
+bool isValidMarketHolidaysResponse(const std::string& responseJson);
+
 /**
  * @brief Validate quantity bounds.
  * @param quantity Units to validate

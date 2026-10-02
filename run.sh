@@ -22,6 +22,26 @@ if [[ ! -x build/portfolio_health || "${1:-}" == "--rebuild" ]]; then
   [[ "${1:-}" == "--rebuild" ]] && shift || true
 fi
 
+# Capture all C++ and Python output for web sessions in a private state file.
+for argument in "$@"; do
+  if [[ "$argument" == "--web" ]]; then
+    web_log_file="${PORTFOLIO_WEB_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/baran-capital-view/web-ui.log}"
+    web_log_dir=$(dirname "$web_log_file")
+    (umask 077; mkdir -p "$web_log_dir")
+    if [[ -L "$web_log_file" || ( -e "$web_log_file" && ! -f "$web_log_file" ) ]]; then
+      printf 'Refusing unsafe web log path: %s\n' "$web_log_file" >&2
+      exit 1
+    fi
+    (umask 077; touch "$web_log_file")
+    chmod 600 "$web_log_file"
+    printf 'Capturing web logs in %s\n' "$web_log_file"
+    printf 'Starting Portfolio Health Web UI at http://127.0.0.1:8080\n'
+    export PYTHONUNBUFFERED=1
+    exec >>"$web_log_file" 2>&1
+    break
+  fi
+done
+
 # 2. Launch the interactive UI when no command-line action is supplied.
 #    Explicit arguments remain available for scripts and automation.
 #

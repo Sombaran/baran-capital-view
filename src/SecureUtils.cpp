@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <array>
 #include <random>
+#include <set>
 #include <sys/stat.h>
 
 #ifdef HAVE_OPENSSL
@@ -374,6 +375,41 @@ bool isValidNewsResponse(const std::string& responseJson) {
         // Must have status="success" and a data field
         if (json.value("status", "") != "success") return false;
         if (!json.contains("data")) return false;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool isValidMarketHolidaysResponse(const std::string& responseJson) {
+    try {
+        const auto payload = nlohmann::json::parse(responseJson);
+        const auto data = payload.find("data");
+        if (payload.value("status", "") != "success" ||
+            data == payload.end() || !data->is_array()) return false;
+
+        static const std::set<std::string> holidayTypes = {
+            "SETTLEMENT_HOLIDAY", "TRADING_HOLIDAY", "SPECIAL_TIMING"};
+        for (const auto& holiday : *data) {
+            if (!holiday.is_object() || !holiday.contains("date") ||
+                !holiday["date"].is_string() || !holiday.contains("description") ||
+                !holiday["description"].is_string() || !holiday.contains("holiday_type") ||
+                !holiday["holiday_type"].is_string() || !holiday.contains("closed_exchanges") ||
+                !holiday["closed_exchanges"].is_array() || !holiday.contains("open_exchanges") ||
+                !holiday["open_exchanges"].is_array()) return false;
+
+            const std::string date = holiday["date"].get<std::string>();
+            if (date.size() != 10 || date[4] != '-' || date[7] != '-') return false;
+            for (std::size_t index = 0; index < date.size(); ++index) {
+                if (index == 4 || index == 7) continue;
+                if (date[index] < '0' || date[index] > '9') return false;
+            }
+            if (!holidayTypes.count(holiday["holiday_type"].get<std::string>())) return false;
+            for (const auto& exchange : holiday["closed_exchanges"])
+                if (!exchange.is_string()) return false;
+            for (const auto& exchange : holiday["open_exchanges"])
+                if (!exchange.is_object() || !exchange.value("exchange", "").size()) return false;
+        }
         return true;
     } catch (...) {
         return false;

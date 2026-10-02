@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.36
+Version: 2.0.40
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -8,8 +8,9 @@ baran-capital-view is a C++17 portfolio analysis and monitoring application for 
 
 - Portfolio health scoring for holdings, concentration, and diversification
 - Live Upstox integration with hardened HTTPS and trusted-host validation
+- Upstox market-holiday and special-session awareness in the IST market status
 - Python-backed Deeper analysis for recent company/news context and recommendations
-- Browser UI for overview, news, alerts, positions, config, and data inspection
+- Browser UI for overview, news, alerts, analysis, fundamentals, and an Operations workspace
 - Release-notes popup summarizing the current code-change version and fixes
 - Security-first handling around API tokens and external HTTP endpoints
 - Local monolith architecture with internal async task scheduling for background work
@@ -25,9 +26,33 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.36
+Current release: 2.0.40
 
-Last updated: October 1, 2026
+Last updated: October 2, 2026
+
+Version 2.0.40 groups Positions, Data health, and Configuration under one
+Operations tab with in-page subviews. Existing endpoints and view behavior are
+preserved; automatic live-data refresh is skipped while Configuration is
+selected.
+
+Version 2.0.39 captures C++ stdout and stderr for `./run.sh --web` in a
+per-user log at `${XDG_STATE_HOME:-~/.local/state}/baran-capital-view/web-ui.log`.
+Set `PORTFOLIO_WEB_LOG` to choose a different path. The log is created with
+owner-only permissions; non-web commands keep their normal console output.
+Automatic dashboard data polling also pauses while the browser tab is hidden
+and resumes through the existing visibility recovery when it becomes visible.
+
+Version 2.0.38 fixes a response-envelope mismatch that could display failed
+live holdings requests as a valid zero-holding portfolio. Failed API payloads
+now show an actionable data/authentication state; automatic retries back off
+for transient failures and expired tokens, while manual Refresh remains
+available. Error details stay server-side.
+
+Version 2.0.37 adds an authenticated Upstox market-holidays endpoint and uses
+the validated calendar to mark NSE trading holidays and special-session hours.
+The server caches the last valid calendar for 12 hours; the existing
+weekday/time calculation remains the fallback when the holiday service is
+unavailable. Holiday credentials stay on the server.
 
 Version 2.0.36 replaces serial-number `#` headers with `S.No` across dashboard
 tables while preserving refresh and sorting behavior. Version 2.0.35 fixed the
@@ -159,7 +184,7 @@ pytest -q
 
 `pytest.ini` limits discovery to `tests/python` and excludes generated Bazel
 trees, so the command does not collect third-party or symlinked build files.
-The current suite contains 1 C++ test target and 8 Python tests.
+The current suite contains 1 C++ test target and 11 Python tests.
 
 The C++ tests cover secure order validation, portfolio calculations, and live Day P&L aggregation. The Python tests cover sentiment fallback and path resolution in the Deeper analysis workflow.
 
