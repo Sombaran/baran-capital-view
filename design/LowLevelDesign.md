@@ -130,8 +130,8 @@ The authenticated page injects a version-aware `What is new` dialog. Its close
 button stores `baran-capital-view-release-seen` in local storage, so repeat visits for the
 same version do not create another request or interrupt the dashboard.
 The Overview refresh metric is a manual action that clears the browser cache
-and requests a new snapshot. The existing five-second snapshot cache remains
-the REST synchronization boundary; failed
+and requests a new snapshot. The shared 30-second snapshot cache is the REST
+synchronization boundary; failed
 positions requests produce an empty error payload rather than invalidating the
 holdings snapshot, and the browser tolerates unavailable news.
 Metric normalization is idempotent before being invoked by the dashboard
@@ -139,6 +139,11 @@ mutation observer.
 The Overview market-value formatter prefers `current_value`, `market_value`,
 or `value`, then falls back to `last_price * quantity * multiplier`, and keeps
 two decimal places.
+The web server handles a bounded number of local browser connections
+concurrently, so an upstream refresh does not block unrelated UI requests.
+Only one connection performs a snapshot refresh at a time; concurrent readers
+reuse the last successful snapshot or a project-root local fallback while the
+refresh is in progress.
 The live snapshot normalizer populates `current_value` from the parsed Upstox
 holdings before `/api/holdings` is returned, preventing stale local CSV values
 from controlling the Web UI total.

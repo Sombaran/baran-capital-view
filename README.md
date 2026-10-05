@@ -1,6 +1,6 @@
 # baran-capital-view
 
-Version: 2.0.41
+Version: 2.0.50
 
 baran-capital-view is a C++17 portfolio analysis and monitoring application for live and saved market data. It blends portfolio health scoring, fundamental analysis, C++/Python analytics, and browser-based reporting while keeping stock API access constrained and secure.
 
@@ -11,6 +11,7 @@ baran-capital-view is a C++17 portfolio analysis and monitoring application for 
 - Upstox market-holiday and special-session awareness in the IST market status
 - Python-backed Deeper analysis for recent company/news context and recommendations
 - Browser UI for overview, news, alerts, analysis, fundamentals, and an Operations workspace
+- One Market news tab for the portfolio-matched Upstox news feed
 - CSV download of the authenticated Som Baran Portfolio holdings from Operations
 - Release-notes popup summarizing the current code-change version and fixes
 - Security-first handling around API tokens and external HTTP endpoints
@@ -27,9 +28,69 @@ The project follows semantic versioning in x.x.x format:
 
 Each release includes a versioned right-side popup summarizing the fix set. The browser UI, CLI, and build metadata remain aligned with the shipped code version.
 
-Current release: 2.0.41
+Current release: 2.0.50
 
-Last updated: October 2, 2026
+Last updated: October 5, 2026
+
+Version 2.0.50 fixes stale application binaries being reused by `./run.sh`.
+Normal launches now rebuild when application sources or build metadata are
+newer than `build/portfolio_health`, so the UI version reflects the fixes in
+the current checkout. Explicit `--rebuild` continues to force a clean build;
+normal auto-rebuilds use the existing incremental build. The login popup
+summarizes this change.
+
+Version 2.0.49 prevents a slow Stock API refresh from stalling the dashboard
+after it has been running for a while. The local web server now handles a
+bounded number of requests concurrently, and snapshot readers use the last
+successful data or local fallback while another refresh is underway. A
+transient refresh failure leaves the last rendered page visible with a warning
+instead of replacing it. Existing refresh backoff, server-side API credentials,
+and authenticated routes remain in place. The post-login popup summarizes the
+fix.
+
+Version 2.0.48 improves long-running data availability. A failed Upstox refresh
+now preserves the last successful live snapshot before considering the local
+CSV fallback. Project config paths are resolved from the application directory,
+so fallback holdings and saved news remain available when the server starts
+from another working directory. Token-expired fallback data is clearly labeled
+with renewal guidance; the login popup summarizes these fixes.
+
+Version 2.0.47 restores query-string routing for fundamentals, stock analysis,
+market quote, and RSI APIs while keeping the manual-refresh query limited to
+the authenticated snapshot endpoints. It also prevents the Fundamentals
+summary table from overflowing its popup on smaller screens. The login
+release popup summarizes these fixes.
+
+Version 2.0.46 fixes manual dashboard refresh during an upstream retry cooldown.
+The Refresh and Retry now controls can request one immediate authenticated
+snapshot refresh, while the server limits forced refresh attempts to one per
+10 seconds. The toolbar displays refresh progress and prevents duplicate clicks.
+The post-login release popup summarizes this fix.
+
+Version 2.0.45 fixes duplicate and inconsistent Deeper analysis rows by
+normalizing and deduplicating live symbols, reading Python recommendations
+from structured JSON, and building category totals/lists from the unique
+rendered rows. Duplicate instrument positions for the same symbol have their
+market values combined. The login release popup summarizes this fix.
+
+Version 2.0.44 improves long-running dashboard reliability. Portfolio snapshots
+are cached to reduce repeated Stock API traffic; transient upstream outages keep
+the last successful data visibly marked as cached, with bounded retry backoff.
+Overview holdings remain available when only news is unavailable. The post-login
+release popup summarizes these changes.
+
+Version 2.0.43 merges the duplicate News and Global market news tabs into one
+Market news view. The dashboard uses its existing authenticated,
+holdings-scoped news snapshot and does not add a redundant Stock API request.
+Shared responsive layout and deferred offscreen rendering improve dashboard
+pages; the versioned fix summary appears in the post-login popup.
+
+Version 2.0.42 fixes credential precedence in `run.sh`: shell-provided
+credentials now override `~/.upstox.env`, which only fills missing values. This
+prevents an older file token from replacing a fresh shell token and causing
+repeated Upstox 401 errors.
+The running C++ process keeps its startup credentials, so restart `./run.sh --web`
+after rotating the access token.
 
 Version 2.0.41 adds an Operations > Download subview that exports the current
 Som Baran Portfolio holdings to CSV from the existing authenticated holdings
@@ -87,13 +148,11 @@ The dashboard navigation uses balanced responsive rows for all tabs, with
 stable button sizing on desktop and mobile so long labels do not create an
 isolated or visually broken second row.
 
-Global market news now uses the broad Upstox category and preserves the real
-HTTP, token, or network error in the UI. It no longer collapses an unavailable
-feed into a generic "Unable to load this view" message.
-
-The dashboard includes a Global market news tab backed by the authenticated
-Upstox news feed and a Summary Dashboard tab that aggregates the existing
-holdings and portfolio-news snapshots without additional broker requests.
+Market news uses the authenticated Upstox news snapshot matched to configured
+holdings. The legacy Global market news endpoint remains available for
+compatibility, but the duplicate tab and its redundant browser request have
+been removed. The Summary Dashboard aggregates the existing holdings and
+portfolio-news snapshots without additional broker requests.
 
 Deeper analysis retries transient wake or network failures before showing an
 error, while the server worker remains asynchronous and can rebuild an
@@ -190,7 +249,7 @@ pytest -q
 
 `pytest.ini` limits discovery to `tests/python` and excludes generated Bazel
 trees, so the command does not collect third-party or symlinked build files.
-The current suite contains 1 C++ test target and 12 Python tests.
+The current suite contains 1 C++ test target and 14 Python tests.
 
 The C++ tests cover secure order validation, portfolio calculations, and live Day P&L aggregation. The Python tests cover sentiment fallback and path resolution in the Deeper analysis workflow.
 

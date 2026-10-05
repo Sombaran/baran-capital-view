@@ -13,6 +13,7 @@
 namespace folio {
 
 std::string normalizeSymbol(std::string symbol);
+std::vector<std::string> uniqueAnalysisSymbols(const std::vector<std::string>& symbols);
 std::vector<std::string> deeperAnalysisCategoryOrder();
 std::string normalizeAnalysisCategory(const std::string& value);
 std::string normalizeDecisionAction(const std::string& value);
@@ -38,7 +39,7 @@ private:
         std::chrono::steady_clock::time_point created;
     };
 
-    std::shared_ptr<const Snapshot> snapshot() const;
+    std::shared_ptr<const Snapshot> snapshot(bool forceRefresh = false) const;
     std::string marketHolidays() const;
     std::string runDeeperAnalysis() const;
     std::string stockAnalysis(const std::string& symbol) const;
@@ -53,6 +54,9 @@ private:
     mutable std::mutex snapshotMutex_;
     mutable std::mutex refreshMutex_;
     mutable std::shared_ptr<const Snapshot> snapshot_;
+    mutable std::chrono::steady_clock::time_point snapshotRetryAfter_{};
+    mutable std::chrono::steady_clock::time_point manualRefreshAfter_{};
+    mutable std::string snapshotRefreshError_;
     mutable std::mutex marketHolidaysMutex_;
     mutable std::string marketHolidaysCache_;
     mutable std::chrono::steady_clock::time_point marketHolidaysExpires_{};

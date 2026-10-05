@@ -12,12 +12,14 @@
 
 #include <cerrno>
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <mutex>
 #include <sstream>
@@ -31,6 +33,8 @@
 namespace folio {
 
 using nlohmann::json;
+
+std::filesystem::path projectRoot();
 
 #ifndef PORTFOLIO_HEALTH_VERSION
 #define PORTFOLIO_HEALTH_VERSION "unknown"
@@ -122,12 +126,29 @@ std::string normalizeSymbol(std::string symbol) {
     return symbol;
 }
 
+std::vector<std::string> uniqueAnalysisSymbols(const std::vector<std::string>& symbols) {
+    std::vector<std::string> unique;
+    std::unordered_set<std::string> seen;
+    unique.reserve(symbols.size());
+    for (const auto& symbol : symbols) {
+        const std::string normalized = normalizeSymbol(symbol);
+        if (!normalized.empty() && seen.insert(normalized).second) {
+            unique.push_back(normalized);
+        }
+    }
+    return unique;
+}
+
 std::vector<std::string> deeperAnalysisCategoryOrder() {
     return {"Neutral news", "No recent news", "going good", "invest more", "sell it off"};
 }
 
 std::string normalizeAnalysisCategory(const std::string& value) {
     std::string normalized = value;
+    const auto first = normalized.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return "Neutral news";
+    const auto last = normalized.find_last_not_of(" \t\r\n");
+    normalized = normalized.substr(first, last - first + 1);
     std::transform(normalized.begin(), normalized.end(), normalized.begin(),
                    [](unsigned char character) {
                        return static_cast<char>(std::tolower(character));
@@ -285,8 +306,12 @@ const char* responsiveDashboardNavigation() {
     return R"JS(<script>(function(){const style=document.createElement('style');style.textContent='.tabs{display:flex!important;align-items:center;gap:6px!important;padding:7px!important;overflow-x:auto;scrollbar-width:thin}.tabs .tab{flex:0 0 auto;min-width:94px;min-height:40px;padding:9px 14px;white-space:nowrap;line-height:1.15;font-size:12px;text-align:center}.tabs .tab[data-tab="summary"],.tabs .tab[data-tab="global-news"]{min-width:132px}@media(max-width:760px){.tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}.tabs .tab,.tabs .tab[data-tab="summary"],.tabs .tab[data-tab="global-news"]{min-width:0;min-height:40px;padding:9px 8px;white-space:normal}}';document.head.appendChild(style)})()</script>)JS";
 }
 
+const char* consolidatedMarketNewsTab() {
+    return R"JS(<script>(function(){const nav=document.querySelector('.tabs');if(!nav)return;nav.querySelector('[data-tab="global-news"]')?.remove();const newsTab=nav.querySelector('[data-tab="news"]');if(newsTab)newsTab.textContent='Market news'})()</script>)JS";
+}
+
 const char* requestedDashboardReleaseNotice() {
-    return R"JS(<script>const dashboardReleaseBox=document.querySelector('[role="dialog"]');if(dashboardReleaseBox)dashboardReleaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Dashboard improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Global market news now uses the authenticated broad-market feed and shows the real token or network status when unavailable. Summary Dashboard consolidates holdings, valuation status, news coverage, and review signals without duplicate broker requests. Navigation now uses balanced responsive rows on desktop and mobile.</p>');</script>)JS";
+    return R"JS(<script>const dashboardReleaseBox=document.querySelector('[role="dialog"]');if(dashboardReleaseBox)dashboardReleaseBox.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Dashboard improvements</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Market news brings the duplicate News and Global market news tabs together. It uses the existing portfolio news snapshot and does not add a Stock API request. Summary Dashboard consolidates holdings, valuation status, news coverage, and review signals. Navigation remains responsive on desktop and mobile.</p>');</script>)JS";
 }
 
 std::string releaseNoticeV2030() {
@@ -316,12 +341,16 @@ const char* releaseNoticeV2035Addendum() {
 }
 
 const char* dashboardUiOptimization() {
-    return R"JS(<script>(function(){const view=document.querySelector('#view'),status=document.querySelector('#status');if(!view)return;status?.setAttribute('aria-live','polite');const optimize=()=>{view.setAttribute('aria-busy','false');view.querySelectorAll('img:not([loading])').forEach(image=>{image.loading='lazy';image.decoding='async'});view.querySelectorAll('table.table').forEach(table=>table.parentElement?.classList.add('table-wrap'))};new MutationObserver(()=>requestAnimationFrame(optimize)).observe(view,{childList:true,subtree:true});const originalDeeperAnalysis=window.deeperAnalysis;window.deeperAnalysis=async function(){const payload=await safeJsonFetch('/api/deeper-analysis',{status:'error',error:'Deeper analysis is unavailable right now.'});if(activeTab!=='deeper-analysis')return;if(payload.status==='running'){status.textContent='Analysis in progress';view.innerHTML='<section class="panel analysis-status"><div class="label">Portfolio intelligence</div><h2>Comparing news signals</h2><p>The saved portfolio feed and fresh NLP analysis are being compared. This page will update automatically.</p></section>';return}if(payload.status==='error')throw Error(payload.error);const stocks=Array.isArray(payload.stocks)?payload.stocks:[],counts=payload.category_counts||{},order=payload.category_order||['Neutral news','No recent news','going good','invest more','sell it off'],buy=stocks.filter(item=>item.action==='Consider adding'||item.action==='Buy / review').length,risk=stocks.filter(item=>item.action==='Sell / review'||item.action==='Do not add').length,hold=stocks.length-buy-risk;status.textContent=stocks.length+' stocks compared · '+new Date().toLocaleTimeString();view.innerHTML='<section class="deeper-shell"><header class="deeper-header"><div><div class="label">Portfolio intelligence</div><h2>What needs your attention?</h2><p>Fresh NLP news is compared with the saved portfolio feed. Use the categories to find names, then read the evidence below.</p></div><div class="deeper-source">'+esc(payload.source||'Analysis source unavailable')+'</div></header><div class="deeper-summary"><div class="deeper-stat"><span class="label">Review now</span><b>'+buy+'</b><small>positive signals</small></div><div class="deeper-stat deeper-stat-risk"><span class="label">Risk review</span><b>'+risk+'</b><small>negative signals</small></div><div class="deeper-stat"><span class="label">Hold / wait</span><b>'+hold+'</b><small>mixed or neutral</small></div><div class="deeper-stat"><span class="label">Compared</span><b>'+stocks.length+'</b><small>portfolio stocks</small></div></div><section class="deeper-categories"><div class="label">Find by signal</div><div class="deeper-category-list">'+order.map(label=>'<button type="button" class="deeper-category"><b>'+Number(counts[label]||0)+'</b><span>'+esc(label)+'</span></button>').join('')+'</div><p class="category-stocks">Select a signal to see its stocks.</p></section><section class="panel deeper-evidence"><div class="label">Evidence</div><h3>Saved news vs fresh analysis</h3><div class="table-wrap"><table class="table"><thead><tr><th>S.No</th><th>Stock</th><th>Saved signal</th><th>Fresh analysis</th><th>Review</th><th>Why</th></tr></thead><tbody>'+stocks.map((item,index)=>'<tr><td>'+String(index+1)+'</td><td><b>'+esc(item.symbol)+'</b></td><td>'+esc(item.saved_signal||'Neutral')+'</td><td>'+esc(item.python_recommendation||'No recent news')+'</td><td class="decision">'+esc(item.action||'Hold / wait')+'</td><td>'+esc(item.analysis||'No explanation available')+'</td></tr>').join('')+'</tbody></table></div></section></section>';const categoryPanel=view.querySelector('.deeper-categories');categoryPanel.querySelectorAll('.deeper-category').forEach((button,index)=>button.onclick=()=>{const label=order[index],names=(payload.category_stocks?.[label]||[]);categoryPanel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});optimize()};if(originalDeeperAnalysis&&typeof originalDeeperAnalysis!=='function')return;optimize()})()</script>)JS";
+    return R"JS(<script>(function(){const view=document.querySelector('#view'),status=document.querySelector('#status');if(!view)return;status?.setAttribute('aria-live','polite');const optimize=()=>{view.setAttribute('aria-busy','false');view.querySelectorAll('img:not([loading])').forEach(image=>{image.loading='lazy';image.decoding='async'});view.querySelectorAll('table.table').forEach(table=>table.parentElement?.classList.add('table-wrap'))};new MutationObserver(()=>requestAnimationFrame(optimize)).observe(view,{childList:true,subtree:true});const originalDeeperAnalysis=window.deeperAnalysis;window.deeperAnalysis=async function(){const payload=await safeJsonFetch('/api/deeper-analysis',{status:'error',error:'Deeper analysis is unavailable right now.'});if(activeTab!=='deeper-analysis')return;if(payload.status==='running'){status.textContent='Analysis in progress';view.innerHTML='<section class="panel analysis-status"><div class="label">Portfolio intelligence</div><h2>Comparing news signals</h2><p>The saved portfolio feed and fresh NLP analysis are being compared. This page will update automatically.</p></section>';return}if(payload.status==='error')throw Error(payload.error);const stocks=Array.isArray(payload.stocks)?payload.stocks:[],order=payload.category_order||['Neutral news','No recent news','going good','invest more','sell it off'],categoryStocks=Object.fromEntries(order.map(label=>[label,[]])),counts=Object.fromEntries(order.map(label=>[label,0]));stocks.forEach(item=>{const label=order.includes(item.category)?item.category:order.includes(item.python_recommendation)?item.python_recommendation:item.python_source==='no news source'?'No recent news':'Neutral news';item.category=label;counts[label]++;categoryStocks[label].push(item.symbol)});window.deeperCategories={counts,stocks:categoryStocks};const buy=stocks.filter(item=>item.action==='Consider adding'||item.action==='Buy / review').length,risk=stocks.filter(item=>item.action==='Sell / review'||item.action==='Do not add').length,hold=stocks.length-buy-risk;status.textContent=stocks.length+' stocks compared · '+new Date().toLocaleTimeString();view.innerHTML='<section class="deeper-shell"><header class="deeper-header"><div><div class="label">Portfolio intelligence</div><h2>What needs your attention?</h2><p>Fresh NLP news is compared with the saved portfolio feed. Use the categories to find names, then read the evidence below.</p></div><div class="deeper-source">'+esc(payload.source||'Analysis source unavailable')+'</div></header><div class="deeper-summary"><div class="deeper-stat"><span class="label">Review now</span><b>'+buy+'</b><small>positive signals</small></div><div class="deeper-stat deeper-stat-risk"><span class="label">Risk review</span><b>'+risk+'</b><small>negative signals</small></div><div class="deeper-stat"><span class="label">Hold / wait</span><b>'+hold+'</b><small>mixed or neutral</small></div><div class="deeper-stat"><span class="label">Compared</span><b>'+stocks.length+'</b><small>unique portfolio stocks</small></div></div><section class="deeper-categories"><div class="label">Find by signal</div><div class="deeper-category-list">'+order.map(label=>'<button type="button" class="deeper-category"><b>'+counts[label]+'</b><span>'+esc(label)+'</span></button>').join('')+'</div><p class="category-stocks">Select a signal to see its stocks.</p></section><section class="panel deeper-evidence"><div class="label">Evidence</div><h3>Saved news vs fresh analysis</h3><div class="table-wrap"><table class="table"><thead><tr><th>S.No</th><th>Stock</th><th>Category</th><th>Saved signal</th><th>Fresh analysis</th><th>Review</th><th>Why</th></tr></thead><tbody>'+stocks.map((item,index)=>'<tr><td>'+String(index+1)+'</td><td><b>'+esc(item.symbol)+'</b></td><td>'+esc(item.category)+'</td><td>'+esc(item.saved_signal||'Neutral')+'</td><td>'+esc(item.python_recommendation||'No recent news')+'</td><td class="decision">'+esc(item.action||'Hold / wait')+'</td><td>'+esc(item.analysis||'No explanation available')+'</td></tr>').join('')+'</tbody></table></div></section></section>';const categoryPanel=view.querySelector('.deeper-categories');categoryPanel.querySelectorAll('.deeper-category').forEach((button,index)=>button.onclick=()=>{const label=order[index],names=categoryStocks[label];categoryPanel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});optimize()};if(originalDeeperAnalysis&&typeof originalDeeperAnalysis!=='function')return;optimize()})()</script>)JS";
     return R"JS(<script>(function(){const view=document.querySelector('#view'),status=document.querySelector('#status');if(!view)return;status?.setAttribute('aria-live','polite');const optimize=()=>{view.setAttribute('aria-busy','false');view.querySelectorAll('img:not([loading])').forEach(image=>{image.loading='lazy';image.decoding='async'});view.querySelectorAll('table.table').forEach(table=>table.parentElement?.classList.add('table-wrap'))};new MutationObserver(()=>requestAnimationFrame(optimize)).observe(view,{childList:true,subtree:true});const originalDeeperAnalysis=window.deeperAnalysis;window.deeperAnalysis=async function(){const payload=await safeJsonFetch('/api/deeper-analysis',{status:'error',error:'Deeper analysis is unavailable right now.'});if(activeTab!=='deeper-analysis')return;if(payload.status==='running'){status.textContent='Analysis in progress';view.innerHTML='<section class="panel analysis-status"><div class="label">Portfolio intelligence</div><h2>Comparing news signals</h2><p>The saved portfolio feed and fresh NLP analysis are being compared. This page will update automatically.</p></section>';return}if(payload.status==='error')throw Error(payload.error);const stocks=Array.isArray(payload.stocks)?payload.stocks:[],counts=payload.category_counts||{},order=payload.category_order||['Neutral news','No recent news','going good','invest more','sell it off'],buy=stocks.filter(item=>item.action==='Consider adding'||item.action==='Buy / review').length,risk=stocks.filter(item=>item.action==='Sell / review'||item.action==='Do not add').length,hold=stocks.length-buy-risk;status.textContent=stocks.length+' stocks compared · '+new Date().toLocaleTimeString();view.innerHTML='<section class="deeper-shell"><header class="deeper-header"><div><div class="label">Portfolio intelligence</div><h2>What needs your attention?</h2><p>Fresh NLP news is compared with the saved portfolio feed. Use the categories to find names, then read the evidence below.</p></div><div class="deeper-source">'+esc(payload.source||'Portfolio news and fresh analysis')+'</div></header><div class="deeper-summary"><div class="deeper-stat"><span class="label">Positive review</span><b>'+buy+'</b><small>Consider adding or buy / review</small></div><div class="deeper-stat deeper-stat-risk"><span class="label">Risk review</span><b>'+risk+'</b><small>Sell / review or do not add</small></div><div class="deeper-stat"><span class="label">Hold / wait</span><b>'+hold+'</b><small>Mixed, neutral, or unavailable</small></div><div class="deeper-stat"><span class="label">Compared</span><b>'+stocks.length+'</b><small>Portfolio stocks in this run</small></div></div><section class="deeper-categories"><div class="label">News categorization</div><div class="deeper-category-list">'+order.map(label=>'<button type="button" class="deeper-category"><span>'+esc(label)+'</span><b>'+Number(counts[label]||0)+'</b></button>').join('')+'</div><p class="category-stocks">Select a category to see its stocks.</p></section><section class="panel deeper-evidence"><div class="label">Evidence table</div><h3>Signals and rationale</h3><div class="table-wrap"><table class="table analysis-table"><thead><tr><th>S.No</th><th>Stock</th><th>Saved signal</th><th>Python recommendation</th><th>Action</th><th>Rationale</th></tr></thead><tbody>'+stocks.map((item,index)=>'<tr><td class="analysis-number">'+(index+1)+'</td><td><b>'+esc(item.symbol)+'</b><br><small>INR '+Number(item.market_value||0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</small></td><td>'+esc(item.saved_signal||'Neutral')+'</td><td>'+esc(item.python_recommendation||'No recent news')+'<br><small>'+esc(item.python_source||'')+'</small></td><td class="decision">'+esc(item.action||'Hold / wait')+'</td><td>'+esc(item.analysis||'')+'</td></tr>').join('')+'</tbody></table></div></section></section>';const categoryPanel=view.querySelector('.deeper-categories');categoryPanel.querySelectorAll('button').forEach(button=>button.onclick=()=>{const label=button.querySelector('span').textContent,names=(payload.category_stocks?.[label]||[]);categoryPanel.querySelector('.category-stocks').textContent=label+': '+(names.length?names.join(', '):'No stocks')});const originalTool=originalDeeperAnalysis;if(originalTool)await originalTool.call(this)} })()</script>)JS";
 }
 
 const char* dashboardResponsiveLayout() {
     return R"JS(<script>(function(){const style=document.createElement('style');style.textContent='.shell,.panel,.metric,.table-wrap{min-width:0}.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}.news{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}.table-wrap{max-width:100%;overflow:auto;overscroll-behavior-x:contain}.table{min-width:max-content}.story,.panel{overflow-wrap:anywhere}pre{max-width:100%;overflow:auto}@media(max-width:480px){.shell{padding-inline:12px}.panel{padding:16px}.table td,.table th{padding:10px 8px}}</style>';document.head.appendChild(style);const normalizeSerialHeaders=()=>document.querySelectorAll('#view th').forEach(header=>{if(header.textContent.trim()==='#')header.textContent='S.No'});new MutationObserver(normalizeSerialHeaders).observe(document.querySelector('#view'),{childList:true,subtree:true});normalizeSerialHeaders()})()</script>)JS";
+}
+
+const char* dashboardPageOptimization() {
+    return R"JS(<script>(function(){const style=document.createElement('style');style.textContent='#view .panel,#view .metric,#view .story{content-visibility:auto;contain-intrinsic-size:auto 220px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}';document.head.appendChild(style)})()</script>)JS";
 }
 
 const char* releaseNoticeV2036Addendum() {
@@ -346,6 +375,42 @@ const char* releaseNoticeV2040Addendum() {
 
 const char* releaseNoticeV2041Addendum() {
     return R"JS(<script>const releaseBox2041=document.querySelector('[role="dialog"]');if(releaseBox2041){releaseBox2041.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Portfolio download · v2.0.41</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Added a Download subview under Operations for exporting the current Som Baran Portfolio holdings to CSV. Export uses the existing authenticated data and protects spreadsheet users from formula-leading text.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2042Addendum() {
+    return R"JS(<script>const releaseBox2042=document.querySelector('[role="dialog"]');if(releaseBox2042){releaseBox2042.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Upstox token recovery · v2.0.42</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed web startup so a fresh UPSTOX_ACCESS_TOKEN supplied by the shell is not replaced by an older ~/.upstox.env value. Restart the dashboard after rotating a token; the running C++ client uses its startup credentials.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2043Addendum() {
+    return R"JS(<script>const releaseBox2043=document.querySelector('[role="dialog"]');if(releaseBox2043){releaseBox2043.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Market news and dashboard efficiency · v2.0.43</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Combined News and Global market news into one Market news tab. The Upstox feed available to this dashboard is holdings-scoped; the duplicate tab was making a redundant request rather than adding broader market coverage. Shared responsive and deferred rendering improvements apply across dashboard pages. This release summary appears after login; existing session and Stock API security boundaries are unchanged.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2044Addendum() {
+    return R"JS(<script>const releaseBox2044=document.querySelector('[role="dialog"]');if(releaseBox2044){releaseBox2044.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Long-running dashboard reliability · v2.0.44</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Reduced repeated Upstox snapshot requests with a shared 30-second cache and bounded retry backoff. When live refresh is unavailable, the last successful holdings/news snapshot remains visible with a clear cached-data label and age. Overview holdings remain available if only news fails. Existing authentication and server-side Stock API credential handling are unchanged.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2045Addendum() {
+    return R"JS(<script>const releaseBox2045=document.querySelector('[role="dialog"]');if(releaseBox2045){releaseBox2045.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Deeper analysis consistency · v2.0.45</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed repeated stock rows and category mismatches by analyzing each normalized symbol once, reading structured Python results, and deriving category counts and lists from the unique rows shown. Repeated positions for a symbol are combined for market value. Existing authenticated Stock API access and advisory-only signals are unchanged.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2046Addendum() {
+    return R"JS(<script>const releaseBox2046=document.querySelector('[role="dialog"]');if(releaseBox2046){releaseBox2046.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Dashboard refresh reliability · v2.0.46</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed Refresh and Retry now so they can initiate an authenticated snapshot refresh during automatic upstream backoff. Manual attempts are limited to one every 10 seconds to protect Stock API availability. Refresh progress is now visible in the toolbar; API credentials remain server-side.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2047Addendum() {
+    return R"JS(<script>const releaseBox2047=document.querySelector('[role="dialog"]');if(releaseBox2047){releaseBox2047.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Fundamentals routing and layout · v2.0.47</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed fundamentals and other query-based analysis requests returning not found by preserving their query strings during route matching. The fundamentals summary table now wraps within its popup on desktop and mobile. Existing authenticated Upstox access and server-side credentials are unchanged.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2048Addendum() {
+    return R"JS(<script>const releaseBox2048=document.querySelector('[role="dialog"]');if(releaseBox2048){releaseBox2048.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Long-running data availability · v2.0.48</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">When Upstox refresh fails, the dashboard now keeps the last successful live snapshot instead of replacing it with older CSV values. If no live snapshot is available, local portfolio files are resolved from the project directory even when the app starts elsewhere. Expired-token fallback is labeled and includes renewal guidance; API credentials remain server-side.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2049Addendum() {
+    return R"JS(<script>const releaseBox2049=document.querySelector('[role="dialog"]');if(releaseBox2049){releaseBox2049.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Long-running dashboard stability · v2.0.49</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Prevented slow Stock API refreshes from blocking all browser requests: the local web server now processes a bounded number of connections concurrently, and dashboard readers reuse cached or local data while a refresh is in progress. A transient refresh failure keeps the last displayed page visible with a warning. Existing last-known-good fallback, retry limits, authenticated endpoints, and server-side credentials are preserved.</p>')}</script>)JS";
+}
+
+const char* releaseNoticeV2050Addendum() {
+    return R"JS(<script>const releaseBox2050=document.querySelector('[role="dialog"]');if(releaseBox2050){releaseBox2050.insertAdjacentHTML('beforeend','<h3 style="font:700 13px Arial,sans-serif;margin:12px 0 6px;color:#0d7774">Stale executable prevention · v2.0.50</h3><p style="margin:6px 0 0;color:#47575d;font-size:13px">Fixed the launcher reusing an existing binary even after source updates. Normal startup now rebuilds the application when source or build metadata is newer, so the displayed version and running fixes match the current project. Existing cached-data recovery and Stock API security controls remain in place.</p>')}</script>)JS";
 }
 
 std::string dashboardVersion() {
@@ -389,7 +454,7 @@ const char* page() {
 </style><style>.market-status{display:flex;align-items:center;gap:8px;margin-bottom:10px;font:700 11px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase}.market-dot{width:10px;height:10px;border-radius:50%;background:#b74747;box-shadow:0 0 0 4px #b7474720}.market-status.open{color:#247a4b}.market-status.open .market-dot{background:#247a4b;box-shadow:0 0 0 4px #247a4b20}.market-status.closed{color:#b74747}.header-actions{display:flex;flex-direction:column;align-items:flex-end;gap:12px}.logout-button{border:1px solid #b74747;background:transparent;color:#b74747;padding:8px 14px;font:700 12px Arial,sans-serif;cursor:pointer}.logout-button:hover{background:#b74747;color:#fffdf8}.holding-cell{position:relative}.holding-symbol{cursor:help;border-bottom:1px dotted var(--teal)}.holding-insight{display:none;position:absolute;z-index:5;left:10px;top:calc(100% - 2px);width:330px;white-space:normal;padding:14px;background:#172126;color:#fffdf8;border:1px solid #ffffff33;box-shadow:0 14px 30px #17212645;font:13px/1.4 Arial,sans-serif}.holding-cell:hover .holding-insight,.holding-cell:focus-within .holding-insight{display:block}.holding-insight strong{display:block;color:#f4c95d;font-size:14px;margin-bottom:5px}.holding-insight small{display:block;color:#b9c5c5;margin-top:8px}.holding-insight a{color:#8ed6cc;text-decoration:none}</style></head><body><main class="shell"><header class="mast"><div><div class="market-status closed" id="market-status"><span class="market-dot"></span><span id="market-label">Market closed</span></div><div class="kicker">Som Baran Gupta / Upstox</div><h1>Portfolio health</h1></div><div class="header-actions"><div class="status" id="status">Connected workspace</div><button class="logout-button" onclick="location.href='/logout'">Logout</button></div></header>
 <nav class="tabs" role="tablist"><button class="tab active" role="tab" aria-selected="true" data-tab="overview">Overview</button><button class="tab" role="tab" aria-selected="false" data-tab="news">News</button><button class="tab" role="tab" aria-selected="false" data-tab="alerts">Alerts</button><button class="tab" role="tab" aria-selected="false" data-tab="deeper-analysis">Deeper analysis</button><button class="tab" role="tab" aria-selected="false" data-tab="fundamentals">Fundamentals</button><button class="tab" role="tab" aria-selected="false" data-tab="positions">Positions</button><button class="tab" role="tab" aria-selected="false" data-tab="json">JSON</button><button class="tab" role="tab" aria-selected="false" data-tab="health">Data health</button><button class="tab" role="tab" aria-selected="false" data-tab="config">Config</button></nav><div class="command-bar" style="display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin:-10px 0 24px;font-family:Arial,sans-serif"><label class="search-box" style="display:grid;gap:4px;flex:1 1 220px"><span class="label">Find</span><input id="view-filter" type="search" placeholder="Search this view" autocomplete="off" style="width:100%;padding:9px 11px;border:1px solid var(--line);background:var(--panel);color:var(--ink)"></label><button class="command-button" id="refresh-view" title="Refresh current view" style="padding:9px 13px;border:1px solid var(--teal);background:var(--teal);color:white;cursor:pointer">Refresh</button><button class="command-button" id="pause-refresh" title="Pause automatic refresh" style="padding:9px 13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer">Pause updates</button></div>
 <section id="view"></section></main><script>
-const view=document.querySelector('#view'),status=document.querySelector('#status');let cache={},apiRetryAt={},apiRetryMessages={},activeTab='overview',refreshTimer,confidenceOrder='desc',refreshInFlight=false;document.head.insertAdjacentHTML('beforeend','<style>.tabs{gap:6px;padding:6px;background:#dfe9e5;border:1px solid #cbd8d3;box-shadow:inset 0 1px 2px #17212612}.tab{border:0;border-radius:3px;background:transparent;color:#385157;padding:10px 15px;transition:background .18s ease,color .18s ease,transform .18s ease;position:relative}.tab:hover{background:#f8fbf8;color:#0d7774;transform:translateY(-1px)}.tab.active{background:#0d7774;color:#fff;box-shadow:0 4px 10px #0d777433}.tab:focus-visible{outline:2px solid #d96b3b;outline-offset:2px}.command-bar{background:#eef4f1;padding:10px 12px;border:1px solid #d7e2dd}.command-button{border-radius:3px;transition:filter .18s ease,transform .18s ease}.command-button:hover{filter:brightness(.95);transform:translateY(-1px)}.metric,.panel{transition:box-shadow .2s ease,border-color .2s ease}.metric:hover,.panel:hover{border-color:#b7cbc4;box-shadow:0 12px 28px #1721261c}.market-status{position:relative;cursor:help}.market-status:hover::after,.market-status:focus-visible::after{content:attr(data-market-message);position:absolute;z-index:40;left:0;top:calc(100% + 8px);width:190px;padding:9px 11px;background:#172126;color:#fffdf8;border:1px solid #ffffff33;box-shadow:0 10px 24px #17212645;font:12px/1.45 Arial,sans-serif;text-transform:none;letter-spacing:0;pointer-events:none}.market-status:hover::before,.market-status:focus-visible::before{content:"Market hours";position:absolute;z-index:41;left:0;top:calc(100% + 8px);transform:translateY(-1px);padding:9px 11px;color:#f4c95d;font:700 12px/1.45 Arial,sans-serif;pointer-events:none}body.market-open{background:linear-gradient(135deg,#dcefe1,#eef5e9 55%,#e5f0e5)}body.market-closed{background:linear-gradient(135deg,#f2dfdc,#f7ece8 55%,#eee2df)}.workflow-reference{background:#151a2a;color:#edf1fb;padding:26px 30px;margin-bottom:24px;border:1px solid #2b344d;box-shadow:0 16px 35px #17212625;font-family:Arial,sans-serif}.workflow-reference h2{font-size:25px;margin:4px 0 18px;color:#fff}.workflow-kicker{color:#94a8d1;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}.workflow-reference ol{margin:0;padding-left:28px}.workflow-reference li{padding:7px 0 7px 8px;font-size:14px;line-height:1.4}.workflow-reference li::marker{color:#93a6cf;font-weight:700}.workflow-reference li b{display:block;color:#f4f6ff}.workflow-reference li span{display:block;color:#aeb8cf;font-size:12px;margin-top:2px}.deep-loading{display:grid;place-items:center;gap:14px;min-height:180px;text-align:center;font-family:Arial,sans-serif}.deep-spinner{width:34px;height:34px;border:4px solid #cbd8d3;border-top-color:var(--teal);border-right-color:var(--orange);border-radius:50%;animation:deep-spin .8s linear infinite}@keyframes deep-spin{to{transform:rotate(360deg)}}.analysis-number{color:var(--teal);font-weight:700}.analysis-table td:first-child{width:42px;text-align:center}.analysis-table tbody tr{animation:analysis-rise .3s ease both}@keyframes analysis-rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@media(max-width:650px){.tab{flex:1 1 auto;text-align:center;padding:9px 10px;font-size:12px}.workflow-reference{padding:22px 18px}.workflow-reference li{font-size:13px}}</style>');
+const view=document.querySelector('#view'),status=document.querySelector('#status');let cache={},apiRetryAt={},apiRetryMessages={},activeTab='overview',refreshTimer,confidenceOrder='desc',refreshInFlight=false,manualRefreshRequested=false;document.head.insertAdjacentHTML('beforeend','<style>.tabs{gap:6px;padding:6px;background:#dfe9e5;border:1px solid #cbd8d3;box-shadow:inset 0 1px 2px #17212612}.tab{border:0;border-radius:3px;background:transparent;color:#385157;padding:10px 15px;transition:background .18s ease,color .18s ease,transform .18s ease;position:relative}.tab:hover{background:#f8fbf8;color:#0d7774;transform:translateY(-1px)}.tab.active{background:#0d7774;color:#fff;box-shadow:0 4px 10px #0d777433}.tab:focus-visible{outline:2px solid #d96b3b;outline-offset:2px}.command-bar{background:#eef4f1;padding:10px 12px;border:1px solid #d7e2dd}.command-button{border-radius:3px;transition:filter .18s ease,transform .18s ease}.command-button:hover{filter:brightness(.95);transform:translateY(-1px)}.metric,.panel{transition:box-shadow .2s ease,border-color .2s ease}.metric:hover,.panel:hover{border-color:#b7cbc4;box-shadow:0 12px 28px #1721261c}.market-status{position:relative;cursor:help}.market-status:hover::after,.market-status:focus-visible::after{content:attr(data-market-message);position:absolute;z-index:40;left:0;top:calc(100% + 8px);width:190px;padding:9px 11px;background:#172126;color:#fffdf8;border:1px solid #ffffff33;box-shadow:0 10px 24px #17212645;font:12px/1.45 Arial,sans-serif;text-transform:none;letter-spacing:0;pointer-events:none}.market-status:hover::before,.market-status:focus-visible::before{content:"Market hours";position:absolute;z-index:41;left:0;top:calc(100% + 8px);transform:translateY(-1px);padding:9px 11px;color:#f4c95d;font:700 12px/1.45 Arial,sans-serif;pointer-events:none}body.market-open{background:linear-gradient(135deg,#dcefe1,#eef5e9 55%,#e5f0e5)}body.market-closed{background:linear-gradient(135deg,#f2dfdc,#f7ece8 55%,#eee2df)}.workflow-reference{background:#151a2a;color:#edf1fb;padding:26px 30px;margin-bottom:24px;border:1px solid #2b344d;box-shadow:0 16px 35px #17212625;font-family:Arial,sans-serif}.workflow-reference h2{font-size:25px;margin:4px 0 18px;color:#fff}.workflow-kicker{color:#94a8d1;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}.workflow-reference ol{margin:0;padding-left:28px}.workflow-reference li{padding:7px 0 7px 8px;font-size:14px;line-height:1.4}.workflow-reference li::marker{color:#93a6cf;font-weight:700}.workflow-reference li b{display:block;color:#f4f6ff}.workflow-reference li span{display:block;color:#aeb8cf;font-size:12px;margin-top:2px}.deep-loading{display:grid;place-items:center;gap:14px;min-height:180px;text-align:center;font-family:Arial,sans-serif}.deep-spinner{width:34px;height:34px;border:4px solid #cbd8d3;border-top-color:var(--teal);border-right-color:var(--orange);border-radius:50%;animation:deep-spin .8s linear infinite}@keyframes deep-spin{to{transform:rotate(360deg)}}.analysis-number{color:var(--teal);font-weight:700}.analysis-table td:first-child{width:42px;text-align:center}.analysis-table tbody tr{animation:analysis-rise .3s ease both}@keyframes analysis-rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@media(max-width:650px){.tab{flex:1 1 auto;text-align:center;padding:9px 10px;font-size:12px}.workflow-reference{padding:22px 18px}.workflow-reference li{font-size:13px}}</style>');
 function sortByConfidence(items){return [...items].sort((a,b)=>{const difference=Number(a.confidence||0)-Number(b.confidence||0);return confidenceOrder==='asc'?difference:-difference})}
 function sortOverviewRows(){if(activeTab!=='overview'||!cache.holdings||!cache.news)return;const confidence={};(cache.news.alerts||[]).forEach(x=>confidence[x.instrument_key]=Number(x.confidence||0));const bySymbol={};(cache.holdings.data||[]).forEach(x=>bySymbol[x.trading_symbol||x.tradingsymbol]=confidence[x.instrument_token]||0);const table=document.querySelector('.table');if(!table)return;const rows=[...table.querySelectorAll('tr')].slice(1);rows.sort((a,b)=>{const difference=(bySymbol[b.querySelector('.holding-symbol')?.textContent.trim()]||0)-(bySymbol[a.querySelector('.holding-symbol')?.textContent.trim()]||0);return confidenceOrder==='asc'?-difference:difference});const body=table.tBodies[0]||table;rows.forEach(row=>body.appendChild(row))}
 function changeConfidenceOrder(value){confidenceOrder=value;cache={};openTab(activeTab,false).then(()=>{if(activeTab==='overview')sortOverviewRows()})}
@@ -398,7 +463,7 @@ function updateMarketStatus(){const now=new Date(),parts=new Intl.DateTimeFormat
 async function loadMarketHolidays(){const payload=await safeJsonFetch('/api/market-holidays',{status:'error',data:[],error:'Market holiday calendar unavailable'});if(payload.status==='success'&&Array.isArray(payload.data)){marketHolidayData=payload.data;updateMarketStatus()}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function apiFailure(name,detail,statusCode){const stale=/token|expired|unauthorized|forbidden|401|403/i.test(String(detail||'')+' '+String(statusCode||'')),message=stale?'Upstox access token expired or unauthorized. Renew UPSTOX_ACCESS_TOKEN and restart the dashboard.':name+' data is temporarily unavailable. Use Refresh to retry.';apiRetryAt[name]=Date.now()+(stale?5*60*1000:30*1000);apiRetryMessages[name]=message;throw Error(message)}
-async function get(name,url){if(cache[name])return cache[name];if((apiRetryAt[name]||0)>Date.now())throw Error(apiRetryMessages[name]);let response;try{response=await fetch(url,{cache:'no-store'})}catch(error){apiFailure(name,'network failure')}if(!response.ok)apiFailure(name,'',response.status);let payload;try{const text=await response.text();if(!text.trim())throw Error('empty response');payload=JSON.parse(text)}catch(error){apiFailure(name,'invalid response')}if(!payload||typeof payload!=='object'||payload.status==='error'||payload.error)apiFailure(name,payload?.error||payload?.status||'invalid payload');if(name==='holdings'&&!Array.isArray(payload.data))apiFailure(name,'invalid holdings payload');cache[name]=payload;delete apiRetryAt[name];delete apiRetryMessages[name];return payload}
+async function get(name,url){if(cache[name])return cache[name];if((apiRetryAt[name]||0)>Date.now())throw Error(apiRetryMessages[name]);let requestUrl=url;if(manualRefreshRequested&&['/api/holdings','/api/positions','/api/news'].includes(url)){requestUrl=url+'?refresh=1';manualRefreshRequested=false}let response;try{response=await fetch(requestUrl,{cache:'no-store'})}catch(error){apiFailure(name,'network failure')}if(!response.ok)apiFailure(name,'',response.status);let payload;try{const text=await response.text();if(!text.trim())throw Error('empty response');payload=JSON.parse(text)}catch(error){apiFailure(name,'invalid response')}if(!payload||typeof payload!=='object'||payload.status==='error'||payload.error)apiFailure(name,payload?.error||payload?.status||'invalid payload');if(name==='holdings'&&!Array.isArray(payload.data))apiFailure(name,'invalid holdings payload');cache[name]=payload;delete apiRetryAt[name];delete apiRetryMessages[name];return payload}
 async function safeJsonParse(response,fallback){try{const text=await response.text();if(!text||!text.trim())return fallback||{status:'error',error:'Empty response'};return JSON.parse(text)}catch(error){console.warn('Malformed JSON response',error);return fallback||{status:'error',error:String(error && error.message ? error.message : error)}}}
 async function safeJsonFetch(url,fallback){const effectiveFallback=fallback&&typeof fallback==='object'?fallback:{status:'error',error:'Request failed'};try{const response=await fetch(url,{cache:'no-store'});if(!response)return effectiveFallback;const payload=await safeJsonParse(response,effectiveFallback);if(!response.ok)return {...payload,status:'error',error:payload.error||('HTTP '+response.status)};return payload}catch(error){console.warn('safeJsonFetch failed',url,error);return {...effectiveFallback,status:'error',error:String(error && error.message ? error.message : error)}}}
 function filterView(value){const query=value.trim().toLowerCase();view.querySelectorAll('table.table tbody tr:not(:first-child),article.story,.fundamental-stock').forEach(item=>{const match=!query||item.textContent.toLowerCase().includes(query);item.hidden=!match})}
@@ -415,16 +480,16 @@ document.head.insertAdjacentHTML('beforeend','<style>.metric-stock-list{position
 function numberField(item,keys){for(const key of keys){const value=Number(item[key]);if(Number.isFinite(value))return value}return 0}
 function holdingValue(item){const reported=numberField(item,['current_value','market_value','value']);if(reported)return reported;return numberField(item,['last_price'])*numberField(item,['quantity'])*Math.max(1,numberField(item,['multiplier'])||1)}
 function stockCount(items){return new Set(items.map(item=>(item.trading_symbol||item.tradingsymbol||'').trim()).filter(Boolean)).size}
-function refreshView(){if(refreshInFlight)return;cache={};apiRetryAt={};apiRetryMessages={};refreshInFlight=true;openTab(activeTab,false).finally(()=>refreshInFlight=false)}
+function refreshView(){if(refreshInFlight)return;cache={};apiRetryAt={};apiRetryMessages={};manualRefreshRequested=true;refreshInFlight=true;const button=document.querySelector('#refresh-view');button.disabled=true;button.textContent='Refreshing...';status.textContent='Refreshing current view...';openTab(activeTab,false).finally(()=>{refreshInFlight=false;manualRefreshRequested=false;button.disabled=false;button.textContent='Refresh'})}
 const baseSafeJsonFetch=safeJsonFetch;safeJsonFetch=async function(url,fallback){if(!String(url).includes('/api/deeper-analysis'))return baseSafeJsonFetch(url,fallback);let result;for(let attempt=0;attempt<3;attempt++){result=await baseSafeJsonFetch(url,fallback);if(result.status!=='error'||attempt===2)return result;status.textContent='Deeper analysis reconnecting...';await new Promise(resolve=>setTimeout(resolve,750*(attempt+1)))}return result}
 let updatesPaused=false;
 function toggleUpdates(){updatesPaused=!updatesPaused;document.querySelector('#pause-refresh').textContent=updatesPaused?'Resume updates':'Pause updates';document.querySelector('#pause-refresh').setAttribute('aria-pressed',String(updatesPaused))}
-function fail(e){const msg=e&&e.message?e.message:String(e),stale=/token|401|403|unauthorized|forbidden/i.test(msg);view.innerHTML='<section class="panel error" role="alert"><div class="label">Live data status</div><h2>'+(stale?'Authentication required':'Data temporarily unavailable')+'</h2><p>'+esc(msg)+'</p><button type="button" class="command-button" onclick="refreshView()">Retry now</button></section>';status.textContent=stale?'Upstox authentication expired · renew token and restart':'Dashboard data unavailable · retry scheduled'}
+function fail(e){const msg=e&&e.message?e.message:String(e),stale=/token|401|403|unauthorized|forbidden/i.test(msg),hasRenderedView=view.childElementCount>0&&!view.querySelector('.loading,[role="alert"]');if(hasRenderedView){view.querySelector('.refresh-warning')?.remove();const warning=document.createElement('div');warning.className='panel error refresh-warning';warning.setAttribute('role','status');warning.textContent=(stale?'Live authentication failed; ':'Live refresh failed; ')+(stale?'showing the current view. Renew the access token and restart the dashboard.':'the last displayed data is retained. Use Refresh to retry.');view.prepend(warning);status.textContent=stale?'Upstox authentication expired · current view retained':'Live refresh unavailable · current view retained';return}view.innerHTML='<section class="panel error" role="alert"><div class="label">Live data status</div><h2>'+(stale?'Authentication required':'Data temporarily unavailable')+'</h2><p>'+esc(msg)+'</p><button type="button" class="command-button" onclick="refreshView()">Retry now</button></section>';status.textContent=stale?'Upstox authentication expired · renew token and restart':'Dashboard data unavailable · retry scheduled'}
 function rows(data){return Object.entries(data).flatMap(([key,items])=>items.map(x=>({...x,instrument_key:key}))) }
 function decisionSummary(action){const normalized=(action||'').trim();if(!normalized)return 'Hold / wait';const lower=normalized.toLowerCase();if(lower.includes('consider'))return 'Consider adding';if(lower.includes('do not'))return 'Do not add';if(lower.includes('hold'))return 'Hold / wait';if(lower.includes('buy'))return 'Buy / review';if(lower.includes('sell'))return 'Sell / review';return normalized}
 function normalizeCategoryLabel(value){const label=String(value||'').trim();const map={'neutral news':'Neutral news','no recent news':'No recent news','going good':'going good','invest more':'invest more','sell it off':'sell it off'};return map[label.toLowerCase()]||label||'Neutral news'}
-async function holdings(){const p=await get('holdings','/api/holdings');const n=await get('news','/api/news');const d=(p.data||[]).slice();const alerts=n.alerts||[];const byKey={};for(const x of alerts){byKey[x.instrument_key]=x;}d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();const value=d.reduce((sum,x)=>sum+holdingValue(x),0);status.textContent=(p.source==='upstox-live'?d.length+' live holdings':d.length+' local holdings · live data unavailable')+' · updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((sum,x)=>sum+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{const key=x.instrument_token||'';const alert=byKey[key]||{};const items=(n.data||{})[key]||[];const article=items[0];const action=alert.action||'No recent news';const reason=alert.rationale||'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(decisionSummary(action))+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news</a>':'')+'</span></td><td>'+x.quantity+'</td><td>'+((x.average_price===undefined||x.average_price===null)?'—':x.average_price)+'</td><td>'+((x.last_price===undefined||x.last_price===null)?'—':x.last_price)+'</td><td>'+((x.pnl===undefined||x.pnl===null)?'—':x.pnl)+'</td></tr>'}).join('')+'</table></div></div>'}
-async function news(){let p=await get('news','/api/news'),a=rows(p.data||{}).sort((left,right)=>Number(right.published_time||0)-Number(left.published_time||0));status.textContent=a.length+' articles from holding.csv · newest first';view.innerHTML='<div class="panel"><h2>News for your holdings</h2><p>Articles matched to the symbols in <b>holding.csv</b>, newest first.</p><div class="news">'+a.map(x=>'<article class="story"><small>'+esc(x.instrument_key)+'</small><h3>'+esc(x.heading)+'</h3><p>'+esc(x.summary||'')+'</p><a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">Read article &rarr;</a></article>').join('')+'</div></div>'}
+async function holdings(){const p=await get('holdings','/api/holdings');let n={data:{},alerts:[]},newsUnavailable=false;try{n=await get('news','/api/news')}catch(error){newsUnavailable=true}const d=(p.data||[]).slice();const alerts=n.alerts||[];const byKey={};for(const x of alerts){byKey[x.instrument_key]=x;}d.sort((a,b)=>Number(byKey[b.instrument_token]?.confidence||0)-Number(byKey[a.instrument_token]?.confidence||0));if(confidenceOrder==='asc')d.reverse();const value=d.reduce((sum,x)=>sum+holdingValue(x),0),age=Number(p.snapshot_age_seconds||0),sourceStatus=p.source==='upstox-live'?d.length+' live holdings':p.source==='upstox-stale'?'cached holdings · '+age+'s old · live refresh unavailable':d.length+' local holdings · live data unavailable';status.textContent=sourceStatus+(newsUnavailable?' · news unavailable':'')+' · updated '+new Date().toLocaleTimeString();const warning=p.warning?'<div class="panel error" role="status">'+esc(p.warning)+'</div>':'',newsWarning=newsUnavailable?'<div class="panel error" role="status">News is temporarily unavailable; portfolio holdings are still shown.</div>':'';view.innerHTML=warning+newsWarning+'<div class="grid"><div class="metric"><span class="label">Holdings</span><b>'+d.length+'</b></div><div class="metric"><span class="label">Market value</span><b>INR '+value.toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Day P&amp;L</span><b>'+d.reduce((sum,x)=>sum+(x.day_change||0)*(x.quantity||0),0).toLocaleString('en-IN',{maximumFractionDigits:0})+'</b></div><div class="metric"><span class="label">Refresh</span><b>30 sec</b></div></div><div class="panel"><h2>Long-term holdings</h2><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><p>Hover over a stock to see what recent company news may mean. News is context, not a forecast.</p><div class="table-wrap"><table class="table"><tr><th>Symbol</th><th>Quantity</th><th>Average</th><th>Last</th><th>P&amp;L</th></tr>'+d.map(x=>{const key=x.instrument_token||'';const alert=byKey[key]||{};const items=(n.data||{})[key]||[];const article=items[0];const action=alert.action||'No recent news';const reason=alert.rationale||'No matching news in the recent feed';return '<tr><td class="holding-cell"><span class="holding-symbol" tabindex="0"><b>'+esc(x.trading_symbol||x.tradingsymbol)+'</b></span><span class="holding-insight"><strong>'+esc(decisionSummary(action))+'</strong>'+esc(reason)+(article?'<small>Latest: '+esc(article.heading)+'</small><a href="'+esc(article.article_link)+'" target="_blank" rel="noopener">Read related news</a>':'')+'</span></td><td>'+x.quantity+'</td><td>'+((x.average_price===undefined||x.average_price===null)?'—':x.average_price)+'</td><td>'+((x.last_price===undefined||x.last_price===null)?'—':x.last_price)+'</td><td>'+((x.pnl===undefined||x.pnl===null)?'—':x.pnl)+'</td></tr>'}).join('')+'</table></div></div>'}
+async function news(){let p=await get('news','/api/news'),a=rows(p.data||{}).sort((left,right)=>Number(right.published_time||0)-Number(left.published_time||0));status.textContent=(p.source==='upstox-stale'||p.source==='cached'?'Cached news · live refresh unavailable · ':'')+a.length+' market news articles · newest first';view.innerHTML=(p.warning?'<div class="panel error" role="status">'+esc(p.warning)+'</div>':'')+'<div class="panel"><h2>Market news</h2><p>Recent articles from the authenticated Upstox feed, matched to the symbols in <b>holding.csv</b> and sorted newest first.</p><div class="news">'+a.map(x=>'<article class="story"><small>'+esc(x.instrument_key)+'</small><h3>'+esc(x.heading)+'</h3><p>'+esc(x.summary||'')+'</p><a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">Read article &rarr;</a></article>').join('')+'</div></div>'}
 async function alerts(){let p=await get('news','/api/news'),h=await get('holdings','/api/holdings'),byKey={};(p.alerts||[]).forEach(x=>byKey[x.instrument_key]=x);let a=(h.data||[]).map(x=>{let key=x.instrument_token||'',alert=byKey[key]||{},items=(p.data||{})[key]||[],article=items[0];return {...alert,instrument_key:key,company_name:x.company_name||x.trading_symbol||x.tradingsymbol||'Unknown company',article_count:items.length,article_link:article?.article_link||''}});a=sortByConfidence(a);status.textContent=a.length+' stocks in portfolio · updated '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><h2>Should I add more?</h2><p>Every holding is shown, including stocks without recent matching news. Each row combines sentiment, article agreement, and recency. It is a review prompt, not an automatic trade.</p><label class="label">Confidence order <select onchange="changeConfidenceOrder(this.value)"><option value="desc"'+(confidenceOrder==='desc'?' selected':'')+'>Highest first</option><option value="asc"'+(confidenceOrder==='asc'?' selected':'')+'>Lowest first</option></select></label><div class="grid"><div class="metric"><span class="label">Consider adding</span><b>'+a.filter(x=>(x.action||'').startsWith('Consider')).length+'</b></div><div class="metric"><span class="label">Risk review</span><b>'+a.filter(x=>(x.action||'').startsWith('Do not')).length+'</b></div><div class="metric"><span class="label">Hold / wait</span><b>'+a.filter(x=>(x.action||'').startsWith('Hold')||!x.action).length+'</b></div><div class="metric"><span class="label">Total stocks</span><b>'+a.length+'</b></div></div><p><b>Consider adding</b> means positive news deserves review. <b>Do not add</b> means negative news deserves risk review. <b>Hold / wait</b> means the signal is mixed or not confident enough. Always read the articles and check valuation before acting.</p><div class="table-wrap"><table class="table"><tr><th>S.No</th><th>Company</th><th>News score</th><th>Confidence</th><th>Decision</th><th>Why</th><th>Articles</th></tr>'+a.map((x,index)=>'<tr><td>'+String(index+1)+'</td><td>'+esc(x.company_name)+'</td><td>'+Number(x.sentiment_score||0).toFixed(2)+'</td><td>'+Math.round(Number(x.confidence||0)*100)+'%</td><td><span class="decision '+((x.action||'').startsWith('Consider')?'decision-add':(x.action||'').startsWith('Do not')?'decision-risk':'decision-hold')+'">'+esc(x.action||'Hold / wait')+'</span></td><td>'+esc(x.rationale||'No matching news in the recent feed.')+(x.article_link?' <a href="'+esc(x.article_link)+'" target="_blank" rel="noopener">View news</a>':'')+'</td><td>'+x.article_count+'</td></tr>').join('')+'</table></div></div>'}
 async function raw(name,url,title){let p=await get(name,url);status.textContent='Live API response';view.innerHTML='<div class="panel"><div class="label">Runtime payload</div><h2>'+title+'</h2><p>Read only. This view exposes the raw server payload for the selected endpoint without modifying the stock API configuration.</p><pre style="white-space:pre-wrap;overflow:auto;font:12px/1.5 monospace">'+esc(JSON.stringify(p,null,2))+'</pre></div>'}
 async function health(){const [holdingsData, newsData] = await Promise.all([get('holdings','/api/holdings'), get('news','/api/news')]);const rows = holdingsData.data || [];const articles = Object.values(newsData.data || {}).reduce((sum, items) => sum + (Array.isArray(items) ? items.length : 0), 0);const alerts = (newsData.alerts || []).length;const missing = rows.filter(item => Number(item.last_price ?? item.lastPrice ?? 0) <= 0).length;status.textContent='Data health checked · '+new Date().toLocaleTimeString();view.innerHTML='<div class="panel"><div class="label">Runtime diagnostics</div><h2>Data health</h2><p>Operational readout for the current portfolio snapshot, filtered news set, and alert generation state.</p><div class="grid"><div class="metric"><span class="label">Holdings loaded</span><b>'+rows.length+'</b></div><div class="metric"><span class="label">News articles</span><b>'+articles+'</b></div><div class="metric"><span class="label">News decisions</span><b>'+alerts+'</b></div><div class="metric"><span class="label">Missing prices</span><b>'+missing+'</b></div></div><div class="table-wrap"><table class="table"><tr><th>Check</th><th>Status</th><th>Notes</th></tr><tr><td>Portfolio snapshot</td><td class="decision '+(rows.length?'decision-add':'decision-hold')+'">'+(rows.length?'Healthy':'Empty')+'</td><td>Requested holdings payload loaded from the current Upstox snapshot.</td></tr><tr><td>News filtering</td><td class="decision '+(articles?'decision-add':'decision-hold')+'">'+(articles?'Active':'Quiet')+'</td><td>Recent articles are filtered to the configuration-backed holdings list.</td></tr><tr><td>Alert generation</td><td class="decision '+(alerts?'decision-add':'decision-hold')+'">'+(alerts?'Generated':'Idle')+'</td><td>Alert decisions are computed from filtered sentiment, not stale browser state.</td></tr></table></div></div>'}
@@ -452,7 +517,7 @@ const fundamentalSummaryObserver=new MutationObserver(addFundamentalSummary);fun
 function fundamentalSummary(data){const rows=[];(data.key_ratios||[]).forEach(item=>{const name=item.name||item.key||'Ratio',company=Number(item.company_value),sector=Number(item.sector_value);let meaning='Reported value for this company.';if(Number.isFinite(company)&&Number.isFinite(sector)){meaning=company>sector?'Higher than the sector average.':company<sector?'Lower than the sector average.':'In line with the sector average.'}rows.push('<tr><td>'+esc(name)+'</td><td>'+esc(fundamentalValue(item.company_value))+'</td><td>'+esc(meaning)+'</td></tr>')});const profile=data.profile||{};if(profile.sector)rows.unshift('<tr><td>Sector</td><td>'+esc(profile.sector)+'</td><td>This is the industry used for comparison.</td></tr>');if(!rows.length)rows.push('<tr><td colspan="3" class="fundamental-empty">No summary data returned.</td></tr>');return '<table class="fundamental-summary-table"><tr><th>Parameter</th><th>Value</th><th>In simple terms</th></tr>'+rows.join('')+'</table>'}
 async function showFundamentalsPopup(symbol,target){const old=document.querySelector('.fundamental-popup');if(old)old.remove();const popup=document.createElement('div');popup.className='panel fundamental-popup';popup.innerHTML='<h2>'+esc(symbol)+'</h2><p class="loading">Loading fundamentals...</p>';document.body.appendChild(popup);const place=()=>{const box=target.getBoundingClientRect(),width=Math.min(760,window.innerWidth-24);popup.style.cssText='position:fixed;z-index:30;width:'+width+'px;max-height:calc(100vh - 24px);overflow:auto;left:'+Math.max(12,Math.min(box.left,window.innerWidth-width-12))+'px;top:'+Math.min(box.bottom+8,Math.max(12,window.innerHeight-popup.offsetHeight-12))+'px'};place();let data=window.__fundamentalCache?.[symbol];try{if(!data){data=await safeJsonFetch('/api/fundamentals?symbol='+encodeURIComponent(symbol),{status:'error',error:'Fundamentals are unavailable right now.'});window.__fundamentalCache=window.__fundamentalCache||{};window.__fundamentalCache[symbol]=data}if(!popup.isConnected)return;if(data.status==='running'){setTimeout(()=>{if(popup.isConnected)showFundamentalsPopup(symbol,target)},1000);return}if(data.error)throw Error(data.error);const actions=data.corporate_actions||[],ratios=data.key_ratios||[];popup.innerHTML='<h2>'+esc(data.symbol)+' <span class="label">'+esc(data.isin)+'</span></h2><div class="fundamental-sections"><section><h3>Profile</h3><div class="fundamental-fields">'+fundamentalRows(data.profile)+'</div></section><section><h3>Key ratios</h3><div class="fundamental-fields">'+(ratios.length?ratios.map(item=>'<div class="fundamental-ratio"><b>'+esc(item.name||item.key||'Ratio')+'</b><span>Company: '+esc(fundamentalValue(item.company_value))+'</span><span>Sector: '+esc(fundamentalValue(item.sector_value))+'</span></div>').join(''):'<span class="fundamental-empty">No data</span>')+'</div></section><section><h3>Balance sheet</h3>'+fundamentalHistory(data.balance_sheet)+'</section><section><h3>Income statement</h3>'+fundamentalHistory(data.income_statement)+'</section><section><h3>Cash flow</h3>'+fundamentalHistory(data.cash_flow)+'</section><section><h3>Corporate actions</h3>'+fundamentalHistory(actions)+'</section></div>';place()}catch(error){if(popup.isConnected)popup.innerHTML='<h2>'+esc(symbol)+'</h2><p class="error">Unable to load fundamentals: '+esc(error.message)+'</p>'}popup.onmouseenter=()=>popup.dataset.inside='1';popup.onmouseleave=()=>{popup.dataset.inside='';popup.remove()}}
 document.addEventListener('click',event=>{const target=event.target.closest('.fundamental-stock,.fundamental-open');if(target)showFundamentalsPopup(target.dataset.symbol,target)});
-document.addEventListener('mouseover',event=>{const target=event.target.closest('.fundamental-stock');if(!target||target.contains(event.relatedTarget)||document.querySelector('.fundamental-popup'))return;if(!document.querySelector('#fundamental-popup-style'))document.head.insertAdjacentHTML('beforeend','<style id="fundamental-popup-style">.fundamental-popup{padding:18px;font-family:Arial,sans-serif;max-width:min(760px,calc(100vw - 32px));max-height:min(72vh,720px);overflow:auto;white-space:normal}.fundamental-popup h2{font-family:Georgia,serif;margin-bottom:12px}.fundamental-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fundamental-sections section{border:1px solid var(--line);padding:10px;min-width:0}.fundamental-sections h3{font:700 11px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin:0 0 8px}.fundamental-fields{display:grid;gap:4px}.fundamental-field{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #ded9cf88;padding:2px 0;font-size:11px}.fundamental-field span{color:var(--muted);text-transform:capitalize}.fundamental-field b{font-weight:600;text-align:right;overflow-wrap:anywhere}.fundamental-row{border-bottom:1px solid #ded9cf88;padding:3px 0}.fundamental-ratio{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;font-size:11px;border-bottom:1px solid #ded9cf88;padding:3px 0}.fundamental-ratio span{color:var(--muted)}.fundamental-empty{color:var(--muted);font-size:11px}@media(max-width:650px){.fundamental-sections{grid-template-columns:1fr}.fundamental-ratio{grid-template-columns:1fr}}.fundamental-popup .fundamental-summary-table{width:100%;white-space:normal}.fundamental-popup .fundamental-summary-table th,.fundamental-popup .fundamental-summary-table td{vertical-align:top}</style>');showFundamentalsPopup(target.dataset.symbol,target)});
+document.addEventListener('mouseover',event=>{const target=event.target.closest('.fundamental-stock');if(!target||target.contains(event.relatedTarget)||document.querySelector('.fundamental-popup'))return;if(!document.querySelector('#fundamental-popup-style'))document.head.insertAdjacentHTML('beforeend','<style id="fundamental-popup-style">.fundamental-popup{box-sizing:border-box;padding:18px;font-family:Arial,sans-serif;max-width:min(760px,calc(100vw - 32px));max-height:min(72vh,720px);overflow:auto;white-space:normal}.fundamental-popup h2{font-family:Georgia,serif;margin-bottom:12px}.fundamental-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fundamental-sections section{border:1px solid var(--line);padding:10px;min-width:0}.fundamental-sections h3{font:700 11px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin:0 0 8px}.fundamental-fields{display:grid;gap:4px}.fundamental-field{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #ded9cf88;padding:2px 0;font-size:11px}.fundamental-field span{color:var(--muted);text-transform:capitalize}.fundamental-field b{font-weight:600;text-align:right;overflow-wrap:anywhere}.fundamental-row{border-bottom:1px solid #ded9cf88;padding:3px 0}.fundamental-ratio{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;font-size:11px;border-bottom:1px solid #ded9cf88;padding:3px 0}.fundamental-ratio span{color:var(--muted)}.fundamental-empty{color:var(--muted);font-size:11px}.fundamental-popup .fundamental-summary{box-sizing:border-box;min-width:0;max-width:100%;overflow:hidden}.fundamental-popup .fundamental-summary-table{table-layout:fixed;width:100%;max-width:100%;white-space:normal}.fundamental-popup .fundamental-summary-table th,.fundamental-popup .fundamental-summary-table td{box-sizing:border-box;vertical-align:top;white-space:normal;overflow-wrap:anywhere}.fundamental-popup .fundamental-summary-table th:nth-child(1),.fundamental-popup .fundamental-summary-table td:nth-child(1){width:22%}.fundamental-popup .fundamental-summary-table th:nth-child(2),.fundamental-popup .fundamental-summary-table td:nth-child(2){width:31%}.fundamental-popup .fundamental-summary-table th:nth-child(3),.fundamental-popup .fundamental-summary-table td:nth-child(3){width:11%}.fundamental-popup .fundamental-summary-table th:nth-child(4),.fundamental-popup .fundamental-summary-table td:nth-child(4){width:36%}@media(max-width:650px){.fundamental-sections{grid-template-columns:1fr}.fundamental-ratio{grid-template-columns:1fr}.fundamental-popup .fundamental-summary-table th,.fundamental-popup .fundamental-summary-table td{padding:6px 4px;font-size:10px}}</style>');showFundamentalsPopup(target.dataset.symbol,target)});
 document.addEventListener('mouseout',event=>{const target=event.target.closest('.fundamental-stock'),popup=document.querySelector('.fundamental-popup');if(target&&!target.contains(event.relatedTarget)&&!popup?.contains(event.relatedTarget)){if(popup)popup.remove()}});
 new MutationObserver(()=>{document.querySelectorAll('.fundamental-open').forEach(button=>button.parentElement.remove());const table=document.querySelector('.fundamental-stock')?.closest('table');if(table&&table.rows[0]?.lastElementChild?.textContent==='Open')table.rows[0].lastElementChild.remove()}).observe(view,{childList:true,subtree:true});
 new MutationObserver(addWorkflowReference).observe(view,{childList:true});new MutationObserver(addRsiTool).observe(view,{childList:true});new MutationObserver(normalizeAlertsTable).observe(view,{childList:true,subtree:true});
@@ -481,8 +546,13 @@ std::unordered_set<std::string> csvSymbols(const std::string& path) {
     return result;
 }
 
+std::filesystem::path projectFile(const std::string& path) {
+    const std::filesystem::path configured(path);
+    return configured.is_absolute() ? configured : projectRoot() / configured;
+}
+
 json localHoldings(const std::string& path) {
-    std::ifstream input(path);
+    std::ifstream input(projectFile(path));
     if (!input) return json();
     json rows = json::array();
     std::string line;
@@ -517,7 +587,7 @@ json localHoldings(const std::string& path) {
 }
 
 std::string localNews(const json& localHoldings, const std::string& holdingsFile) {
-    std::ifstream input("config/portfolio_news.json");
+    std::ifstream input(projectFile("config/portfolio_news.json"));
     if (!input) return json({{"status", "success"}, {"data", json::object()},
                              {"alerts", json::array()}, {"source", "local"}}).dump();
     std::ostringstream content;
@@ -970,7 +1040,7 @@ std::vector<double> closePrices(const std::string& encodedCloses) {
 } // namespace
 
 WebServer::WebServer(const UpstoxClient& client, std::string holdingsFile, int port)
-    : client_(client), holdingsFile_(std::move(holdingsFile)), port_(port) {}
+    : client_(client), holdingsFile_(projectFile(holdingsFile).string()), port_(port) {}
 
 std::string WebServer::fundamentalsAnalysis(const std::string& symbol) const {
     const auto holdings = client_.getHoldings();
@@ -1037,7 +1107,7 @@ std::string WebServer::stockAnalysis(const std::string& symbol) const {
         throw std::runtime_error("invalid stock symbol");
     }
     const std::string scriptPath = projectPythonScript();
-    std::ifstream savedFile("config/portfolio_news.json");
+    std::ifstream savedFile(projectFile("config/portfolio_news.json"));
     if (!savedFile) throw std::runtime_error("config/portfolio_news.json not found");
     std::ostringstream savedText;
     savedText << savedFile.rdbuf();
@@ -1160,7 +1230,7 @@ std::string WebServer::stockAnalysis(const std::string& symbol) const {
 }
 
 std::string WebServer::runDeeperAnalysis() const {
-    std::ifstream savedFile("config/portfolio_news.json");
+    std::ifstream savedFile(projectFile("config/portfolio_news.json"));
     if (!savedFile) throw std::runtime_error("config/portfolio_news.json not found");
     std::ostringstream savedText;
     savedText << savedFile.rdbuf();
@@ -1169,6 +1239,22 @@ std::string WebServer::runDeeperAnalysis() const {
     const auto holdings = client_.getHoldings();
     if (!holdings.ok) throw std::runtime_error(holdings.error);
 
+    std::vector<std::string> liveSymbols;
+    std::unordered_map<std::string, std::vector<const Position*>> positionsBySymbol;
+    std::unordered_set<std::string> seenInstrumentTokens;
+    liveSymbols.reserve(holdings.positions.size());
+    for (const auto& holding : holdings.positions) {
+        const std::string symbol = normalizeSymbol(holding.tradingSymbol);
+        if (symbol.empty()) continue;
+        if (!holding.instrumentToken.empty() &&
+            !seenInstrumentTokens.insert(holding.instrumentToken).second) {
+            continue;
+        }
+        liveSymbols.push_back(symbol);
+        positionsBySymbol[symbol].push_back(&holding);
+    }
+    const auto analysisSymbols = uniqueAnalysisSymbols(liveSymbols);
+
     const std::string inputPath = secureTemporaryPath("baran_capital_view_live_");
     const std::string outputPath = secureTemporaryPath("baran_capital_view_nlp_");
     const std::string scriptPath = projectPythonScript();
@@ -1176,13 +1262,10 @@ std::string WebServer::runDeeperAnalysis() const {
         std::ofstream liveHoldings(inputPath);
         if (!liveHoldings) throw std::runtime_error("cannot create live holdings input file");
         liveHoldings << "symbol,name\n";
-        for (const auto& holding : holdings.positions) {
-            const std::string symbol = holding.tradingSymbol;
-            if (symbol.empty() || symbol.find_first_of("\\r\\n,\"") != std::string::npos) continue;
-            liveHoldings << symbol << ",\n";
-        }
+        for (const auto& symbol : analysisSymbols) liveHoldings << symbol << ",\n";
     }
-    const std::string command = "python3 \"" + scriptPath + "\" \"" + inputPath + "\" \"" + outputPath + "\"";
+    const std::string command = "python3 \"" + scriptPath + "\" \"" + inputPath + "\" \"" +
+        outputPath + "\" --json";
     const int exitCode = std::system(command.c_str());
     std::remove(inputPath.c_str());
     if (exitCode != 0) {
@@ -1192,21 +1275,24 @@ std::string WebServer::runDeeperAnalysis() const {
 
     std::unordered_map<std::string, std::string> recommendations;
     std::ifstream resultFile(outputPath);
-    std::string line;
-    if (std::getline(resultFile, line)) {
-        while (std::getline(resultFile, line)) {
-            std::stringstream row(line);
-            std::string symbol;
-            std::string name;
-            std::string recommendation;
-            if (std::getline(row, symbol, ',') &&
-                std::getline(row, name, ',') &&
-                std::getline(row, recommendation)) {
-                recommendations[normalizeSymbol(symbol)] = recommendation;
-            }
+    std::ostringstream resultText;
+    resultText << resultFile.rdbuf();
+    std::remove(outputPath.c_str());
+    if (resultText.str().empty()) {
+        throw std::runtime_error("stock_alert_nlp.py returned no analysis results");
+    }
+    const json pythonResults = json::parse(resultText.str());
+    if (!pythonResults.is_array()) {
+        throw std::runtime_error("stock_alert_nlp.py returned an invalid analysis result");
+    }
+    for (const auto& item : pythonResults) {
+        if (!item.is_object()) continue;
+        const std::string symbol = normalizeSymbol(item.value("symbol", ""));
+        const std::string recommendation = item.value("recommendation", "");
+        if (!symbol.empty() && !recommendation.empty()) {
+            recommendations.emplace(symbol, recommendation);
         }
     }
-    std::remove(outputPath.c_str());
 
     std::unordered_map<std::string, std::string> symbols;
     for (const auto& holding : holdings.positions) {
@@ -1241,27 +1327,37 @@ std::string WebServer::runDeeperAnalysis() const {
     for (const auto& label : deeperAnalysisCategoryOrder()) {
         categoryStocks[label] = json::array();
     }
-    for (const auto& holding : holdings.positions) {
-        const std::string symbol = holding.tradingSymbol;
-        const std::string key = holding.instrumentToken;
-        const auto savedEntry = recentSavedData.find(key);
-        const bool hasSavedNews = savedEntry != recentSavedData.end() && savedEntry->is_array() && !savedEntry->empty();
-        const auto savedAlert = savedAlerts.find(key);
-        const double score = savedEntry != recentSavedData.end()
-            ? decideNews(*savedEntry).score
-            : savedAlert == savedAlerts.end()
-                ? 0.0 : savedAlert->second.value("sentiment_score", 0.0);
+    for (const auto& symbol : analysisSymbols) {
+        const auto positions = positionsBySymbol.find(symbol);
+        if (positions == positionsBySymbol.end() || positions->second.empty()) continue;
+        json savedArticles = json::array();
+        double savedScoreTotal = 0.0;
+        std::size_t savedScoreCount = 0;
+        double marketValue = 0.0;
+        for (const Position* holding : positions->second) {
+            marketValue += holding->marketValue();
+            const auto savedEntry = recentSavedData.find(holding->instrumentToken);
+            if (savedEntry != recentSavedData.end() && savedEntry->is_array()) {
+                for (const auto& article : *savedEntry) savedArticles.push_back(article);
+            }
+            const auto savedAlert = savedAlerts.find(holding->instrumentToken);
+            if (savedAlert != savedAlerts.end()) {
+                savedScoreTotal += savedAlert->second.value("sentiment_score", 0.0);
+                ++savedScoreCount;
+            }
+        }
+        const bool hasSavedNews = !savedArticles.empty();
+        const double score = hasSavedNews
+            ? decideNews(savedArticles).score
+            : savedScoreCount == 0 ? 0.0 : savedScoreTotal / static_cast<double>(savedScoreCount);
         const bool savedPositive = score >= 0.30;
         const bool savedNegative = score <= -0.30;
-        const std::string normalizedSymbol = normalizeSymbol(symbol);
-        const bool hasFreshRecommendation = recommendations.count(normalizedSymbol) != 0 &&
-                                            recommendations[normalizedSymbol] != "No recent news";
+        const auto recommendation = recommendations.find(symbol);
+        const bool hasFreshRecommendation = recommendation != recommendations.end() &&
+                                            normalizeAnalysisCategory(recommendation->second) != "No recent news";
         const std::string normalizedRecommendation = hasFreshRecommendation
-            ? normalizeAnalysisCategory(recommendations[normalizedSymbol]) : "No recent news";
-        const std::string python = hasFreshRecommendation
-            ? normalizedRecommendation
-            : hasSavedNews ? (savedPositive ? "Saved news: positive" : savedNegative ? "Saved news: negative" : "Saved news: neutral")
-                           : "No recent news";
+            ? normalizeAnalysisCategory(recommendation->second) : "No recent news";
+        const std::string python = normalizedRecommendation;
         const bool pythonPositive = hasFreshRecommendation &&
                                     (normalizedRecommendation == "invest more" || normalizedRecommendation == "going good");
         const bool pythonNegative = hasFreshRecommendation && normalizedRecommendation == "sell it off";
@@ -1286,13 +1382,14 @@ std::string WebServer::runDeeperAnalysis() const {
         }
         result.push_back({
             {"symbol", symbol},
+            {"category", category},
             {"saved_signal", savedPositive ? "Positive" : savedNegative ? "Negative" : "Neutral"},
             {"python_recommendation", python},
             {"python_source", hasFreshRecommendation ? "fresh Python news" : hasSavedNews ? "saved portfolio news fallback" : "no news source"},
             {"analysis", analysis},
             {"action", normalizeDecisionAction(action)},
-            {"market_value", holding.marketValue()},
-            {"article_count", hasSavedNews ? savedEntry->size() : 0}});
+            {"market_value", marketValue},
+            {"article_count", savedArticles.size()}});
     }
     json categoryCounts = json::object();
     for (const auto& entry : categoryStocks.items())
@@ -1345,20 +1442,87 @@ std::string WebServer::marketHolidays() const {
                  {"error", "Market holiday calendar is temporarily unavailable"}}).dump();
 }
 
-std::shared_ptr<const WebServer::Snapshot> WebServer::snapshot() const {
+std::shared_ptr<const WebServer::Snapshot> WebServer::snapshot(bool forceRefresh) const {
+    constexpr auto cacheLifetime = std::chrono::seconds(30);
+    constexpr auto manualRefreshLimit = std::chrono::seconds(10);
     const auto now = std::chrono::steady_clock::now();
+    const auto staleSnapshot = [](const std::shared_ptr<const Snapshot>& current) {
+        if (!current) return std::shared_ptr<const Snapshot>{};
+        const auto now = std::chrono::steady_clock::now();
+        auto stale = std::make_shared<Snapshot>(*current);
+        json holdings = json::parse(stale->holdings);
+        const auto source = holdings.value("source", std::string("unknown"));
+        holdings["source"] = source == "upstox-live" ? "upstox-stale" : source + "-stale";
+        holdings["warning"] = "Live Upstox refresh failed; displaying the last successful portfolio snapshot.";
+        holdings["snapshot_age_seconds"] = std::chrono::duration_cast<std::chrono::seconds>(
+            now - current->created).count();
+        stale->holdings = holdings.dump();
+        json news = json::parse(stale->news);
+        if (news.is_object()) {
+            news["source"] = source == "upstox-live" ? "upstox-stale" : "cached";
+            news["warning"] = "News is from the last successful portfolio snapshot.";
+            stale->news = news.dump();
+        }
+        stale->positions = current->positions;
+        stale->metrics = current->metrics;
+        return std::shared_ptr<const Snapshot>(std::move(stale));
+    };
     {
         MutexGuard lock(snapshotMutex_);
-        if (snapshot_ && now - snapshot_->created < std::chrono::seconds(5)) {
+        if (!forceRefresh && snapshot_ && now - snapshot_->created < cacheLifetime) {
             return snapshot_;
+        }
+        if (!forceRefresh && now < snapshotRetryAfter_) {
+            if (snapshot_) return staleSnapshot(snapshot_);
+            throw std::runtime_error(snapshotRefreshError_.empty()
+                ? "portfolio data refresh is temporarily delayed"
+                : snapshotRefreshError_);
         }
     }
 
-    MutexGuard refreshLock(refreshMutex_);
+    std::unique_lock<std::mutex> refreshLock(refreshMutex_, std::try_to_lock);
+    if (!refreshLock.owns_lock()) {
+        std::shared_ptr<const Snapshot> current;
+        {
+            MutexGuard lock(snapshotMutex_);
+            current = snapshot_;
+        }
+        if (current) return staleSnapshot(current);
+
+        const json fallback = localHoldings(holdingsFile_);
+        if (!fallback.is_object() || !fallback.contains("data") ||
+            !fallback["data"].is_array() || fallback["data"].empty()) {
+            throw std::runtime_error("portfolio snapshot refresh is in progress");
+        }
+        auto offline = std::make_shared<Snapshot>();
+        json offlineHoldings = fallback;
+        offlineHoldings["source"] = "local-fallback";
+        offlineHoldings["warning"] = "Live portfolio refresh is in progress; values are from the local CSV fallback.";
+        offline->holdings = offlineHoldings.dump();
+        offline->positions = json({{"status", "success"}, {"data", json::array()}, {"source", "offline"}}).dump();
+        offline->news = localNews(fallback, holdingsFile_);
+        offline->metrics = metrics({}, 0, json::object());
+        offline->created = std::chrono::steady_clock::now();
+        return offline;
+    }
     {
         MutexGuard lock(snapshotMutex_);
-        if (snapshot_ && now - snapshot_->created < std::chrono::seconds(5)) {
+        const auto checkedAt = std::chrono::steady_clock::now();
+        if (!forceRefresh && snapshot_ && checkedAt - snapshot_->created < cacheLifetime) {
             return snapshot_;
+        }
+        if (!forceRefresh && checkedAt < snapshotRetryAfter_) {
+            if (snapshot_) return staleSnapshot(snapshot_);
+            throw std::runtime_error(snapshotRefreshError_.empty()
+                ? "portfolio data refresh is temporarily delayed"
+                : snapshotRefreshError_);
+        }
+        if (forceRefresh) {
+            if (checkedAt < manualRefreshAfter_) {
+                if (snapshot_) return staleSnapshot(snapshot_);
+                throw std::runtime_error("manual portfolio refresh is rate limited");
+            }
+            manualRefreshAfter_ = checkedAt + manualRefreshLimit;
         }
     }
 
@@ -1366,24 +1530,38 @@ std::shared_ptr<const WebServer::Snapshot> WebServer::snapshot() const {
     if (!holdings.ok) {
         std::cerr << "Backend: live holdings unavailable (" << holdings.error
                   << "); using local fallback.\n";
+        const auto retryDelay = isAccessTokenStale(holdings.error)
+            ? std::chrono::minutes(5)
+            : std::chrono::seconds(30);
+        {
+            MutexGuard lock(snapshotMutex_);
+            snapshotRetryAfter_ = std::chrono::steady_clock::now() + retryDelay;
+            snapshotRefreshError_ = holdings.error;
+        }
+        std::shared_ptr<const Snapshot> current;
+        {
+            MutexGuard lock(snapshotMutex_);
+            current = snapshot_;
+        }
+        if (current) return staleSnapshot(current);
+
         const json fallback = localHoldings(holdingsFile_);
-        if (!fallback.is_object() || !fallback.contains("data") || fallback["data"].empty())
+        if (!fallback.is_object() || !fallback.contains("data") ||
+            !fallback["data"].is_array() || fallback["data"].empty()) {
             throw std::runtime_error(holdings.error + ". Also no local portfolio data was found.");
+        }
         auto offline = std::make_shared<Snapshot>();
         offline->holdings = fallback.dump();
         json offlineHoldings = fallback;
         offlineHoldings["source"] = "local-fallback";
-        offlineHoldings["warning"] = "Live Upstox holdings unavailable; values are from the local CSV fallback.";
+        offlineHoldings["warning"] = isAccessTokenStale(holdings.error)
+            ? "Upstox access token expired or unauthorized; showing local CSV values. Renew UPSTOX_ACCESS_TOKEN and restart the dashboard."
+            : "Live Upstox holdings unavailable; values are from the local CSV fallback.";
         offline->holdings = offlineHoldings.dump();
         offline->positions = json({{"status", "success"}, {"data", json::array()}, {"source", "offline"}}).dump();
-        std::ifstream savedFile("config/portfolio_news.json");
-        if (savedFile) {
-            offline->news = localNews(fallback, holdingsFile_);
-        } else {
-            offline->news = localNews(fallback, holdingsFile_);
-        }
+        offline->news = localNews(fallback, holdingsFile_);
         offline->metrics = metrics({}, 0, json::object());
-        offline->created = now;
+        offline->created = std::chrono::steady_clock::now();
         std::lock_guard<std::mutex> lock(snapshotMutex_);
         snapshot_ = offline;
         return offline;
@@ -1394,11 +1572,35 @@ std::shared_ptr<const WebServer::Snapshot> WebServer::snapshot() const {
     if (news.ok) {
         filtered = filteredNews(news.rawBody, holdingsFile_, holdings.positions);
     } else {
-        std::ifstream savedFile("config/portfolio_news.json");
-        if (!savedFile) throw std::runtime_error(news.error);
-        std::ostringstream savedBody;
-        savedBody << savedFile.rdbuf();
-        filtered = filteredNews(savedBody.str(), holdingsFile_, holdings.positions);
+        std::ifstream savedFile(projectFile("config/portfolio_news.json"));
+        if (savedFile) {
+            std::ostringstream savedBody;
+            savedBody << savedFile.rdbuf();
+            filtered = filteredNews(savedBody.str(), holdingsFile_, holdings.positions);
+        } else {
+            std::shared_ptr<const Snapshot> current;
+            {
+                MutexGuard lock(snapshotMutex_);
+                current = snapshot_;
+            }
+            bool reusedCachedNews = false;
+            if (current) {
+                json cachedNews = json::parse(current->news);
+                if (cachedNews.is_object() && cachedNews.value("status", std::string()) != "error") {
+                    cachedNews["source"] = "cached";
+                    cachedNews["warning"] = "Live news refresh failed; showing the last successful news snapshot.";
+                    filtered = cachedNews.dump();
+                    reusedCachedNews = true;
+                }
+            }
+            if (!reusedCachedNews) {
+                filtered = json({{"status", "error"},
+                                 {"data", json::object()},
+                                 {"alerts", json::array()},
+                                 {"source", "unavailable"},
+                                 {"error", "Portfolio news is temporarily unavailable."}}).dump();
+            }
+        }
     }
     const auto filteredJson = json::parse(filtered);
     int articleCount = 0;
@@ -1416,11 +1618,13 @@ std::shared_ptr<const WebServer::Snapshot> WebServer::snapshot() const {
                 {"error", positions.error}}).dump();
     fresh->news = filtered;
     fresh->metrics = metrics(holdings.positions, articleCount, filteredJson);
-    fresh->created = now;
+    fresh->created = std::chrono::steady_clock::now();
 
     {
         MutexGuard lock(snapshotMutex_);
         if (!snapshot_ || snapshot_->created < fresh->created) snapshot_ = fresh;
+        snapshotRetryAfter_ = {};
+        snapshotRefreshError_.clear();
         return snapshot_;
     }
 }
@@ -1441,9 +1645,25 @@ int WebServer::run() {
     std::cout << "Portfolio web UI v" << PORTFOLIO_HEALTH_VERSION
               << ": http://127.0.0.1:" << port_
               << "\nPress Ctrl+C to stop.\n";
+    constexpr std::size_t maxConcurrentConnections = 8;
+    std::atomic<std::size_t> activeConnections{0};
     while (true) {
         const int connection = accept(server, nullptr, nullptr);
         if (connection < 0) continue;
+        if (activeConnections.fetch_add(1, std::memory_order_acq_rel) >=
+            maxConcurrentConnections) {
+            activeConnections.fetch_sub(1, std::memory_order_acq_rel);
+            const std::string output = responseWithStatus(
+                "503 Service Unavailable",
+                "{\"error\":\"server busy; retry shortly\"}");
+            sendAll(connection, output);
+            close(connection);
+            continue;
+        }
+        try {
+            std::thread([this, connection, &activeConnections]() {
+              try {
+                do {
         const timeval socketTimeout{5, 0};
         setsockopt(connection, SOL_SOCKET, SO_RCVTIMEO,
                &socketTimeout, sizeof(socketTimeout));
@@ -1455,6 +1675,12 @@ int WebServer::run() {
         std::istringstream request(std::string(buffer, static_cast<std::size_t>(bytes)));
         std::string method, path, version;
         request >> method >> path >> version;
+        const auto queryStart = path.find('?');
+        const bool manualRefreshQuery = queryStart != std::string::npos &&
+            path.substr(queryStart + 1) == "refresh=1";
+        const bool forceRefresh = manualRefreshQuery &&
+            (path == "/api/holdings" || path == "/api/positions" || path == "/api/news");
+        if (forceRefresh) path.resize(queryStart);
         const std::string requestText(buffer, static_cast<std::size_t>(bytes));
         const auto bodyStart = requestText.find("\r\n\r\n");
         const std::string requestBody = bodyStart == std::string::npos
@@ -1510,7 +1736,7 @@ int WebServer::run() {
             else if (path == "/") {
                 std::string html = page();
                 const std::string marker = "</body>";
-                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + releaseNoticeV2033Addendum() + releaseNoticeV2034Addendum() + releaseNoticeV2035Addendum() + releaseNoticeV2036Addendum() + releaseNoticeV2037Addendum() + releaseNoticeV2038Addendum() + releaseNoticeV2039Addendum() + releaseNoticeV2040Addendum() + releaseNoticeV2041Addendum() + sortingReleaseNotice() + categoryEnhancements() + requestedDashboardTabs() + requestedDashboardRouting() + operationsWorkspace() + operationsDownload() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + dashboardResponsiveLayout() + marker);
+                html.replace(html.find(marker), marker.size(), std::string(dashboardVersion()) + releaseNoticeV2030() + releaseNoticeV2031Addendum() + releaseNoticeV2032Addendum() + releaseNoticeV2033Addendum() + releaseNoticeV2034Addendum() + releaseNoticeV2035Addendum() + releaseNoticeV2036Addendum() + releaseNoticeV2037Addendum() + releaseNoticeV2038Addendum() + releaseNoticeV2039Addendum() + releaseNoticeV2040Addendum() + releaseNoticeV2041Addendum() + releaseNoticeV2042Addendum() + releaseNoticeV2043Addendum() + releaseNoticeV2044Addendum() + releaseNoticeV2045Addendum() + releaseNoticeV2046Addendum() + releaseNoticeV2047Addendum() + releaseNoticeV2048Addendum() + releaseNoticeV2049Addendum() + releaseNoticeV2050Addendum() + sortingReleaseNotice() + requestedDashboardTabs() + requestedDashboardRouting() + operationsWorkspace() + operationsDownload() + requestedDashboardReleaseNotice() + responsiveDashboardNavigation() + deeperAnalysisStyles() + deeperAnalysisPlacement() + dashboardSecurityHardening() + dashboardUiOptimization() + dashboardResponsiveLayout() + consolidatedMarketNewsTab() + dashboardPageOptimization() + marker);
                 const std::string head = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nContent-Length: " + std::to_string(html.size()) + "\r\nConnection: close\r\n\r\n";
                 sendAll(connection, head + html);
                 close(connection); continue;
@@ -1664,7 +1890,7 @@ int WebServer::run() {
                     }
                 } else {
                 try {
-                    const auto current = snapshot();
+                    const auto current = snapshot(forceRefresh);
                     if (path == "/api/holdings") body = ensureValidJson(current->holdings, json({{"status", "error"}, {"data", json::array()}, {"source", "unavailable"}}).dump());
                     else if (path == "/api/positions") body = ensureValidJson(current->positions, json({{"status", "error"}, {"data", json::array()}, {"source", "unavailable"}}).dump());
                     else if (path == "/api/news") body = ensureValidJson(current->news, json({{"status", "error"}, {"data", json::object()}, {"alerts", json::array()}, {"source", "unavailable"}}).dump());
@@ -1694,6 +1920,20 @@ int WebServer::run() {
         const std::string output = response(body);
         sendAll(connection, output);
         close(connection);
+                } while (false);
+              } catch (...) {
+                close(connection);
+              }
+              activeConnections.fetch_sub(1, std::memory_order_acq_rel);
+            }).detach();
+        } catch (...) {
+            activeConnections.fetch_sub(1, std::memory_order_acq_rel);
+            const std::string output = responseWithStatus(
+                "503 Service Unavailable",
+                "{\"error\":\"server busy; retry shortly\"}");
+            sendAll(connection, output);
+            close(connection);
+        }
     }
 }
 

@@ -31,6 +31,12 @@ TEST(WebServer, NormalizeSymbolKeepsDashboardKeysCanonical) {
     EXPECT_EQ(folio::normalizeSymbol("\t"), "");
 }
 
+TEST(WebServer, DeeperAnalysisUsesOneNormalizedRowPerSymbol) {
+    EXPECT_EQ(folio::uniqueAnalysisSymbols(
+                  {"HINDMOTORS", "hindmotors", " M&M ", "", "M&M"}),
+              (std::vector<std::string>{"HINDMOTORS", "M&M"}));
+}
+
 TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
     const auto categories = folio::deeperAnalysisCategoryOrder();
     EXPECT_EQ(categories.size(), 5u);
@@ -44,6 +50,8 @@ TEST(WebServer, DeeperAnalysisCategoriesAndActionsStayConsistent) {
 
     EXPECT_EQ(folio::normalizeAnalysisCategory("Is ok to hold"), "Neutral news");
     EXPECT_EQ(folio::normalizeAnalysisCategory("going good"), "going good");
+    EXPECT_EQ(folio::normalizeAnalysisCategory("  SELL IT OFF \n"), "sell it off");
+    EXPECT_EQ(folio::normalizeAnalysisCategory("Invest More"), "invest more");
     EXPECT_EQ(folio::normalizeAnalysisCategory("unexpected model label"), "Neutral news");
 
     EXPECT_EQ(folio::normalizeDecisionAction("Consider adding - review"), "Consider adding");

@@ -1,13 +1,19 @@
 #!/bin/bash
 set -euo pipefail
-source ~/.upstox.env
 cd "$(dirname "$0")"
 
-# Credentials must be injected by the shell, ~/.upstox.env, or a secret manager.
+# Credentials supplied by the parent process take precedence over the local fallback file.
 if [[ ( -z "${UPSTOX_API_KEY:-}" || -z "${UPSTOX_API_SECRET:-}" ||
   -z "${UPSTOX_ACCESS_TOKEN:-}" ) && -f "${HOME}/.upstox.env" ]]; then
+  provided_upstox_api_key="${UPSTOX_API_KEY:-}"
+  provided_upstox_api_secret="${UPSTOX_API_SECRET:-}"
+  provided_upstox_access_token="${UPSTOX_ACCESS_TOKEN:-}"
   umask 077
   . "${HOME}/.upstox.env"
+  [[ -z "$provided_upstox_api_key" ]] || export UPSTOX_API_KEY="$provided_upstox_api_key"
+  [[ -z "$provided_upstox_api_secret" ]] || export UPSTOX_API_SECRET="$provided_upstox_api_secret"
+  [[ -z "$provided_upstox_access_token" ]] || export UPSTOX_ACCESS_TOKEN="$provided_upstox_access_token"
+  unset provided_upstox_api_key provided_upstox_api_secret provided_upstox_access_token
 fi
 
 # Load the local web login code once, without putting it in source control.
@@ -16,10 +22,32 @@ if [[ -z "${FOLIO_LOGIN_CODE:-}" && -f .folio_login_code ]]; then
   export FOLIO_LOGIN_CODE
 fi
 
-# 1. Build (Release)
-if [[ ! -x build/portfolio_health || "${1:-}" == "--rebuild" ]]; then
-  ./buildCode.sh "${1:-}"
-  [[ "${1:-}" == "--rebuild" ]] && shift || true
+# 1. Build when the executable is missing or source/build metadata changed.
+executable="build/portfolio_health"
+needs_build=0
+if [[ ! -x "$executable" ]]; then
+  needs_build=1
+elif [[ "${1:-}" == "--rebuild" ||
+        run.sh -nt "$executable" ||
+        buildCode.sh -nt "$executable" ||
+        CMakeLists.txt -nt "$executable" ||
+        conanfile.py -nt "$executable" ||
+        MODULE.bazel -nt "$executable" ||
+        BUILD.bazel -nt "$executable" ||
+        stock_alert_nlp.py -nt "$executable" ]]; then
+  needs_build=1
+elif find src include tests -type f -newer "$executable" -print -quit 2>/dev/null | grep -q .; then
+  needs_build=1
+fi
+
+if [[ "$needs_build" -eq 1 ]]; then
+  if [[ "${1:-}" == "--rebuild" ]]; then
+    ./buildCode.sh --rebuild --skip-tests
+    shift
+  else
+    printf 'Building portfolio_health because source files changed or the executable is missing.\n'
+    ./buildCode.sh --skip-tests
+  fi
 fi
 
 # Capture all C++ and Python output for web sessions in a private state file.

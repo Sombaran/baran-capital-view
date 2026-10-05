@@ -1,6 +1,6 @@
 # Portfolio Health — C++ Web UI and CLI
 
-**Version:** `2.0.41`
+**Version:** `2.0.50`
 
 A C++17 portfolio service with a browser UI and command-line interface. It analyzes a live Upstox account and gives you a **0–100 health score** with P&L, exposure, concentration, diversification, holdings news, and advisory sentiment signals.
 
@@ -63,7 +63,16 @@ put it in browser JavaScript.
 
 ## Documentation Index
 
-- **[Release Notes v2.0.41](RELEASE_NOTES_V2.0.41.md)** — current: Som Baran Portfolio CSV download
+- **[Release Notes v2.0.50](RELEASE_NOTES_V2.0.50.md)** — current: launcher rebuilds stale application binaries
+- **[Release Notes v2.0.49](RELEASE_NOTES_V2.0.49.md)** — concurrent request handling for long-running dashboard stability
+- **[Release Notes v2.0.48](RELEASE_NOTES_V2.0.48.md)** — resilient long-running data availability
+- **[Release Notes v2.0.47](RELEASE_NOTES_V2.0.47.md)** — query-based API routing and responsive Fundamentals popup
+- **[Release Notes v2.0.46](RELEASE_NOTES_V2.0.46.md)** — working manual refresh during upstream backoff
+- **[Release Notes v2.0.45](RELEASE_NOTES_V2.0.45.md)** — Deeper analysis symbol deduplication and category consistency
+- **[Release Notes v2.0.44](RELEASE_NOTES_V2.0.44.md)** — long-running dashboard reliability and upstream retry backoff
+- **[Release Notes v2.0.43](RELEASE_NOTES_V2.0.43.md)** — unified Market news tab and dashboard optimization
+- **[Release Notes v2.0.42](RELEASE_NOTES_V2.0.42.md)** — shell token precedence and 401 recovery
+- **[Release Notes v2.0.41](RELEASE_NOTES_V2.0.41.md)** — Som Baran Portfolio CSV download
 - **[Release Notes v2.0.40](RELEASE_NOTES_V2.0.40.md)** — Operations workspace consolidation
 - **[Release Notes v2.0.39](RELEASE_NOTES_V2.0.39.md)** — web log capture and background refresh optimization
 - **[Release Notes v2.0.38](RELEASE_NOTES_V2.0.38.md)** — live API error handling and retry stability
@@ -102,7 +111,7 @@ put it in browser JavaScript.
 - **[Portfolio Health Model](PortfolioHealthModel.md)** — scoring algorithm and health metric calculations
 - **[Build Fixes v2.0.0](BUILD_FIXES_V2.0.0.md)** — initial 2.0 build system and dependency resolution
 
-The browser UI provides Overview, News, Alerts, Deeper analysis, Fundamentals, Operations, JSON, Summary Dashboard, and Global market news tabs. Operations contains Positions, Data health, and Configuration subviews. Holdings and news refresh while live-data views are active; Configuration is read-only and does not trigger polling. News is filtered to normalized symbols in `config/holding.csv`; Alerts lists every holding, adds a serial number, links available `Why` explanations to News, and provides advisory sentiment without placing orders.
+The browser UI provides Overview, Market news, Alerts, Deeper analysis, Fundamentals, Operations, JSON, and Summary Dashboard tabs. Operations contains Positions, Data health, and Configuration subviews. Holdings and news refresh while live-data views are active; Configuration is read-only and does not trigger polling. Market news is filtered to normalized symbols in `config/holding.csv`; Alerts lists every holding, adds a serial number, links available `Why` explanations to Market news, and provides advisory sentiment without placing orders.
 
 ### Architecture guidance
 
@@ -115,6 +124,15 @@ The local-first design provides:
 
 ### Release notes
 
+- `2.0.50` — Make `run.sh` rebuild incrementally when sources or build metadata postdate the executable, fixing an old binary being launched after source changes; preserve explicit clean rebuild behavior and add launcher regression tests.
+- `2.0.49` — Process browser connections concurrently with a fixed maximum of eight workers; return cached/stale or local bootstrap data when another request already owns the snapshot refresh lock; keep the last rendered page visible with a warning after transient refresh failures; retain existing authentication and upstream retry controls.
+- `2.0.48` — Preserved the last successful live snapshot ahead of the static CSV fallback during Upstox failures; resolved holdings and saved-news paths from the project root so fallback works independently of launch directory; added explicit expired-token guidance and regression coverage.
+- `2.0.47` — Preserved query strings for query-routed APIs while stripping the explicit allowlisted manual-refresh query only; fixed Fundamentals popup summary table overflow; added routing/layout regression checks and a post-login release summary.
+- `2.0.46` — Made toolbar Refresh and error-state Retry now bypass the server's automatic snapshot cooldown for one authenticated refresh attempt; rate-limited manual refreshes to once per 10 seconds; added progress/disabled state and regression checks.
+- `2.0.45` — Deduplicated Deeper analysis by normalized live symbol; switched Python results to structured JSON parsing; aggregated values for repeated instrument positions; aligned category counts and symbol lists with the unique rows rendered by the UI; removed the redundant category fetch observer; added regression tests and a post-login fix summary.
+- `2.0.44` — Extended the shared server snapshot cache to reduce Upstox request volume; added bounded retry backoff and explicitly labeled last-known-good snapshots during outages; kept holdings available when news alone is unavailable; refreshed the post-login fix summary and added regression coverage.
+- `2.0.43` — Merged the duplicate News and Global market news tabs into a single Market news view backed by the existing authenticated holdings news snapshot; removed the redundant browser request while retaining the legacy backend route; optimized shared responsive rendering and reduced-motion behavior across dashboard pages; documented the post-login release popup.
+- `2.0.42` — Changed `run.sh` to use `~/.upstox.env` only for missing credentials while preserving shell-provided API values; added a regression test for a fresh shell access token overriding a stale file value.
 - `2.0.41` — Added an Operations > Download subview that exports holdings from the existing authenticated payload; CSV quoting and spreadsheet-formula neutralization are applied client-side with no new API route or credentials exposed.
 - `2.0.40` — Grouped Positions, Data health, and Configuration under an Operations tab with keyboard-accessible in-page views; preserved their current renderers and APIs and suppressed automatic live-data refresh while Configuration is selected.
 - `2.0.39` — Capture C++ stdout/stderr for web launches to a private per-user log with a configurable path; leave non-web commands unchanged; pause active-page API polling while hidden and recover on visibility; add launcher tests for both behaviors.
